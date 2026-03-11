@@ -53,6 +53,7 @@ Examples:
 - Teachers
 - Businesses
 
+<!-- Niche down. Start with one or two and grow from there. -->
 
 Your users:
 
@@ -62,6 +63,9 @@ Farmers will use our platflorm to create their profile , pitch their respective 
 
  Farmers promote their business and form communities with other farmers and interested parties. Consumers and others browse through products and farmers that they find reliable.  
 
+
+<!-- Think about this a little more and express it more clearly -->
+
 # Core Features (First Version)
 
 
@@ -70,7 +74,7 @@ Farmers will use our platflorm to create their profile , pitch their respective 
 - Browse through the products 
 - Sell and Purchase 
 
-
+<!-- Do you know what a farmers' market is? That might be a great monetization you can use. -->
 
 # Demo Scenario (Very Important)
 
