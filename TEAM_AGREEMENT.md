@@ -1,115 +1,267 @@
-<!--
-TEAM AGREEMENT (aka team constitution)
+# TEAM AGREEMENT - Capstone Design
 
-How to use:
-- Fill this out in Week 1.
-- Commit it to the repo.
-- Revisit it when there’s friction (conflict, missed work, unclear decisions).
-- If you change it, use a PR and explain what changed + why.
--->
+This document is your **team constitution**.
 
-# Team Agreement (Constitution)
+It defines how your team will work together, make decisions, resolve conflicts, and ensure everyone contributes.
 
-## 0) Team identity
-- Team name:Farmerhub
-- Product name:Farmerhub
-- Repo link:https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub
-- Primary communication channel: (Discord / Kakao / Slack / other): kakaoTalk
-- Meeting time(s): (day/time): Every wedness 10:00AM
-- Time zone assumptions:KST(Korea standard Time)
+Teams that write clear agreements usually avoid most problems later in the semester.
 
-## 1) Our purpose (1–2 sentences)
-Why are we building this? What do we want to be proud of?
-Our purpose is to build FarmerHub, a platform that helps both farmer and the customer to develop direct connection. It allows customer to access farmers details related to how they farm and where they farm. We also provide logistic service between them.
+This agreement can be **updated during the semester** if the team agrees and records the change.
 
-## 2) Norms (how we work)
-### Communication
-- We reply to team messages within: **1 hours** (during weekdays)
-- If someone is stuck for more than **5 minutes**, they will:
-  1) Post a Risk/Blocker Issue, and
-  2) Tag the team, and
-  3) Ask for help with specifics (error message, screenshot, link)
+---
 
-### Meetings
-- Weekly planning happens: **Wednesday 10:00 AM (KST)**
-- Weekly retro happens: **Friday 10:00 AM (KST)**
-- If you miss a meeting, you must:
-  - Read the Sprint Packet
-  - Post your receipts anyway
+# Team Information
 
-### Work habits
-- We work through GitHub:
-  - Issues for tasks and decisions
-  - Branches + PRs for changes
-  - `main` stays demoable
-- We do not push directly to `main` (unless instructor explicitly allows it).
-- Each team member should update their tasks regularly.
-- Commit messages should be clear and describe the changes.
-- All major changes should be discussed with the team before merging.
+**Team Name**
 
-## 3) Roles (rotate weekly)
-Pick who is responsible this week (rotate next week):
-- PM (keeps board clean, owns Sprint Packet completeness)
-- Scribe (writes demo script + notes, captures decisions)
-- Build/Integration owner (keeps main working, resolves merge pain)
-- QA/testing owner (ensures “how tested” is real)
+Coding Farmers
 
-## 4) Definition of Done (our default)
-A task is **Done** only if:
-- It’s merged via PR (not just committed somewhere)
-- It has an Issue link (planned work)
-- It passes whatever checks we use (manual or CI)
-- It doesn’t break the demo
-- It updates docs when needed (`docs/PROJECT.md`)
+**Repository**
 
-## 5) Evidence & accountability (no drama)
-**Rule:** If it isn’t linked, it didn’t happen.
+https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub
 
-Each student posts weekly receipts (2–3 links) as a comment on the Sprint Packet:
-- PR(s) you authored or meaningfully contributed to
-- Issue(s) you closed
-- Review comment(s) you wrote
-- CI run(s) you fixed
-- Docs/screenshot evidence in repo
+**Members**
 
-## 6) Decision-making
-We use this decision rule:
-- **Small decisions:** the owner decides after hearing concerns.
-- **Big decisions (scope/architecture/tooling):** write a Decision Issue and agree as a team.
+| Name | Role Rotation (first week) |
+| --- | --- |
+|Tamang Sonam| Project Manager|
+|Tamang Rupesh| Scribe |
+|Shrestha Chiranjibi| QA Lead|
+|Subedi Tulsiram| Demo Driver| 
+|Subedi Yubraj| Demo Driver |
 
-Tie-breaker if we deadlock:
-- PM decides **or** we do a quick vote after 10 minutes of debate.
+---
 
-## 7) Conflict handling (procedural)
-If conflict happens, we do this:
-1) Identify the specific problem (behavior + impact, no mind-reading)
-2) Agree on one change for next week
-3) Document it in the Sprint Packet retro notes
+# Team Roles (Rotate Weekly)
 
-If it repeats twice:
-- Create a “Risk/Blocker” Issue tagged **blocker** and ask instructor for intervention.
+Roles rotate every sprint so that everyone experiences each responsibility.
 
-## 8) Freeloading / missing work (also procedural)
-If someone has no receipts or repeatedly misses tasks:
-1) Week 1: private message + clear expectation
-2) Week 2: documented in Sprint Packet risk notes + task reassignment
-3) Week 3: instructor escalation (links included)
+### PM (Project Manager)
 
-## 9) Tools & standards (what we agree to)
-- Branch naming: `feature/<short-name>` or `fix/<short-name>`
-- PR size: small enough to review (prefer < 300 lines changed when possible)
-- Commit messages: readable (no “asdf”, no “final_final”)
-- AI use: allowed only if you can explain the code and you cite what you used (prompt/tool) in the PR notes when relevant
+Responsible for:
 
-## 10) Amendments (how we change this agreement)
-To change this document:
-- Open a PR titled: `Update Team Agreement — <summary>`
-- Explain: what changed + why
-- Team approves (at least 2 approvals recommended)
+- creating the Weekly Sprint Packet
+- coordinating tasks
+- making sure work is visible in GitHub
+- submitting the weekly Sprint Packet issue
 
-## Sign-off (Week 1)
-- Member 1:Tamang Sonam
-- Member 2:Subedi Yubaraj
-- Member 3:Tamang Rupesh 
-- Member 4:Subedi Tulsiram
-- Member 5:Shrestha Chirangibi
+---
+
+### Scribe
+
+Responsible for:
+
+- recording team decisions
+- updating documentation
+- noting blockers and risks
+- helping maintain the Sprint Packet
+
+---
+
+### QA Lead
+
+Responsible for:
+
+- checking whether work actually works
+- verifying demos before submission
+- helping test features
+
+---
+
+### Demo Driver
+
+Responsible for:
+
+- preparing the demo
+- writing the demo script
+- running the demo if needed
+
+---
+
+# Communication
+
+Our primary communication channels are:
+
+| Tool | Purpose |
+| Kakao | Project discussion |
+|G-mail |sharing files |
+
+---
+
+### Communication Expectations
+
+Our team agrees to:
+
+- respond to messages within **24 hours**
+- notify the team if we cannot attend a meeting
+- ask for help early instead of disappearing
+
+---
+
+# Meeting Expectations
+
+Typical team meetings will happen:
+
+ Tuesday after class
+
+Meetings should:
+
+- focus on completing Issues
+- assign clear owners
+- end with visible progress in GitHub
+
+---
+
+# GitHub Workflow Rules
+
+Our team will follow this workflow:
+
+```text
+Issue -> Branch -> Pull Request -> Merge -> Evidence
+```
+
+Rules:
+
+- No work without an **Issue**
+- Code should be written in **branches**
+- Work should be merged through **Pull Requests**
+- Important work should be **reviewed by a teammate**
+
+---
+
+# Evidence Rule
+
+This class uses an **evidence-based workflow**.
+
+The rule is simple:
+
+> If it isn't linked, it didn't happen.
+
+Every student must post **2-3 receipts each week**.
+
+Examples of receipts:
+
+- Pull request
+- Issue closed
+- Code commit
+- Review comment
+- Documentation update
+- Screenshot of working feature
+
+Receipts are posted as **comments on the Weekly Sprint Packet issue**.
+
+---
+
+# Work Expectations
+
+Each team member agrees to:
+
+- contribute work every week
+- post evidence of their work
+- communicate blockers early
+- respect teammates’ time and effort
+
+---
+
+# Missed Work
+
+If a team member misses work:
+
+1. They must inform the team.
+2. They must complete the work later.
+3. The missed grade **may remain zero**, depending on course rules.
+
+Missing work repeatedly may trigger instructor intervention.
+
+---
+
+# Conflict Resolution
+
+If a problem happens, the team will follow these steps:
+
+### Step 1 - Discuss within the team
+
+Try to resolve the issue respectfully and clearly.
+
+### Step 2 - Adjust responsibilities
+
+The team may redistribute work if necessary.
+
+### Step 3 - Document the issue
+
+Record the situation in GitHub (Issue or comment).
+
+### Step 4 - Instructor help
+
+If the problem continues, contact the instructor.
+
+---
+
+# Freeloading Policy
+
+If a team member consistently fails to contribute:
+
+Evidence will be reviewed.
+
+Signs of non-contribution include:
+
+- no receipts
+- no commits
+- no issue activity
+- missing meetings without explanation
+
+Possible outcomes:
+
+- task reassignment
+- reduced credit
+- removal from the team
+
+---
+
+# Team Decision Rules
+
+For most decisions:
+
+```text
+Majority vote
+```
+
+For major project changes:
+
+```text
+Full team agreement
+```
+
+---
+
+# Updating This Agreement
+
+This document may be updated if:
+
+- the team agrees
+- the change is recorded in GitHub
+- the updated version is committed to the repository
+
+---
+
+# Signatures
+
+By signing, we agree to follow the expectations in this document.
+
+| Name | Signature | Date |
+| Tamang Sonam |  | 2026-03-11 |
+| Tamang Rupesh | |2026-03-11 |
+| Shrestha Chiranjibi | |2026-03-11 |
+| Subedi Yubraj | |2026-03-11 |
+| Subedi Tulsiram | |2026-03-11 |
+
+---
+
+# Quick Reminder
+
+Strong teams usually:
+
+- communicate early
+- track work clearly
+- post evidence regularly
+- help each other succeed
