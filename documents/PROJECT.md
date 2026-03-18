@@ -1,18 +1,5 @@
 # PROJECT.md - Capstone Design Project Overview
 
-This document explains **what your team is building** and **why it matters**.
-
-It should be short, clear, and realistic.
-
-Your project description will evolve during the semester, but it must always answer three questions:
-
-1. What problem are you solving?
-2. What will your system actually do?
-3. What will your final demo show?
-
----
-
-# Team Information
 
 **Team Name**
 
@@ -55,7 +42,7 @@ Examples:
 
 <!-- Niche down. Start with one or two and grow from there. -->
 
-Your users:
+Our users:
 
 Farmers will use our platflorm to create their profile , pitch their respective businesses and form communities. Likewise, consumers find reliable sources for their purchases. Researchers and students can likewise find valuable inormation. 
 
@@ -99,7 +86,7 @@ Two front ends for farmer and consumer.
 
 
 
-Your stack:
+Our stack:
 
 | Area | Tool |
 | --- | --- |
@@ -156,31 +143,4 @@ Demo
 
 Each week ends with a **Sprint Packet submission**.
 
----
 
-# Project Evolution
-
-Your project **will change during the semester**.
-
-You should update this document when:
-
-- the scope changes
-- new features are added
-- the demo scenario evolves
-- technology decisions change
-
-Use Git commits to track changes.
-
----
-
-# What a Good Project Looks Like
-
-Strong projects usually:
-
-- solve a clear problem
-- have a simple demo
-- grow gradually
-- focus on reliability
-- maintain clear documentation
-
-The goal is not to build something huge.
