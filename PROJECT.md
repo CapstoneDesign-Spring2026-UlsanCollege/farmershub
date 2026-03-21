@@ -37,8 +37,7 @@ Examples:
 - Farmers
 - Consumers looking for reliable farming product sources
 - Students learning about farming
-- Teachers
-- Businesses
+
 
 <!-- Niche down. Start with one or two and grow from there. -->
 
@@ -66,7 +65,7 @@ Farmers will use our platflorm to create their profile , pitch their respective 
 # Demo Scenario (Very Important)
 
 
-Your demo scenario:
+Our demo scenario:
 
 Step 1: A farmer promotes his/her products/ site
 Step 2: A consumer likes a product 
@@ -95,39 +94,13 @@ Our stack:
 | Database | PostgreSQL|
 | Hosting | Vercel|
 
----
-
-# Project Scope Rules
-
-To keep the project realistic:
-
-- Start small
-- Add features gradually
-- Focus on **working software**
-
-Avoid projects that are:
-
-- too large
-- unclear
-- impossible to demo
-
-A good project is:
-
-```text
-Demoable
-Feasible
-Well-scoped
-```
-
----
 
 # Weekly Development Process
 
-Your team will work in **weekly sprints**.
+Our team will work in **weekly sprints**.
 
 Typical cycle:
 
-```text
 Idea
 ↓
 Issue
@@ -141,6 +114,6 @@ Merge
 Demo
 ```
 
-Each week ends with a **Sprint Packet submission**.
+Each week , there will be **Sprint Packet submission**.
 
 
