@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FarmersHub</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.auth-box {
+    width: 320px;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+input {
+    margin: 5px;
+    padding: 8px;
+    width: 95%;
+}
+button {
+    padding: 8px 15px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🌾 FarmersHub</h1>
+<p>Connecting Farmers to Markets</p>
+</header>
+
+<nav>
+<a href="#">Home</a>
+<a href="#">Sell Crops</a>
+<a href="#">Buy Seeds</a>
+<a href="#">Weather</a>
+<a href="#">Contact</a>
+</nav>
+
+<section class="auth-box">
+
+<h3>Login</h3>
+<input type="text" id="loginUser" placeholder="Username">
+<input type="password" id="loginPass" placeholder="Password">
+<button onclick="login()">Login</button>
+
+<hr>
+
+<h3>Farmer Sign Up</h3>
+<input type="text" id="firstName" placeholder="First Name">
+<input type="text" id="lastName" placeholder="Last Name">
+<input type="text" id="phone" placeholder="Phone Number">
+<input type="text" id="address" placeholder="Address">
+<input type="email" id="email" placeholder="Email">
+<input type="text" id="signupUser" placeholder="Username">
+<input type="password" id="signupPass" placeholder="Password">
+
+<button onclick="signup()">Sign Up</button>
+
+<p id="authMessage"></p>
+</section>
+
+<section class="hero">
+<h2>Welcome to FarmersHub</h2>
+<p>Your one-stop platform for farming needs.</p>
+</section>
+
+<footer>
+<p>© 2026 FarmersHub | All Rights Reserved</p>
+</footer>
+
+<script>
+function signup() {
+    let firstName = document.getElementById("firstName").value;
+    let lastName = document.getElementById("lastName").value;
+    let phone = document.getElementById("phone").value;
+    let address = document.getElementById("address").value;
+    let email = document.getElementById("email").value;
+    let user = document.getElementById("signupUser").value;
+    let pass = document.getElementById("signupPass").value;
+
+    if (!firstName || !lastName || !phone || !address || !email || !user || !pass) {
+        document.getElementById("authMessage").innerText = "All fields are required!";
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || {};
+
+    if (users[user]) {
+        document.getElementById("authMessage").innerText = "Username already exists!";
+        return;
+    }
+
+    users[user] = {
+        firstName,
+        lastName,
+        phone,
+        address,
+        email,
+        password: pass,
+        firstLogin: true,
+        activities: []
+    };
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    document.getElementById("authMessage").innerText = "Signup successful!";
+}
+
+function login() {
+    let user = document.getElementById("loginUser").value;
+    let pass = document.getElementById("loginPass").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || {};
+
+    if (!users[user]) {
+        document.getElementById("authMessage").innerText = "User not found!";
+        return;
+    }
+
+    if (users[user].password !== pass) {
+        document.getElementById("authMessage").innerText = "Incorrect password!";
+        return;
+    }
+
+    if (users[user].firstLogin) {
+        alert("Welcome " + users[user].firstName + "! First time login.");
+        users[user].firstLogin = false;
+    }
+
+    let time = new Date().toLocaleString();
+    users[user].activities.push("Login at " + time);
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    document.getElementById("authMessage").innerText =
+        "Welcome " + users[user].firstName + " " + users[user].lastName;
+}
+</script>
+
+</body>
+</html>
