@@ -1,26 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FarmersHub</title>
-    <link rel="stylesheet" href="login.css">
+  <meta charset="UTF-8">
+  <title>FarmersHub Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Link external CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="login-container">
-        <h1>FarmersHub</h1>
-        <form class="login-form" action="#" method="post">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="login-btn">Login</button>
-        </form>
+
+<div class="container">
+  <h2 id="title">Login</h2>
+
+  <form id="form">
+    <input type="email" id="email" placeholder="Enter email" required>
+    <input type="password" id="password" placeholder="Enter password" required>
+
+    <div id="confirmBox" style="display:none;">
+      <input type="password" id="confirmPassword" placeholder="Confirm password">
     </div>
-    <script src="login.js"></script>
+
+    <button type="submit" id="btn">Login</button>
+  </form>
+
+  <div class="toggle" onclick="switchForm()">
+    Don't have an account? Sign Up
+  </div>
+
+  <div id="msg" class="message"></div>
+</div>
+
+<script>
+  let isLogin = true;
+
+  function switchForm() {
+    isLogin = !isLogin;
+
+    document.getElementById("title").innerText = isLogin ? "Login" : "Sign Up";
+    document.getElementById("btn").innerText = isLogin ? "Login" : "Sign Up";
+    document.getElementById("confirmBox").style.display = isLogin ? "none" : "block";
+    document.querySelector(".toggle").innerText =
+      isLogin ? "Don't have an account? Sign Up"
+              : "Already have an account? Login";
+
+    document.getElementById("msg").innerHTML = "";
+  }
+
+  document.getElementById("form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirmPassword").value;
+    const msg = document.getElementById("msg");
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (isLogin) {
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (user) {
+        msg.innerHTML = "<span class='success'>Login successful</span>";
+        localStorage.setItem("currentUser", email);
+
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1000);
+      } else {
+        msg.innerHTML = "<span class='error'>Invalid email or password</span>";
+      }
+
+    } else {
+      if (password !== confirm) {
+        msg.innerHTML = "<span class='error'>Passwords do not match</span>";
+        return;
+      }
+
+      if (users.find(u => u.email === email)) {
+        msg.innerHTML = "<span class='error'>User already exists</span>";
+        return;
+      }
+
+      users.push({ email: email, password: password });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      msg.innerHTML = "<span class='success'>Signup successful! Please login</span>";
+      switchForm();
+    }
+  });
+</script>
+
 </body>
 </html>
