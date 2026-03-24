@@ -1,40 +1,70 @@
-const API_URL = 'http://localhost:3000';
+let isLogin = true;
 
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('.login-form');
+function switchForm() {
+  isLogin = !isLogin;
 
-    form.addEventListener('submit', async function (e) {
-        e.preventDefault();
+  document.getElementById("title").innerText = isLogin ? "Login" : "Sign Up";
+  document.getElementById("btn").innerText = isLogin ? "Login" : "Sign Up";
+  document.getElementById("confirmBox").style.display = isLogin ? "none" : "block";
+  document.querySelector(".toggle").innerText =
+    isLogin ? "Don't have an account? Sign Up"
+            : "Already have an account? Login";
 
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
+  document.getElementById("msg").innerHTML = "";
+}
 
-        if (!username || !password) {
-            alert('Please enter both username and password.');
-            return;
-        }
+function showMessage(text, type) {
+  const msg = document.getElementById("msg");
+  msg.innerHTML = `<span class='${type}'>${text}</span>`;
+}
 
-        try {
-            const response = await fetch(`${API_URL}/api/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
+function onSubmit(event) {
+  event.preventDefault();
 
-            const data = await response.json();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const confirm = document.getElementById("confirmPassword").value;
 
-            if (data.success) {
-                alert(`Welcome, ${data.user.username}!`);
-                // TODO: Redirect to dashboard after successful login
-            } else {
-                alert(data.message || 'Login failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            alert('Unable to connect to the server. Please try again later.');
-        }
-    });
+  if (!email || !password || (!isLogin && !confirm)) {
+    showMessage("Please fill in all required fields", "error");
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  if (isLogin) {
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (user) {
+      showMessage("Login successful", "success");
+      localStorage.setItem("currentUser", email);
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1000);
+    } else {
+      showMessage("Invalid email or password", "error");
+    }
+  } else {
+    if (password !== confirm) {
+      showMessage("Passwords do not match", "error");
+      return;
+    }
+
+    if (users.find(u => u.email === email)) {
+      showMessage("User already exists", "error");
+      return;
+    }
+
+    users.push({ email: email, password: password });
+    localStorage.setItem("users", JSON.stringify(users));
+
+    showMessage("Signup successful! Please login", "success");
+    switchForm();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelector(".toggle").addEventListener("click", switchForm);
+  document.getElementById("form").addEventListener("submit", onSubmit);
 });
-
