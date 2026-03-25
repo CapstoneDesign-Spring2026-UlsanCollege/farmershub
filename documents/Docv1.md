@@ -20,53 +20,24 @@ We're at an exciting milestone in FarmersHub development. Over the past two week
 
 We've finalized the complete system architecture design that will guide our development efforts. The architecture breaks down into distinct layers that work together:
 
-**System Architecture Hierarchy:**
+**System Architecture:**
 
 ```
-FarmersHub System
+FarmersHub
 │
-├── Client Layer (Frontend)
-│   ├── Farmer Interface (React)
-│   │   ├── Profile Management
-│   │   ├── Product Management  
-│   │   └── Community Dashboard
-│   │
-│   └── Consumer Interface (React)
-│       ├── Browse Products
-│       ├── Search & Filter
-│       └── Messaging
+├── Frontend (React)
+│   ├── Farmer Interface
+│   └── Consumer Interface
 │
-├── Application Layer (Backend)
-│   ├── API Gateway (Node.js/Express)
-│   │   ├── Authentication Module (JWT)
-│   │   ├── Farmer Routes
-│   │   ├── Consumer Routes
-│   │   └── Transaction Routes
-│   │
-│   └── Business Logic Layer
-│       ├── User Management
-│       ├── Product Service
-│       ├── Community Service
-│       └── Transaction Service
+├── Backend (Node.js/Express)
+│   ├── API Routes  
+│   └── Business Logic
 │
-├── Data Layer (Database)
-│   ├── PostgreSQL Database
-│   │   ├── Users Table
-│   │   ├── Farmers Table
-│   │   ├── Products Table
-│   │   ├── Communities Table
-│   │   ├── Transactions Table
-│   │   └── Messaging Table
-│   │
-│   └── Database Services
-│       ├── Query Optimization
-│       ├── Connection Pooling
-│       └── Backup & Recovery
+├── Database (PostgreSQL)
+│   └── Data Storage
 │
-└── Infrastructure Layer (Hosting)
-    ├── Vercel (Frontend Hosting)
-    ├── Backend Server (Node.js)
-    └── PostgreSQL Instance
+└── Hosting (Vercel)
+    └── Deployment
 ```
 
 **What We Did:** Designed the complete system layout by identifying all major components and how they interconnect. This gives us a clear blueprint for development.
@@ -227,79 +198,35 @@ When we demo FarmersHub for the first time, here's the story we'll tell:
 
 ---
 
-## 5. Next Owner Actions & Clear Responsibilities
+## 5. Next Week Actions (Mar 25 - Mar 31, 2026)
 
-### Sprint 3 Immediate Actions (Starts April 1, 2026 - Owner: PM Tamang Sonam)
+**Owner:** PM Tamang Sonam
 
-#### Phase 1: Development Kickoff (Week 1 - April 1 to April 4, 2026)
+**Design Team:**
+- Complete Design Doc v1 by Mar 31 (currently 70% done)
+- Finalize style guide and component library
+- Ready for development handoff
 
-**Frontend Lead - Currently Selecting**
-- Create React project structure using Vite (Apr 1-2)
-- Set up component library matching Design Doc v1 (Apr 2-3)
-- Build farmer dashboard skeleton with basic layout (Apr 3-4)
-- Build consumer dashboard skeleton with navigation (Apr 3-4)
-- Complete by April 4, 2026
+**Development Team Leaders:**
+- Review and confirm the architecture and tech stack
+- Prepare development environment setup checklist
+- Assign frontend, backend, and DevOps roles before Apr 1
 
-**Backend Lead - Currently Selecting**
-- Initialize Node.js/Express server with middleware (Apr 1-2)
-- Set up PostgreSQL database connection and pooling (Apr 2)
-- Implement JWT authentication system (Apr 3-4)
-- Create initial API route files and structure (Apr 3-4)
-- Complete by April 4, 2026
+**QA Team:**
+- Review Sprint 1 issues and testing requirements
+- Prepare test environment configuration plans
+- Document QA guidelines and standards
 
-**Database/DevOps Engineer - Currently Selecting**
-- finalize database schema with all required tables (Apr 1)
-- Create and test database migrations (Apr 1-2)
-- Configure Vercel CI/CD pipeline for automated deploys (Apr 2)
-- Set up environment variables and secrets management (Apr 3)
-- Complete by April 2, 2026
-
-#### Phase 2: Component Development (Week 2-3 - April 7 to April 15, 2026)
-
-**Frontend Implementation (Apr 7-15):**
-- Build Farmer profile component with form inputs
-- Build Product management interface with CRUD operations
-- Build Consumer browser/search interface with filtering
-- Build Messaging system UI with chat interface
-- Connect components to backend API calls
-
-**Backend API Implementation (Apr 7-15):**
-- /auth/* endpoints (login, registration, logout) with validation
-- /farmer/* endpoints (profile CRUD, products, communities)
-- /consumer/* endpoints (browse, search, favorites, saved items)
-- /transaction/* endpoints (messaging, order tracking)
-- Error handling and logging on all endpoints
-
-#### Phase 3: Integration & Testing (Week 4 - April 16 to April 18, 2026)
-
-**QA Lead - Shrestha Chiranjibi (Apr 16-17)**
-- Create comprehensive test cases for all API endpoints
-- Run user acceptance testing (UAT) with actual user scenarios
-- Set up and execute performance benchmarking tests
-- Document any bugs found and create tickets
-
-**Demo Drivers - Subedi Yubaraj / Subedi Tulsiram (Apr 16-18)**
-- Prepare the complete Sprint 3 final demo script
-- Test the full demo scenario workflow end-to-end
-- Practice the presentation and timing (target 15 minutes)
+**Overall Team:**
+- Final preparation for Sprint 3 kickoff (Apr 1)
+- Confirm everyone understands their role and assignments
+- Address any blockers or questions before development starts
 
 ---
 
-## 6. Risk & Mitigation Summary
 
-We've identified the key risks that could impact Sprint 3 and planned how to handle them.
 
-| Risk | Likelihood | How We're Handling It |
-|------|------------|----------------------|
-| Database schema gets redesigned mid-sprint | Medium | We'll finalize and lock the schema before Sprint 3 starts on Apr 1 |
-| Frontend and backend don't sync properly during integration | Medium | Daily team standups at 10am; clear API contract documentation before development starts |
-| Issues deploying to Vercel or setting up CI/CD | Low | DevOps person will handle all setup during Week 1 before any code goes live |
-| Team members get overwhelmed with work | Low | We've assigned clear roles and deadlines; PM will monitor workload daily |
-| Key team member gets sick/unavailable | Low | Every role has clear documentation so someone else can take over if needed |
-
----
-
-## 7. Technology Stack Confirmation
+## 6. Technology Stack Confirmation
 
 | Layer | Technology | Version |
 |-------|-----------|---------|
@@ -311,46 +238,15 @@ We've identified the key risks that could impact Sprint 3 and planned how to han
 
 ---
 
-## 8. Success Criteria for Sprint 3 (by April 18, 2026)
+## 7. Next Steps
 
-We'll know Sprint 3 is successful if we accomplish all of these:
+**What Happens Next Week (Mar 31 - Apr 1):**
+- Design doc will be complete and approved
+- Development environment setup will be finalized
+- All team roles and assignments confirmed
+- Ready to start coding on Apr 1
 
-- Core authentication system actually works (users can login/register)
-- Farmer and consumer dashboards are displaying real data from the database
-- At least 3 API endpoints are fully integrated and tested
-- Product listing and basic browsing features are working end-to-end
-- We successfully run the live demo for stakeholders
-- The team feels we've made good progress and can maintain this pace
-
----
-
-## 9. Timeline & Key Dates
-
-**Phase 0: Foundation (Completed)**
-- Mar 15, 2026: Sprint 1 issues created
-- Mar 18, 2026: Design document started
-- Mar 19, 2026: All 3 wireframes completed
-- Mar 20, 2026: Architecture finalized
-- Mar 21, 2026: Project board organized
-- Mar 25, 2026: Design/Architecture phase confirmed complete
-
-**Phase 1: Development Setup (April 1-4, 2026)**
-- Apr 1, 2026 @ 2pm: Sprint 3 kickoff meeting
-- Apr 2, 2026: Database schema finalized; CI/CD pipeline live
-- Apr 4, 2026: All initial project structures ready
-
-**Phase 2: Feature Development (April 7-15, 2026)**
-- Apr 7, 2026: Development ramps up on all components
-- Apr 15, 2026: All core features implemented and connected
-
-**Phase 3: Testing & Demo (April 16-18, 2026)**
-- Apr 16, 2026: QA testing begins
-- Apr 17, 2026: Demo script finalized, final testing
-- Apr 18, 2026 @ 6pm: Sprint 3 demo and final review
-
----
-
-## 10. Sign-Offs & Approvals
+**Sign-Offs & Approvals For Development to Begin:**
 
 **Prepared By:** Documentation Team (Mar 25, 2026)  
 **Reviewed By:** PM Tamang Sonam - *Pending review*  
