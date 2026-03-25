@@ -18,14 +18,11 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: url('https://emojiassets.saruwakakun.design/og/farmer.png') no-repeat center center fixed;
+  background: url('loginbg.webp');
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-}
   justify-content: center;
   align-items: center;
   min-height: 100vh;
