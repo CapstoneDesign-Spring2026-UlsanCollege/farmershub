@@ -8,20 +8,13 @@
   box-sizing: border-box;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 0 auto;
-  width: 150px;
-  height: 150px;
-  animation: fadeIn 1s ease-out;
-}
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: url('loginbg.webp');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(34, 139, 34, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 10%, rgba(107, 178, 56, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 90%, rgba(56, 142, 60, 0.18) 0%, transparent 40%),
+    linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 30%, #dcedc8 60%, #f1f8e9 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,15 +22,96 @@ body {
   padding: 20px;
 }
 
+/* Background decorative greenery */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.leaf-1 {
+  position: absolute;
+  bottom: -10px;
+  left: -20px;
+  width: 220px;
+  height: 220px;
+  transform: rotate(15deg);
+}
+
+.leaf-2 {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 200px;
+  height: 200px;
+  transform: rotate(-20deg);
+}
+
+.leaf-3 {
+  position: absolute;
+  top: 40%;
+  left: -30px;
+  width: 180px;
+  height: 180px;
+  transform: rotate(25deg);
+}
+
+.leaf-4 {
+  position: absolute;
+  bottom: 10%;
+  right: 5%;
+  width: 160px;
+  height: 160px;
+  transform: rotate(-10deg) scaleX(-1);
+}
+
+.wheat-1 {
+  position: absolute;
+  bottom: 0;
+  left: 12%;
+  width: 80px;
+  height: 200px;
+  transform: rotate(-5deg);
+}
+
+.wheat-2 {
+  position: absolute;
+  bottom: 0;
+  right: 15%;
+  width: 70px;
+  height: 180px;
+  transform: rotate(8deg);
+}
+
+/* Ensure container sits above decorations */
 .container {
+  position: relative;
+  z-index: 1;
   background: white;
-  color: #555; /* adjusted grey text in container */
+  color: #555;
   border-radius: 10px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   padding: 40px;
   width: 100%;
   max-width: 400px;
   animation: slideIn 0.5s ease-out;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+  animation: fadeIn 1s ease-out;
+  flex-shrink: 0;
 }
 
 @keyframes slideIn {
@@ -54,12 +128,22 @@ body {
 /* Title */
 #title {
   text-align: center;
-  color: #333;
-  margin-bottom: 30px;
+  color: #2e7d32;
+  margin-bottom: 0;
   font-size: 28px;
   font-weight: 600;
   font-family: 'Lucida Handwriting', cursive;
-  transition: all 0.3s ease;
+  background: linear-gradient(90deg, #1b5e20, #66bb6a, #2e7d32, #a5d6a7, #1b5e20);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerGreen 3s linear infinite;
+}
+
+@keyframes shimmerGreen {
+  0%   { background-position: 0% center; }
+  100% { background-position: 300% center; }
 }
 
 /* Form Styles */
@@ -249,10 +333,10 @@ input:invalid:not(:placeholder-shown) {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body {
-    background: url('loginbg.webp');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(27, 94, 32, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 10%, rgba(46, 125, 50, 0.3) 0%, transparent 50%),
+      linear-gradient(160deg, #1a2e1a 0%, #1b3a1b 40%, #162d16 100%);
   }
 
   .container {
