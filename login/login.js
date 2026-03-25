@@ -5,7 +5,7 @@ function switchForm() {
 
   document.getElementById("title").innerText = isLogin ? "Login" : "Sign Up";
   document.getElementById("btn").innerText = isLogin ? "Login" : "Sign Up";
-  document.getElementById("confirmBox").style.display = isLogin ? "none" : "block";
+  document.getElementById("confirmBox").classList.toggle("active", !isLogin);
   document.querySelector(".toggle").innerText =
     isLogin ? "Don't have an account? Sign Up"
             : "Already have an account? Login";
