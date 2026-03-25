@@ -94,6 +94,29 @@ body {
   transform: rotate(8deg);
 }
 
+/* SVG styles */
+.leaf-1 path { fill: rgba(56,142,60,0.35); }
+.leaf-1 line { stroke: rgba(56,142,60,0.5); stroke-width: 1.5; }
+
+.leaf-2 path { fill: rgba(104,159,56,0.3); }
+.leaf-2 line { stroke: rgba(104,159,56,0.45); stroke-width: 1.5; }
+
+.leaf-3 path { fill: rgba(76,175,80,0.25); }
+.leaf-3 line { stroke: rgba(76,175,80,0.4); stroke-width: 2; }
+
+.leaf-4 path { fill: rgba(129,199,132,0.3); }
+.leaf-4 line { stroke: rgba(129,199,132,0.45); stroke-width: 1.5; }
+
+.wheat-1 line { stroke: rgba(139,195,74,0.5); stroke-width: 2; }
+.wheat-1 ellipse:first-child { fill: rgba(174,213,129,0.45); }
+.wheat-1 ellipse:nth-child(2), .wheat-1 ellipse:nth-child(3) { fill: rgba(174,213,129,0.35); }
+.wheat-1 ellipse:nth-child(4), .wheat-1 ellipse:nth-child(5) { fill: rgba(174,213,129,0.3); }
+
+.wheat-2 line { stroke: rgba(139,195,74,0.45); stroke-width: 2; }
+.wheat-2 ellipse:first-child { fill: rgba(174,213,129,0.4); }
+.wheat-2 ellipse:nth-child(2), .wheat-2 ellipse:nth-child(3) { fill: rgba(174,213,129,0.3); }
+.wheat-2 ellipse:nth-child(4), .wheat-2 ellipse:nth-child(5) { fill: rgba(174,213,129,0.25); }
+
 /* Ensure container sits above decorations */
 .container {
   position: relative;
