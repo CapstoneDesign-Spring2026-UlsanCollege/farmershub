@@ -141,10 +141,8 @@ body {
 }
 
 .logo {
-  width: 130px;
-  height: 130px;
-  display: block;
-  margin: 0 auto;
+  width: 100px;
+  height: 100px;
   animation: fadeIn 1s ease-out;
   flex-shrink: 0;
 }
