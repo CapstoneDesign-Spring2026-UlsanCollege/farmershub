@@ -1,5 +1,9 @@
 # TEAM AGREEMENT - Capstone Design
 
+**Document Created:** 2026-03-25 at 10:00  
+**Last Updated:** 2026-03-25 at 10:30  
+**Agreement Status:** Active (ratified by team lead)
+
 This document is your **team constitution**.
 
 It defines how your team will work together, make decisions, resolve conflicts, and ensure everyone contributes.
@@ -26,9 +30,9 @@ https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub
 | --- | --- |
 | TAMANG SONAM | PM (Team Leader) |
 | DJTwoTone | Scribe |
-| lama | QA Lead |
+| Lama Rupesh| QA Lead |
 | sthasagar236 | Demo Driver |
-| Codingpowerplant | Support |
+| Tulsiram Subedi | Support |
 | yubarajsubedi07 | Support |
 
 ---
@@ -101,11 +105,11 @@ Examples:
 
 ### Communication Expectations
 
-Our team agrees to:
+Our team agrees to (effective from 2026-03-25):
 
-- respond to messages within **24 hours**
-- notify the team if we cannot attend a meeting
-- ask for help early instead of disappearing
+- respond to messages within **24 hours** (acknowledged by 14:30 the next day)
+- notify the team if we cannot attend a meeting (by 12:00 day before)
+- ask for help early instead of disappearing (within 4 hours of blocker identification)
 
 ---
 
@@ -113,7 +117,9 @@ Our team agrees to:
 
 Typical team meetings will happen:
 
-Weekly on Wednesdays after class or online evenings as needed.
+**Primary:** Wednesday after class at 14:30 KST (starting 2026-03-18)  
+**Secondary:** Online evenings as needed (TBD based on sprint needs)  
+**Sprint Reviews:** Every Friday at 18:00 KST
 
 Meetings should:
 
@@ -130,6 +136,31 @@ Our team will follow this workflow:
 ```text
 Issue -> Branch -> Pull Request -> Merge -> Evidence
 ```
+
+## Branch Strategy (Effective 2026-03-25)
+
+**Branch Structure:**
+- `main` - Production/stable branch (protected, requires PR review)
+- `frontend` - Frontend feature development (created 2026-03-25)
+- `backend` - Backend API development (created 2026-03-25)
+- `hotfix/*` - Emergency fixes (from main, merged back ASAP)
+- `feature/*` - Individual features (from frontend or backend as needed)
+
+**Branch Naming Convention:**
+- Feature: `feature/user-auth`, `feature/product-listing`
+- Hotfix: `hotfix/login-404`, `hotfix/database-connection`
+- Bug: `bug/issue-123-description`
+
+**Merge Rules:**
+- `feature/*` branches → `frontend` or `backend` (via PR, 1 reviewer)
+- `frontend` / `backend` → `main` (via PR, 2 reviewers, after testing)
+- `hotfix/*` → `main` (immediate, 1 reviewer, then back to feature branches)
+
+**Protection Settings (Enabled 2026-03-25 17:00):**
+- Require pull request reviews before merge
+- Dismiss stale pull request approvals on new commits
+- Require status checks to pass (when CI/CD is set up)
+- Include administrators (no bypass)
 
 Rules:
 

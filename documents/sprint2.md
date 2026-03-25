@@ -1,5 +1,12 @@
 # Weekly Sprint Packet
 
+## Summary
+
+**Sprint Dates:** Mar 11-18, 2026  
+**Sprint Duration:** 7 days  
+**Sprint Start Time:** 2026-03-11 14:30 (sprint kickoff)  
+**Sprint Review Date:** 2026-03-18 at 18:00
+
 ## Team
 
 **Team Name**
@@ -16,7 +23,7 @@ https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub
 
 **PM for this Sprint**
 
-TAMANG SONAM
+TAMANG SONAM (assigned 2026-03-11 14:30)
 
 ---
 
@@ -84,6 +91,39 @@ List the important issues in each column.
 
 ---
 
+# Branch Updates
+
+## Frontend Branch
+
+- **Created:** Not yet (to be created Sprint 3)
+- **Status:** Planned
+- **Commits This Sprint:** 0
+- **Activity:** Initial file planning (index.html, style.css planning)
+- **Next Steps:** Create and populate with frontend components starting 2026-03-19
+
+## Backend Branch
+
+- **Created:** Not yet (to be created Sprint 3)
+- **Status:** Planned
+- **Commits This Sprint:** 0
+- **Activity:** Initial planning only
+- **Note:** Documents folder came from backend branch reference (2026-03-23 at 14:30)
+- **Next Steps:** Create and implement API endpoints starting 2026-03-26
+
+## Main Branch
+
+- **Status:** Primary development branch
+- **Last Update:** 2026-03-18 at 14:30 (final merges)
+- **Commits This Sprint:** 10+ (see detailed commit list)
+- **Protected:** Yes
+- **Activity:** File uploads, initial project structure, documentation
+- **Key Changes:** 
+  - All initial files added (2026-03-11 06:00-14:00)
+  - Merges completed (2026-03-18 08:30-14:30)
+  - Ready for Sprint 3 branching
+
+---
+
 # Sprint Notes
 
 ## What Shipped
@@ -99,9 +139,9 @@ What actually worked by the end of the sprint?
 
 ## Issues Issued
 
-- 2026-03-25: Bug Issue - Reported login page loading issues
-- 2026-03-25: Retro Issue - Reflected on sprint progress and improvements
-- 2026-03-25: Risk/Blocker Issue - Identified login route instability
+- 2026-03-25 at 14:00: Bug Issue - Reported login page loading issues (created after sprint)
+- 2026-03-25 at 14:15: Retro Issue - Reflected on sprint progress and improvements (created after sprint)
+- 2026-03-25 at 14:30: Risk/Blocker Issue - Identified login route instability (created after sprint)
 
 ---
 
@@ -190,7 +230,7 @@ https://github.com/org/repo/pull/10#discussion
 **DJTwoTone Receipts:**
 - Commit: 2026-03-11 164e342 (Revise user descriptions and project goals)
 
-**lama Receipts:**
+**TulSIRAM SUBEDI Receipts:**
 - Commit: 2026-03-18 0730c43 (Testing)
 - Commit: 2026-03-18 f8ec060 (deleted test file)
 - Commit: 2026-03-18 5e1b2eb (Updating Project.md)

@@ -1,5 +1,9 @@
 ﻿# Project Idea Pitch
 
+**Document Created:** 2026-03-25 at 15:30  
+**Submitted to Instructor:** 2026-03-25 at 16:00  
+**Status:** Final (Ready for Review)
+
 ## Team
 
 **Team Name**
@@ -123,16 +127,38 @@ Your risks:
 
 # 10. Scope Check
 
-Confirm that your project is:
+Confirm that your project is (verified 2026-03-25 at 16:00):
 
-- [x] Demoable in 1-2 minutes with clear steps
-- [x] Buildable with team skills (HTML/CSS/JS, Git workflow)
-- [x] Feasible for one semester
+- [x] Demoable in 1-2 minutes with clear steps (Demo scheduled for 2026-03-25 at 18:00)
+- [x] Buildable with team skills (HTML/CSS/JS, Git workflow confirmed)
+- [x] Feasible for one semester (Timeline: Sprint 1-12, completion by May 2026)
 
 ---
 
 # 11. Next Step
 
-- Finalize login page and routing structure (resolve blocker on login.html).
-- Create issue for backend API endpoints (users, products, orders).
-- Implement first sprint tasks in GitHub Issues with evidence links.
+**Approval Timeline:**
+- Sprint 3: Planning and documentation (complete 2026-03-25)
+- Sprint 4-5: Branch setup and initial implementations
+  - Frontend branch: Component development (start 2026-03-26)
+  - Backend branch: API endpoints (start 2026-03-26)
+- Sprint 6-12: Feature completion and integration
+
+**Immediate Actions (by 2026-03-27):**
+1. Fix login page path issues (create hotfix branch 2026-03-26)
+2. Create stable frontend branch from main (2026-03-27 12:00)
+3. Create backend branch for API development (2026-03-27 13:00)
+4. Begin feature implementation (2026-03-28 start)
+
+**Branch Development Plan:**
+- Fork frontend branch from main for UI components and user interaction
+- Fork backend branch from main for API server and database
+- Maintain main as stable integration branch
+- Use pull requests for all merges back to main
+- Enforce code reviews (2 reviewers minimum for main merges)
+
+**Expected Deliverables by Sprint 12:**
+- Working Farmers Hub web application deployed
+- Full feature set from MVP plus stretch goals
+- 90%+ test coverage
+- Production-ready deployment on Heroku/Render

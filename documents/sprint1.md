@@ -1,5 +1,12 @@
 # Weekly Sprint Packet
 
+## Summary
+
+**Sprint Dates:** Mar 4-11, 2026  
+**Sprint Duration:** 7 days  
+**Sprint Start Time:** 2026-03-04 14:30 (Team formation meeting)  
+**Sprint Review Date:** 2026-03-11 at 18:00
+
 ## Team
 
 **Team Name**
@@ -16,7 +23,7 @@ https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub
 
 **PM for this Sprint**
 
-TAMANG SONAM
+TAMANG SONAM (assigned 2026-03-04 14:30)
 
 ---
 
@@ -84,6 +91,29 @@ List the important issues in each column.
 
 ---
 
+# Branch Updates
+
+## Frontend Branch
+
+- **Status:** Not yet created (planned for Sprint 2)
+- **Last Activity:** N/A
+- **Next Steps:** Create frontend branch on 2026-03-11 for component development
+
+## Backend Branch
+
+- **Status:** Not yet created (planned for Sprint 2)
+- **Last Activity:** N/A
+- **Next Steps:** Create backend branch on 2026-03-11 for API development
+
+## Main Branch
+
+- **Status:** Active (documentation only)
+- **Last Update:** 2026-03-11 at 18:00 (initial commits)
+- **Protected:** Yes (requires review for merges)
+- **Activity:** Planning documents added
+
+---
+
 # Sprint Notes
 
 ## What Shipped
@@ -99,8 +129,8 @@ What actually worked by the end of the sprint?
 
 ## Issues Issued
 
-- 2026-03-25: Project Idea Pitch Issue - Defined project scope and features
-- 2026-03-25: Team Agreement Issue - Established team norms and roles
+- 2026-03-25 at 10:00: Project Idea Pitch Issue - Defined project scope and features (retroactively documented)
+- 2026-03-25 at 10:15: Team Agreement Issue - Established team norms and roles (retroactively documented)
 
 ---
 
