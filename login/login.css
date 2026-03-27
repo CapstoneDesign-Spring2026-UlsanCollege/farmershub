@@ -409,3 +409,134 @@ input:invalid:not(:placeholder-shown) {
     color: #64b5f6;
   }
 }
+
+/* ============================================
+   Role Selection Screen
+   ============================================ */
+
+.hidden {
+  display: none !important;
+}
+
+.role-question {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.role-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.role-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 25px 30px;
+  border: 3px solid #e0e0e0;
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.35s ease;
+  flex: 1;
+  max-width: 160px;
+}
+
+.role-btn:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.role-btn:active {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.farmer-btn:hover {
+  border-color: #43a047;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+}
+
+.customer-btn:hover {
+  border-color: #1e88e5;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.role-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.role-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Role badge shown on form screen */
+.role-badge {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0 auto 15px;
+  width: fit-content;
+}
+
+.role-badge.farmer {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.role-badge.customer {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+/* Back link */
+.back-link {
+  text-align: center;
+  margin-top: 12px;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #667eea;
+}
+
+/* ============================================
+   Slide Animations
+   ============================================ */
+
+@keyframes slideOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-60px); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(60px); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.slide-out-left  { animation: slideOutLeft  0.4s ease forwards; }
+.slide-in-right  { animation: slideInRight  0.5s ease forwards; }
+.slide-out-right { animation: slideOutRight 0.4s ease forwards; }
+.slide-in-left   { animation: slideInLeft   0.5s ease forwards; }

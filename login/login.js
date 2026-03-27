@@ -1,5 +1,53 @@
-let isLogin = true;
+const API_BASE = "http://localhost:3000/api/auth";
 
+let isLogin = true;
+let selectedRole = null; // "farmer" or "customer"
+
+/* ---- Role Selection ---- */
+function selectRole(role) {
+  selectedRole = role;
+
+  const roleScreen = document.getElementById("roleScreen");
+  const formScreen = document.getElementById("formScreen");
+  const roleBadge = document.getElementById("roleBadge");
+
+  // Animate role screen out
+  roleScreen.classList.add("slide-out-left");
+
+  setTimeout(() => {
+    roleScreen.classList.add("hidden");
+    roleScreen.classList.remove("slide-out-left");
+
+    // Show form screen
+    roleBadge.textContent = role === "farmer" ? "🌾 Farmer" : "🛒 Customer";
+    roleBadge.className = "role-badge " + role;
+    formScreen.classList.remove("hidden");
+    formScreen.classList.add("slide-in-right");
+
+    setTimeout(() => formScreen.classList.remove("slide-in-right"), 500);
+  }, 400);
+}
+
+function goBackToRole() {
+  const roleScreen = document.getElementById("roleScreen");
+  const formScreen = document.getElementById("formScreen");
+
+  formScreen.classList.add("slide-out-right");
+
+  setTimeout(() => {
+    formScreen.classList.add("hidden");
+    formScreen.classList.remove("slide-out-right");
+
+    roleScreen.classList.remove("hidden");
+    roleScreen.classList.add("slide-in-left");
+
+    setTimeout(() => roleScreen.classList.remove("slide-in-left"), 500);
+  }, 400);
+
+  selectedRole = null;
+}
+
+/* ---- Login / Signup Toggle ---- */
 function switchForm() {
   isLogin = !isLogin;
 
@@ -18,7 +66,8 @@ function showMessage(text, type) {
   msg.innerHTML = `<span class='${type}'>${text}</span>`;
 }
 
-function onSubmit(event) {
+/* ---- Form Submit ---- */
+async function onSubmit(event) {
   event.preventDefault();
 
   const email = document.getElementById("email").value.trim();
@@ -30,20 +79,27 @@ function onSubmit(event) {
     return;
   }
 
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-
   if (isLogin) {
-    const user = users.find(u => u.email === email && u.password === password);
+    try {
+      const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: selectedRole })
+      });
+      const data = await res.json();
 
-    if (user) {
-      showMessage("Login successful", "success");
-      localStorage.setItem("currentUser", email);
-
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 1000);
-    } else {
-      showMessage("Invalid email or password", "error");
+      if (data.success) {
+        showMessage("Login successful", "success");
+        localStorage.setItem("currentUser", email);
+        localStorage.setItem("currentRole", selectedRole);
+        setTimeout(() => {
+          window.location.href = "home.html";
+        }, 1000);
+      } else {
+        showMessage(data.message || "Invalid email or password", "error");
+      }
+    } catch (err) {
+      showMessage("Cannot connect to server", "error");
     }
   } else {
     if (password !== confirm) {
@@ -51,20 +107,31 @@ function onSubmit(event) {
       return;
     }
 
-    if (users.find(u => u.email === email)) {
-      showMessage("User already exists", "error");
-      return;
+    try {
+      const res = await fetch(`${API_BASE}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: selectedRole })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showMessage("Signup successful! Please login", "success");
+        switchForm();
+      } else {
+        showMessage(data.message || "Signup failed", "error");
+      }
+    } catch (err) {
+      showMessage("Cannot connect to server", "error");
     }
-
-    users.push({ email: email, password: password });
-    localStorage.setItem("users", JSON.stringify(users));
-
-    showMessage("Signup successful! Please login", "success");
-    switchForm();
   }
 }
 
+/* ---- Init ---- */
 document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("pickFarmer").addEventListener("click", () => selectRole("farmer"));
+  document.getElementById("pickCustomer").addEventListener("click", () => selectRole("customer"));
+  document.getElementById("backToRole").addEventListener("click", goBackToRole);
   document.querySelector(".toggle").addEventListener("click", switchForm);
   document.getElementById("form").addEventListener("submit", onSubmit);
 });

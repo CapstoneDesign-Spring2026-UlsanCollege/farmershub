@@ -50,25 +50,48 @@
   </svg>
 </div>
 
-<div class="container">
+<!-- Role Selection Screen -->
+<div class="container" id="roleScreen">
+  <div class="header-row">
+    <h2 id="roleTitle">FarmersHub</h2>
+    <img src="logo.png" alt="FarmersHub Logo" class="logo" width="100" height="100">
+  </div>
+  <p class="role-question">Are you a <strong>Farmer</strong> or a <strong>Customer</strong>?</p>
+  <div class="role-buttons">
+    <button class="role-btn farmer-btn" id="pickFarmer">
+      <span class="role-icon">🌾</span>
+      <span class="role-label">Farmer</span>
+    </button>
+    <button class="role-btn customer-btn" id="pickCustomer">
+      <span class="role-icon">🛒</span>
+      <span class="role-label">Customer</span>
+    </button>
+  </div>
+</div>
+
+<!-- Login / Signup Form (hidden until role is chosen) -->
+<div class="container hidden" id="formScreen">
   <div class="header-row">
     <h2 id="title">FarmersHub</h2>
     <img src="logo.png" alt="FarmersHub Logo" class="logo" width="100" height="100" id="logo">
   </div>
+  <p class="role-badge" id="roleBadge"></p>
   <form id="form">
     <input type="email" id="email" placeholder="Enter email" required>
     <input type="password" id="password" placeholder="Enter password" required>
 
-    <div id="confirmBox" style="display:none;">
+    <div id="confirmBox">
       <input type="password" id="confirmPassword" placeholder="Confirm password">
     </div>
 
     <button type="submit" id="btn">Login</button>
   </form>
 
-  <div class="toggle" onclick="switchForm()">
+  <div class="toggle">
     Don't have an account? Sign Up
   </div>
+
+  <div class="back-link" id="backToRole">← Change role</div>
 
   <div id="msg" class="message"></div>
 </div>
