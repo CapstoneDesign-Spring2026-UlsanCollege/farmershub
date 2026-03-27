@@ -224,6 +224,51 @@ input[type="password"]::placeholder {
   opacity: 1;
 }
 
+/* Signup extra fields */
+#signupFields {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#signupFields.active {
+  max-height: 500px;
+  opacity: 1;
+}
+
+#signupFields input,
+#signupFields select {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background-color: white;
+  color: #555;
+}
+
+#signupFields input:focus,
+#signupFields select:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#signupFields select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

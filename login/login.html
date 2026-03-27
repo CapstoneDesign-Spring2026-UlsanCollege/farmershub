@@ -84,6 +84,26 @@
       <input type="password" id="confirmPassword" placeholder="Confirm password">
     </div>
 
+    <div id="signupFields">
+      <input type="text" id="fullName" placeholder="Full name">
+      <input type="number" id="age" placeholder="Age (must be 16+)" min="16" max="120">
+      <select id="gender">
+        <option value="" disabled selected>Select gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" id="address" placeholder="Address">
+      <input type="tel" id="contact" placeholder="Contact number">
+      <select id="paymentMethod">
+        <option value="" disabled selected>Payment method</option>
+        <option value="cash">Cash</option>
+        <option value="card">Credit / Debit Card</option>
+        <option value="bank_transfer">Bank Transfer</option>
+        <option value="mobile_pay">Mobile Pay</option>
+      </select>
+    </div>
+
     <button type="submit" id="btn">Login</button>
   </form>
 

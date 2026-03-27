@@ -54,6 +54,7 @@ function switchForm() {
   document.getElementById("title").innerText = isLogin ? "Login" : "Sign Up";
   document.getElementById("btn").innerText = isLogin ? "Login" : "Sign Up";
   document.getElementById("confirmBox").classList.toggle("active", !isLogin);
+  document.getElementById("signupFields").classList.toggle("active", !isLogin);
   document.querySelector(".toggle").innerText =
     isLogin ? "Don't have an account? Sign Up"
             : "Already have an account? Login";
@@ -107,11 +108,31 @@ async function onSubmit(event) {
       return;
     }
 
+    const fullName = document.getElementById("fullName").value.trim();
+    const age = parseInt(document.getElementById("age").value, 10);
+    const gender = document.getElementById("gender").value;
+    const address = document.getElementById("address").value.trim();
+    const contact = document.getElementById("contact").value.trim();
+    const paymentMethod = document.getElementById("paymentMethod").value;
+
+    if (!fullName || !age || !gender || !address || !contact || !paymentMethod) {
+      showMessage("Please fill in all fields", "error");
+      return;
+    }
+
+    if (age < 16) {
+      showMessage("You must be at least 16 years old", "error");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: selectedRole })
+        body: JSON.stringify({
+          email, password, role: selectedRole,
+          fullName, age, gender, address, contact, paymentMethod
+        })
       });
       const data = await res.json();
 
