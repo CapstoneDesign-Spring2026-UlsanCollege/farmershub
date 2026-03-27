@@ -1,22 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const Farmer = require('../models/Farmer');
+const Customer = require('../models/Customer');
+
+function getModel(role) {
+    if (role === 'farmer') return Farmer;
+    if (role === 'customer') return Customer;
+    return null;
+}
 
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Email and password are required.' });
         }
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
+        const Model = getModel(role);
+        if (!Model) {
+            return res.status(400).json({ success: false, message: 'Please select a role (farmer or customer).' });
+        }
+
+        const existing = await Model.findOne({ email });
+        if (existing) {
             return res.status(409).json({ success: false, message: 'User already exists.' });
         }
 
-        const user = new User({ email, password });
+        const user = new Model({ email, password });
         await user.save();
 
         return res.status(201).json({ success: true, message: 'Signup successful! Please login.' });
@@ -28,13 +40,18 @@ router.post('/signup', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Email and password are required.' });
         }
 
-        const user = await User.findOne({ email });
+        const Model = getModel(role);
+        if (!Model) {
+            return res.status(400).json({ success: false, message: 'Please select a role (farmer or customer).' });
+        }
+
+        const user = await Model.findOne({ email });
         if (!user) {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
@@ -44,7 +61,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
 
-        return res.status(200).json({ success: true, message: 'Login successful', user: { email: user.email } });
+        return res.status(200).json({ success: true, message: 'Login successful', user: { email: user.email, role } });
     } catch (err) {
         return res.status(500).json({ success: false, message: 'Server error.' });
     }
