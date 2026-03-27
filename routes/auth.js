@@ -12,10 +12,14 @@ function getModel(role) {
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password, role, fullName, age, gender, address, contact, paymentMethod } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ success: false, message: 'Email and password are required.' });
+        if (!email || !password || !fullName || !age || !gender || !address || !contact || !paymentMethod) {
+            return res.status(400).json({ success: false, message: 'All fields are required.' });
+        }
+
+        if (age < 16) {
+            return res.status(400).json({ success: false, message: 'You must be at least 16 years old.' });
         }
 
         const Model = getModel(role);
@@ -28,7 +32,7 @@ router.post('/signup', async (req, res) => {
             return res.status(409).json({ success: false, message: 'User already exists.' });
         }
 
-        const user = new Model({ email, password });
+        const user = new Model({ email, password, fullName, age, gender, address, contact, paymentMethod });
         await user.save();
 
         return res.status(201).json({ success: true, message: 'Signup successful! Please login.' });

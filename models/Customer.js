@@ -12,6 +12,36 @@ const customerSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    fullName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    age: {
+        type: Number,
+        required: true,
+        min: 16
+    },
+    gender: {
+        type: String,
+        required: true,
+        enum: ['male', 'female', 'other']
+    },
+    address: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    contact: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    paymentMethod: {
+        type: String,
+        required: true,
+        enum: ['cash', 'card', 'bank_transfer', 'mobile_pay']
     }
 }, { timestamps: true });
 
