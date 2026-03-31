@@ -198,6 +198,113 @@ body {
 .leaf-4 path { fill: rgba(129,199,132,0.3); }
 .leaf-4 line { stroke: rgba(129,199,132,0.45); stroke-width: 1.5; }
 
+/* Main feed sections */
+.left-bar {
+  position: fixed;
+  left: 20px;
+  top: 50px;
+  width: 150px;
+  height: calc(100vh - 150px);
+  background-color: transparent;
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+}
+
+.bar-item {
+  text-decoration: none;
+  color: #2e7d32;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 0;
+  border-radius: 5px;
+  text-align: left;
+  transition: background-color 0.3s;
+  display: block;
+}
+
+.bar-item div {
+  width: 140px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.main-feed-wrapper {
+  position: fixed;
+  left: calc(50% );
+  transform: translateX(-50%);
+  top: 150px;
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+  z-index: 5;
+  padding: 16px 28px;
+  border-radius: 10px;
+}
+
+.main-feed-wrapper h2 {
+  margin: 0;
+  color: #2e7d32;
+  font-size: 24px;
+}
+
+.farmers-near-you {
+  position: relative;
+  top: 0;
+}
+
+.scrollable-profiles {
+  width: 600px;
+  overflow-x: auto;
+}
+
+.browse-products {
+  position: relative;
+  top: 0;
+  margin-top: 120px;
+}
+
+/* Profile sections */
+.profiles-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 35px;
+  margin-top: 15px;
+  width: max-content;
+}
+
+.profile {
+  width: 150px;
+  height: 150px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border: 5px solid #2e7d32;
+}
+
+/* Product sections */
+.products-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 35px;
+  margin-top: 15px;
+}
+
+.product {
+  width: 170px;
+  height: 170px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: 5px solid #4caf50;
+}
+
 .wheat-1 line { stroke: rgba(139,195,74,0.5); stroke-width: 2; }
 .wheat-1 ellipse:first-child { fill: rgba(174,213,129,0.45); }
 .wheat-1 ellipse:nth-child(2), .wheat-1 ellipse:nth-child(3) { fill: rgba(174,213,129,0.35); }
