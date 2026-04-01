@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile - FarmersHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+<!-- Login Required Modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div class="modal-icon">🔒</div>
+    <h2>Login Required</h2>
+    <p>You must log in first to access your profile.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="goLoginBtn">Log In</button>
+      <a href="index.html" class="btn btn-secondary">Go Home</a>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Page Content (hidden until logged in) -->
+<div class="profile-page" id="profilePage" style="display:none;">
+
+  <!-- Top Nav -->
+  <header class="profile-nav">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="FarmersHub Logo" class="nav-logo-img" />
+      <span>FarmersHub</span>
+    </a>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="messages.html" class="nav-link">Messages</a>
+      <button class="btn btn-logout" id="logoutBtn">Log Out</button>
+    </div>
+  </header>
+
+  <!-- Cover Photo -->
+  <section class="cover-section">
+    <div class="cover-photo" id="coverPhoto">
+      <img src="" alt="Cover" id="coverImg" style="display:none;" />
+      <div class="cover-placeholder" id="coverPlaceholder">
+        <span>🌾 Add a cover photo of your farm</span>
+      </div>
+    </div>
+    <label class="cover-upload-btn" for="coverInput">📷 Change Cover</label>
+    <input type="file" id="coverInput" accept="image/*" hidden />
+  </section>
+
+  <!-- Profile Header -->
+  <section class="profile-header">
+    <div class="profile-avatar-wrapper">
+      <div class="profile-avatar" id="profileAvatar">
+        <img src="" alt="Avatar" id="avatarImg" style="display:none;" />
+        <div class="avatar-placeholder" id="avatarPlaceholder">👤</div>
+      </div>
+      <label class="avatar-upload-btn" for="avatarInput">📷</label>
+      <input type="file" id="avatarInput" accept="image/*" hidden />
+    </div>
+    <div class="profile-info">
+      <h1 class="profile-name" id="profileName">Your Name</h1>
+      <span class="profile-role" id="profileRole">Farmer</span>
+      <p class="profile-location" id="profileLocation">📍 Add your location</p>
+      <button class="btn btn-edit" id="editProfileBtn">✏️ Edit Profile</button>
+    </div>
+  </section>
+
+  <!-- Edit Profile Modal -->
+  <div class="modal-overlay" id="editModal" style="display:none;">
+    <div class="modal-box edit-modal">
+      <h2>Edit Profile</h2>
+      <form id="editForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="editName" placeholder="Your full name" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="editRole">
+            <option value="Farmer">Farmer</option>
+            <option value="Consumer">Consumer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="editLocation" placeholder="City, Region" />
+        </div>
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea id="editBio" rows="3" placeholder="Tell us about yourself or your farm..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="editPhone" placeholder="Your contact number" />
+        </div>
+        <div class="form-group">
+          <label>Farm Name <small>(Farmers only)</small></label>
+          <input type="text" id="editFarmName" placeholder="Your farm name" />
+        </div>
+        <div class="form-group">
+          <label>Products You Grow <small>(Farmers only)</small></label>
+          <input type="text" id="editProducts" placeholder="e.g. Tomatoes, Rice, Apples" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profile Body -->
+  <div class="profile-body">
+
+    <!-- Left Column - Info -->
+    <aside class="profile-sidebar">
+      <div class="info-card">
+        <h3>About</h3>
+        <p class="bio-text" id="bioText">No bio yet. Click "Edit Profile" to add one.</p>
+      </div>
+      <div class="info-card">
+        <h3>Farm Details</h3>
+        <ul class="farm-details" id="farmDetails">
+          <li><strong>Farm:</strong> <span id="farmNameDisplay">Not set</span></li>
+          <li><strong>Products:</strong> <span id="productsDisplay">Not set</span></li>
+          <li><strong>Phone:</strong> <span id="phoneDisplay">Not set</span></li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-num" id="postCount">0</span>
+            <span class="stat-label">Posts</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">0</span>
+            <span class="stat-label">Products</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">0</span>
+            <span class="stat-label">Reviews</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Column - Feed -->
+    <main class="profile-feed">
+
+      <!-- Create Post -->
+      <div class="create-post-card">
+        <div class="post-input-row">
+          <div class="post-avatar-small" id="postAvatarSmall">👤</div>
+          <textarea id="postInput" placeholder="Share an update about your farm, harvest, or products..." rows="3"></textarea>
+        </div>
+        <div class="post-actions">
+          <label class="post-action-btn" for="postImageInput">🖼️ Photo</label>
+          <input type="file" id="postImageInput" accept="image/*" hidden />
+          <span class="post-image-name" id="postImageName"></span>
+          <button class="btn btn-primary btn-post" id="submitPostBtn">Post</button>
+        </div>
+      </div>
+
+      <!-- Posts Feed -->
+      <div id="postsFeed"></div>
+
+    </main>
+  </div>
+
+</div>
+
+<script src="profile.js"></script>
+</body>
+</html>

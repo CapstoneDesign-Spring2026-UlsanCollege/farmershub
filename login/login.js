@@ -38,9 +38,10 @@ function onSubmit(event) {
     if (user) {
       showMessage("Login successful", "success");
       localStorage.setItem("currentUser", email);
+      localStorage.setItem("fh_loggedIn", "true");
 
       setTimeout(() => {
-        window.location.href = "dashboard.html";
+        window.location.href = "../index.html";
       }, 1000);
     } else {
       showMessage("Invalid email or password", "error");
