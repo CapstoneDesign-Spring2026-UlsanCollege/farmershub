@@ -34,10 +34,9 @@ Assigned on 2026-03-18 at 14:30 during sprint kickoff meeting.
 | Role | Assigned To | Responsibility | Start Date | End Date |
 | --- | --- | --- | --- | --- |
 | PM (Project Manager) | TAMANG SONAM | Sprint coordination, task assignment, updates | 2026-03-18 | 2026-03-25 |
-| Scribe | DJTwoTone | Meeting notes, decision logging, documentation | 2026-03-18 | 2026-03-25 |
-| QA Lead | lama | Testing, quality verification, bug reports | 2026-03-18 | 2026-03-25 |
+| QA Lead | Codingpowerplant | Testing, quality verification, bug reports | 2026-03-18 | 2026-03-25 |
 | Demo Driver | sthasagar236 | Demo preparation, presentation, live testing | 2026-03-18 | 2026-03-25 |
-| Support | Codingpowerplant, yubarajsubedi07 | Code review, debugging, pair programming | 2026-03-18 | 2026-03-25 |
+| Support | yubarajsubedi07 | Code review, debugging, pair programming | 2026-03-18 | 2026-03-25 |
 
 ---
 
