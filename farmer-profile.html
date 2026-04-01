@@ -7,6 +7,7 @@
 
   <!-- Link external CSS -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="farmers-profile.css">
 </head>
 
 <body>
@@ -20,54 +21,56 @@
   <a href="login/login.html"><button class="login-btn" type="button">Login</button></a>
 </header>
 
-<div class="search-container">
-  <div class="search-box">
-    <input type="text" placeholder=" ⌕     Search for farmers or products">
-    
-  </div>
+
+<main class="farmer-profile">
+
+  <div class="profile-pic-wrapper">
+  <div class="profile-pic"></div>
 </div>
 
-<aside class="left-bar">
-  <a href="profile.html" class="bar-item">
-    <div>Profile</div>
-  </a>
-  <a href="messages.html" class="bar-item">
-    <div>Messages</div>
-  </a>
-  <a href="notifications.html" class="bar-item">
-    <div>Notifications</div>
-  </a>
-</aside>
+  <!-- Top Profile Section -->
+  <section class="profile-header">
+    <img src="farmer.jpg" alt="Farmer" class="profile-pic">
 
-<section class="main-feed-wrapper">
-<section class="farmers-near-you">
-  <h2>Farmers near you</h2>
-  <div class="scrollable-profiles">
-  <div class="profiles-container">
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    
-  </div>
-  </div>
-</section>
+    <div class="profile-info">
+      <h2>John Doe</h2>
+      <p class="location">📍 Ulsan, South Korea</p>
+      <p class="bio">
+        Organic farmer 🌱 | Fresh vegetables & fruits | Direct from farm to you
+      </p>
 
-<section class="browse-products">
-  <h2>Browse Products</h2>
-  <div class="products-container">
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-  </div>
-</section>
-</section>
+      <div class="profile-stats">
+        <div><strong>24</strong><span>Products</span></div>
+        <div><strong>120</strong><span>Followers</span></div>
+        <div><strong>75</strong><span>Following</span></div>
+      </div>
 
+      <button class="follow-btn">Follow</button>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="farmer-products">
+    <h3>Products</h3>
+    <div class="products-grid">
+      <div class="product-card"></div>
+      <div class="product-card"></div>
+      <div class="product-card"></div>
+      <div class="product-card"></div>
+    </div>
+  </section>
+
+  <!-- Posts Section -->
+  <section class="farmer-posts">
+    <h3>Recent Posts</h3>
+    <div class="posts-grid">
+      <div class="post"></div>
+      <div class="post"></div>
+      <div class="post"></div>
+    </div>
+  </section>
+
+</main>
 <!-- Falling leaves/crops canvas -->
 <canvas id="fallingCanvas"></canvas>
 
