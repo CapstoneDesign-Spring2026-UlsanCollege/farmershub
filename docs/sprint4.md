@@ -23,7 +23,7 @@ https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub
 
 **PM for this Sprint**
 
-TAMANG SONAM
+Shrestha Chiranjibi
 
 ---
 
@@ -31,11 +31,11 @@ TAMANG SONAM
 
 | Role | Assigned To | Responsibility | Start Date | End Date |
 | --- | --- | --- | --- | --- |
-| PM (Project Manager) | TAMANG SONAM | Sprint coordination, task assignment, updates | 2026-03-25 | 2026-04-01 |
-| Scribe | DJTwoTone | Meeting notes, decision logging, documentation | 2026-03-25 | 2026-04-01 |
-| QA Lead | lama | Testing, quality verification, bug reports | 2026-03-25 | 2026-04-01 |
+| PM (Project Manager) | sthasagar236 | Sprint coordination, task assignment, updates | 2026-03-25 
+| Scribe | Codingpowerplant | Meeting notes, decision logging, documentation | 2026-03-25 | 2026-04-01 |
+| QA Lead | tulsiramsubedi123 | Testing, quality verification, bug reports | 2026-03-25 | 2026-04-01 |
 | Demo Driver | sthasagar236 | Demo preparation, presentation, live testing | 2026-03-25 | 2026-04-01 |
-| Support | Codingpowerplant, yubarajsubedi07 | Code review, debugging, pair programming | 2026-03-25 | 2026-04-01 |
+| Support |  yubarajsubedi07 | Code review, debugging, pair programming | 2026-03-25 | 2026-04-01 |
 
 ---
 
@@ -261,15 +261,10 @@ Set up GitHub Pages deployment, reorganize documentation into docs/ folder, and 
 - 2026-03-25 12:37 - fb9ec09: Add Docv1.md - Project status documentation
 - 2026-03-25 12:42 - 3e4b726: Update Docv1.md - Simplify architecture
 
-**lama**
-- 2026-03-28 01:13 - 9d34927: Updated index.html
-- 2026-04-01 02:04 - bd22218: Updated index.html
 
 **Codingpowerplant**
-- (No commits this sprint)
-
-**DJTwoTone**
-- (No commits this sprint)
+- 2026-03-28 01:13 - 9d34927: Updated index.html
+- 2026-04-01 02:04 - bd22218: Updated index.html
 
 **yubarajsubedi07**
 - (No commits this sprint)
@@ -353,9 +348,7 @@ Evidence:
 - Commit: 2026-04-01 bd22218 (Updated index.html)
 - Assigned as QA Lead for Sprint 4
 
-**DJTwoTone Receipts:**
-- Assigned as Scribe for Sprint 4
-- (No commits this sprint)
+
 
 **Codingpowerplant Receipts:**
 - (No contributions this sprint)
