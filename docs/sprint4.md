@@ -102,41 +102,129 @@ Set up GitHub Pages deployment, reorganize documentation into docs/ folder, and 
 
 ---
 
-# Branch Updates
-
-## Frontend Branch
-
-- **Status:** Active
-- **Last Update:** 2026-04-01
-- **Commits This Sprint:** 2 (lama: Updated index.html x2)
-- **Key Changes:**
-  - index.html updated (2026-03-28 by lama)
-  - index.html updated (2026-04-01 by lama)
-- **Next Sprint (Sprint 5):**
-  - Begin React component development
-  - Implement farmer profile page
-  - Implement consumer browse page
-
-## Backend Branch
-
-- **Status:** Created, initial setup
-- **Key Files:** server.js, routes/auth.js, databases/.gitkeep
-- **Next Sprint (Sprint 5):**
-  - Implement user authentication API with JWT
-  - Create product listing endpoints
-  - Set up PostgreSQL database connection
+# Branch Updates (All Branches)
 
 ## Main Branch
 
 - **Status:** Protected, documentation and integration trunk
-- **Commits This Sprint:** 12+
-- **Key Changes:**
+- **Total Commits (All Time):** 20+
+- **Commits This Sprint:** 15
+- **Last Update:** 2026-04-01 09:36
+- **Key Changes This Sprint:**
   - GitHub Pages deployment workflow added (2026-03-27)
   - CNAME created and configured (2026-03-27)
-  - Documentation reorganized into docs/ folder (2026-04-01)
-  - Architecture sketch and wireframes added (2026-04-01)
-  - Docv1.md updated (2026-04-01)
   - Sprint packets and issue templates added by sthasagar236 (2026-03-25)
+  - Docv1.md created and updated by sthasagar236 (2026-03-25)
+  - Branch strategy documented across all docs (2026-03-25)
+  - Merged documents branch (2026-04-01)
+  - Documentation reorganized: documents/ → docs/ (2026-04-01)
+  - Architecture sketch and wireframes added (2026-04-01)
+  - Sprint 4 packet created (2026-04-01)
+- **Sprint 4 Commits:**
+  - b8b795c - 2026-03-25 12:07 - sthasagar236: Add sprint packets and issue templates
+  - 3547330 - 2026-03-25 12:24 - sthasagar236: Add branch strategy to documentation
+  - fb9ec09 - 2026-03-25 12:37 - sthasagar236: Add Docv1.md
+  - 3e4b726 - 2026-03-25 12:42 - sthasagar236: Update Docv1.md
+  - 1d69eca - 2026-03-27 23:06 - TAMANG SONAM: Add GitHub Pages deployment workflow
+  - e699caa - 2026-03-27 23:09 - TAMANG SONAM: Enable GitHub Pages in workflow
+  - b2f5ead - 2026-03-27 23:18 - TAMANG SONAM: Create CNAME
+  - df4438a - 2026-03-27 23:21 - TAMANG SONAM: Delete CNAME
+  - 05f829d - 2026-03-27 23:23 - TAMANG SONAM: Create CNAME
+  - 9d34927 - 2026-03-28 01:13 - lama: Updated index.html
+  - bd22218 - 2026-04-01 02:04 - lama: Updated index.html
+  - 26235e0 - 2026-04-01 09:22 - TAMANG SONAM: Merge branch 'documents'
+  - a710542 - 2026-04-01 09:26 - TAMANG SONAM: Rename documents to docs
+  - 5dfffa2 - 2026-04-01 09:32 - TAMANG SONAM: Merge remote main
+  - 2e8bfaa - 2026-04-01 09:36 - TAMANG SONAM: Add sprint4 packet
+- **Current Files:**
+  - docs/ (architecturesketch.md, wireframes.md, Docv1.md, sprint1-4.md, issue templates)
+  - .github/workflows/deploy-pages.yml
+  - CNAME, index.html, style.css, logo.png
+  - messages.html, notifications.html, profile.html
+- **Next Sprint:** Merge feature branches, keep docs updated
+
+---
+
+## Frontend Branch
+
+- **Status:** Active — login system built, UI structure in place
+- **Total Commits (All Time):** 10+
+- **Commits This Sprint:** 0 (no new commits between Mar 25 - Apr 1)
+- **Last Update:** 2026-03-23 11:32 (sthasagar236: updated JS file)
+- **Current Files:**
+  - login/login.html — Login page with form
+  - login/login.js — Connected to backend /api/login endpoint
+  - login/style.css — Login page styling
+- **Full Commit History:**
+  - 7513e71 - 2026-03-23 01:33 - TAMANG SONAM: Delete all files from frontend branch
+  - 3954f45 - 2026-03-23 01:34 - TAMANG SONAM: Add login folder
+  - 9451d07 - 2026-03-23 01:35 - TAMANG SONAM: Add login.html and login.css
+  - c9a2082 - 2026-03-23 01:36 - TAMANG SONAM: Add login.js and link it
+  - 939688f - 2026-03-23 01:48 - TAMANG SONAM: Connect login.js to backend /api/login
+  - 9f91b70 - 2026-03-23 10:35 - yubarajsubedi07: Deleted css for reform
+  - 2e3eac5 - 2026-03-23 11:16 - yubarajsubedi07: updated login.html
+  - d70b7e7 - 2026-03-23 11:24 - yubarajsubedi07: added css
+  - 631af81 - 2026-03-23 11:32 - sthasagar236: updated JS file
+- **Next Sprint (Sprint 5):**
+  - Migrate to React.js framework
+  - Build farmer profile component
+  - Build consumer browse/search page
+  - Implement navigation and routing
+
+---
+
+## Backend Branch
+
+- **Status:** Active — basic Express server with login endpoint
+- **Total Commits (All Time):** 10+
+- **Commits This Sprint:** 0 (no new commits between Mar 25 - Apr 1)
+- **Last Update:** 2026-03-23 01:52 (TAMANG SONAM: Add databases folder)
+- **Current Files:**
+  - server.js — Express server with CORS support
+  - routes/auth.js — Authentication router with /api/login endpoint
+  - databases/.gitkeep — Database folder placeholder
+- **Full Commit History:**
+  - 3122751 - 2026-03-23 00:44 - TAMANG SONAM: managing repo struc
+  - 80017d9 - 2026-03-23 01:00 - TAMANG SONAM: Delete codes directory
+  - 94c2483 - 2026-03-23 01:00 - TAMANG SONAM: Delete login.html
+  - ceeb091 - 2026-03-23 01:29 - TAMANG SONAM: Delete documents folder from backend
+  - 1eb4e7b - 2026-03-23 01:46 - TAMANG SONAM: Add server.js
+  - 0e1aff0 - 2026-03-23 01:48 - TAMANG SONAM: Add /api/login endpoint with CORS
+  - 0bdb02f - 2026-03-23 01:51 - TAMANG SONAM: Add routes/auth.js and refactor server.js
+  - 4c927a0 - 2026-03-23 01:52 - TAMANG SONAM: Add databases folder
+- **Next Sprint (Sprint 5):**
+  - Set up PostgreSQL database connection
+  - Implement JWT authentication
+  - Create product listing CRUD endpoints
+  - Create order management endpoints
+
+---
+
+## Documents Branch
+
+- **Status:** Merged into main — no longer actively used
+- **Total Commits (All Time):** 10+
+- **Commits This Sprint:** 0
+- **Last Update:** 2026-03-18 12:11 (yubarajsubedi07: Merge branch 'documents')
+- **Purpose:** Was used for early documentation (PROJECT.md, README.md, userstories3.md)
+- **Current State:** Merged into main on 2026-04-01. Documentation now lives in docs/ on main.
+- **Key Commit History:**
+  - b83fa0a - 2026-03-18 11:12 - TAMANG SONAM: Add documents folder to documents branch
+  - 60741ee - 2026-03-18 11:15 - TAMANG SONAM: Remove documents folder from main
+  - 7f8fbe7 - 2026-03-18 11:41 - sthasagar236: new user stories added
+  - c6656cc - 2026-03-18 11:58 - yubarajsubedi07: Refactor user stories
+  - 8e39820 - 2026-03-18 12:11 - yubarajsubedi07: Merge branch 'documents'
+
+---
+
+## Branch Summary Table
+
+| Branch | Status | Total Commits | Sprint 4 Commits | Last Active | Owner |
+|--------|--------|---------------|-------------------|-------------|-------|
+| main | Active | 20+ | 15 | Apr 1 | TAMANG SONAM |
+| frontend | Active | 10+ | 0 | Mar 23 | yubarajsubedi07, sthasagar236 |
+| backend | Active | 10+ | 0 | Mar 23 | TAMANG SONAM |
+| documents | Merged | 10+ | 0 | Mar 18 | Archived |
 
 ---
 
