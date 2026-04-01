@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Messages - FarmersHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="messages.css">
+</head>
+<body>
+  <header class="home-header">
+    <a href="../../index.html">
+      <img src="../../logo.png" alt="FarmersHub Logo" class="home-logo" />
+    </a>
+    <h1>FarmersHub - Messages</h1>
+  </header>
+
+  <!-- Notification toast -->
+  <div id="notif-toast" class="notif-toast" aria-live="polite"></div>
+
+  <div class="messages-layout">
+    <!-- Conversation list -->
+    <aside class="conv-list">
+      <h2 class="conv-list__title">Conversations</h2>
+      <ul id="conv-list" class="conv-list__ul">
+        <!-- populated by JS -->
+      </ul>
+    </aside>
+
+    <!-- Chat area -->
+    <section class="chat-area">
+      <div class="chat-header" id="chat-header">
+        <span id="chat-with-name">Select a conversation</span>
+        <span id="chat-status" class="chat-status"></span>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-placeholder" id="chat-placeholder">
+          Pick a conversation on the left to start chatting.
+        </div>
+      </div>
+
+      <form class="chat-input-bar" id="chat-form" autocomplete="off">
+        <input
+          type="text"
+          id="chat-input"
+          class="chat-input"
+          placeholder="Type a message…"
+          disabled
+          maxlength="1000"
+        />
+        <button type="submit" id="send-btn" class="send-btn" disabled>Send</button>
+      </form>
+    </section>
+  </div>
+
+  <script src="messages.js"></script>
+</body>
+</html>
