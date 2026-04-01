@@ -9,31 +9,44 @@ function showMessage(text, type) {
 async function onSubmit(event) {
   event.preventDefault();
 
+  const fullName = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const age = parseInt(document.getElementById("age").value);
+  const gender = document.getElementById("gender").value;
+  const address = document.getElementById("address").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const paymentMethod = document.getElementById("paymentMethod").value;
 
-  if (!email || !password) {
-    showMessage("Please fill in all required fields", "error");
+  if (!fullName || !email || !password || !confirmPassword || !age || !gender || !address || !contact || !paymentMethod) {
+    showMessage("Please fill in all fields", "error");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showMessage("Passwords do not match", "error");
+    return;
+  }
+
+  if (age < 16) {
+    showMessage("You must be at least 16 years old", "error");
     return;
   }
 
   try {
-    const res = await fetch(`${API_URL}/login`, {
+    const res = await fetch(`${API_URL}/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role: selectedRole })
+      body: JSON.stringify({ email, password, role: selectedRole, fullName, age, gender, address, contact, paymentMethod })
     });
     const data = await res.json();
 
     if (data.success) {
-      showMessage("Login successful", "success");
-      localStorage.setItem("currentUser", email);
-      localStorage.setItem("fh_loggedIn", "true");
-      localStorage.setItem("fh_role", selectedRole);
-
+      showMessage("Account created! Redirecting to login...", "success");
       setTimeout(() => {
-        window.location.href = "../index.html";
-      }, 1000);
+        window.location.href = "login.html";
+      }, 1500);
     } else {
       showMessage(data.message, "error");
     }
