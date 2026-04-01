@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmersHub - Sell Your Crops</title>
+  <link rel="stylesheet" href="sell_crops.css">
+</head>
+<body>
+
+<header class="sell-header">
+  <img src="logo.png" alt="FarmersHub Logo" class="sell-logo">
+  <h1>FarmersHub - Sell Your Crops</h1>
+  <div class="header-nav">
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+  </div>
+</header>
+
+<canvas id="fallingCanvas"></canvas>
+
+<!-- Decorative background elements -->
+<div class="bg-decor">
+  <svg class="leaf leaf-1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 95 C20 80, 5 50, 10 20 C30 35, 55 45, 50 95Z"/>
+    <line x1="50" y1="95" x2="28" y2="40"/>
+  </svg>
+  <svg class="leaf leaf-2" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 95 C80 80, 95 50, 90 20 C70 35, 45 45, 50 95Z"/>
+    <line x1="50" y1="95" x2="72" y2="40"/>
+  </svg>
+  <svg class="leaf leaf-3" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <path d="M60 110 C10 90, 5 40, 30 10 C50 45, 70 55, 60 110Z"/>
+    <line x1="60" y1="110" x2="38" y2="45"/>
+  </svg>
+  <svg class="leaf leaf-4" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 95 C20 80, 5 50, 10 20 C30 35, 55 45, 50 95Z"/>
+    <line x1="50" y1="95" x2="28" y2="40"/>
+  </svg>
+  <svg class="wheat wheat-1" viewBox="0 0 40 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="20" y1="120" x2="20" y2="10"/>
+    <ellipse cx="20" cy="10" rx="6" ry="14"/>
+    <ellipse cx="12" cy="30" rx="5" ry="11" transform="rotate(-30 12 30)"/>
+    <ellipse cx="28" cy="30" rx="5" ry="11" transform="rotate(30 28 30)"/>
+    <ellipse cx="14" cy="52" rx="4" ry="9" transform="rotate(-25 14 52)"/>
+    <ellipse cx="26" cy="52" rx="4" ry="9" transform="rotate(25 26 52)"/>
+  </svg>
+  <svg class="wheat wheat-2" viewBox="0 0 40 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="20" y1="120" x2="20" y2="10"/>
+    <ellipse cx="20" cy="10" rx="6" ry="14"/>
+    <ellipse cx="12" cy="30" rx="5" ry="11" transform="rotate(-30 12 30)"/>
+    <ellipse cx="28" cy="30" rx="5" ry="11" transform="rotate(30 28 30)"/>
+    <ellipse cx="14" cy="52" rx="4" ry="9" transform="rotate(-25 14 52)"/>
+    <ellipse cx="26" cy="52" rx="4" ry="9" transform="rotate(25 26 52)"/>
+  </svg>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('fallingCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // SVG shapes as small inline images
+  const svgLeaf = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'>
+    <path d='M20 38 C8 30,2 18,4 6 C14 13,22 18,20 38Z' fill='rgba(56,142,60,0.75)'/>
+    <line x1='20' y1='38' x2='11' y2='14' stroke='rgba(27,94,32,0.8)' stroke-width='1'/>
+  </svg>`;
+
+  const svgLeaf2 = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'>
+    <path d='M20 38 C32 30,38 18,36 6 C26 13,18 18,20 38Z' fill='rgba(104,159,56,0.75)'/>
+    <line x1='20' y1='38' x2='29' y2='14' stroke='rgba(51,105,30,0.8)' stroke-width='1'/>
+  </svg>`;
+
+  const svgWheat = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 50'>
+    <line x1='10' y1='50' x2='10' y2='5' stroke='rgba(139,195,74,0.9)' stroke-width='1.5'/>
+    <ellipse cx='10' cy='5' rx='4' ry='8' fill='rgba(174,213,129,0.85)'/>
+    <ellipse cx='5' cy='18' rx='3' ry='6' fill='rgba(174,213,129,0.75)' transform='rotate(-30 5 18)'/>
+    <ellipse cx='15' cy='18' rx='3' ry='6' fill='rgba(174,213,129,0.75)' transform='rotate(30 15 18)'/>
+  </svg>`;
+
+  const svgFlower = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'>
+    <circle cx='15' cy='15' r='4' fill='rgba(255,193,7,0.9)'/>
+    <ellipse cx='15' cy='6' rx='3' ry='5' fill='rgba(255,235,59,0.8)'/>
+    <ellipse cx='15' cy='24' rx='3' ry='5' fill='rgba(255,235,59,0.8)'/>
+    <ellipse cx='6' cy='15' rx='5' ry='3' fill='rgba(255,235,59,0.8)'/>
+    <ellipse cx='24' cy='15' rx='5' ry='3' fill='rgba(255,235,59,0.8)'/>
+  </svg>`;
+
+  function makeImg(svg) {
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.src = url;
+    return img;
+  }
+
+  const imgs = [
+    makeImg(svgLeaf),
+    makeImg(svgLeaf2),
+    makeImg(svgWheat),
+    makeImg(svgFlower)
+  ];
+
+  const particles = [];
+
+  function spawn() {
+    const size = 18 + Math.random() * 22;
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: -size,
+      size,
+      speed: 1.2 + Math.random() * 2.5,
+      drift: (Math.random() - 0.5) * 1.2,
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.06,
+      img: imgs[Math.floor(Math.random() * imgs.length)],
+      opacity: 0.55 + Math.random() * 0.4
+    });
+  }
+
+  // Pre-populate
+  for (let i = 0; i < 18; i++) {
+    spawn();
+    particles[particles.length - 1].y = Math.random() * window.innerHeight;
+  }
+
+  let lastSpawn = 0;
+
+  function animate(ts) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (ts - lastSpawn > 600) {
+      spawn();
+      lastSpawn = ts;
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.y += p.speed;
+      p.x += p.drift;
+      p.rot += p.rotSpeed;
+
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x + p.size / 2, p.y + p.size / 2);
+      ctx.rotate(p.rot);
+      ctx.drawImage(p.img, -p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+
+      if (p.y > canvas.height + 40) {
+        particles.splice(i, 1);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+})();
+</script>
+
+
+<main class="sell-main">
+  <!-- Products List Section -->
+  <section class="products-section">
+    <div class="section-header">
+      <h2>My Products</h2>
+      <button class="add-product-btn" id="addProductBtn" title="Add New Product">
+        <span class="plus-icon">+</span>
+      </button>
+    </div>
+    
+    <div class="products-grid" id="productsGrid">
+      <!-- Products will be added here dynamically -->
+      <div class="empty-state" id="emptyState">
+        <p>No products added yet. Tap the <strong>+</strong> button to add your first crop!</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal for Adding/Editing Product -->
+<div class="modal hidden" id="productModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add New Product</h2>
+      <button class="close-btn" id="closeModalBtn">&times;</button>
+    </div>
+
+    <form class="product-form" id="productForm">
+      
+      <!-- Row 1: Product Name & Category -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="productName">Product Name *</label>
+          <input type="text" id="productName" name="productName" placeholder="e.g., Organic Tomatoes" required>
+        </div>
+        <div class="form-group">
+          <label for="category">Category *</label>
+          <select id="category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="vegetables">Vegetables</option>
+            <option value="fruits">Fruits</option>
+            <option value="grains">Grains</option>
+            <option value="dairy">Dairy</option>
+            <option value="spices">Spices</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: Brand/Model & Description -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="brand">Brand/Model</label>
+          <input type="text" id="brand" name="brand" placeholder="e.g., Farm Name / Variety">
+        </div>
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea id="description" name="description" placeholder="Describe your product..." rows="3" required></textarea>
+        </div>
+      </div>
+
+      <!-- Row 3: Pricing Information -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="costPrice">Cost Price ($) *</label>
+          <input type="number" id="costPrice" name="costPrice" placeholder="0.00" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="sellingPrice">Selling Price ($) *</label>
+          <input type="number" id="sellingPrice" name="sellingPrice" placeholder="0.00" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="discount">Discount (%) *</label>
+          <input type="number" id="discount" name="discount" placeholder="0" step="0.01" min="0" max="100" value="0" required>
+        </div>
+      </div>
+
+      <!-- Row 4: Stock & Dates -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="stock">Stock/Inventory (Quantity) *</label>
+          <input type="number" id="stock" name="stock" placeholder="e.g., 100" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="unit">Unit *</label>
+          <select id="unit" name="unit" required>
+            <option value="">Select Unit</option>
+            <option value="kg">Kilogram (kg)</option>
+            <option value="lbs">Pounds (lbs)</option>
+            <option value="piece">Piece</option>
+            <option value="box">Box</option>
+            <option value="crate">Crate</option>
+            <option value="bag">Bag</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 5: Making & Expiry Date -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="makingDate">Making/Harvest Date *</label>
+          <input type="date" id="makingDate" name="makingDate" required>
+        </div>
+        <div class="form-group">
+          <label for="expiryDate">Expiry Date *</label>
+          <input type="date" id="expiryDate" name="expiryDate" required>
+        </div>
+      </div>
+
+      <!-- Row 6: Payment Method -->
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="paymentMethod">Accepted Payment Methods *</label>
+          <div class="payment-methods">
+            <label class="checkbox-label">
+              <input type="checkbox" name="paymentMethod" value="cash"> Cash
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="paymentMethod" value="card"> Credit/Debit Card
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="paymentMethod" value="bank_transfer"> Bank Transfer
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="paymentMethod" value="digital_wallet"> Digital Wallet
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 7: Product Image -->
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="productImage">Product Image *</label>
+          <div class="image-upload">
+            <input type="file" id="productImage" name="productImage" accept="image/*" required>
+            <div class="image-preview" id="imagePreview">
+              <span>No image selected</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 8: Seller Information -->
+      <div class="form-section-title">Seller Information</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sellerName">Seller Full Name *</label>
+          <input type="text" id="sellerName" name="sellerName" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="sellerEmail">Seller Email *</label>
+          <input type="email" id="sellerEmail" name="sellerEmail" placeholder="your.email@example.com" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sellerPhone">Seller Phone Number *</label>
+          <input type="tel" id="sellerPhone" name="sellerPhone" placeholder="+1 (555) 000-0000" required>
+        </div>
+        <div class="form-group">
+          <label for="sellerLocation">Location/Address *</label>
+          <input type="text" id="sellerLocation" name="sellerLocation" placeholder="City, State/Province" required>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">List Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal hidden" id="detailsModal">
+  <div class="modal-content details-modal">
+    <div class="modal-header">
+      <h2>Product Details</h2>
+      <button class="close-btn" id="closeDetailsBtn">&times;</button>
+    </div>
+    <div class="details-content" id="detailsContent">
+      <!-- Details will be populated here -->
+    </div>
+    <div class="details-actions">
+      <button class="btn btn-secondary" id="editProductBtn">Edit</button>
+      <button class="btn btn-danger" id="deleteProductBtn">Delete</button>
+      <button class="btn btn-primary" id="closeDetailsModalBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="sell_crops.js"></script>
+
+</body>
+</html>

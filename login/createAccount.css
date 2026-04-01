@@ -1,0 +1,413 @@
+/* ============================================
+   FarmersHub Create Account Styles
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#fallingCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(34, 139, 34, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 10%, rgba(107, 178, 56, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 90%, rgba(56, 142, 60, 0.18) 0%, transparent 40%),
+    linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 30%, #dcedc8 60%, #f1f8e9 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Background decorative greenery */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.leaf-1 {
+  position: absolute;
+  bottom: -10px;
+  left: -20px;
+  width: 220px;
+  height: 220px;
+  transform: rotate(15deg);
+}
+
+.leaf-2 {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 200px;
+  height: 200px;
+  transform: rotate(-20deg);
+}
+
+.leaf-3 {
+  position: absolute;
+  top: 40%;
+  left: -30px;
+  width: 180px;
+  height: 180px;
+  transform: rotate(25deg);
+}
+
+.leaf-4 {
+  position: absolute;
+  bottom: 10%;
+  right: 5%;
+  width: 160px;
+  height: 160px;
+  transform: rotate(-10deg) scaleX(-1);
+}
+
+.wheat-1 {
+  position: absolute;
+  bottom: 0;
+  left: 12%;
+  width: 80px;
+  height: 200px;
+  transform: rotate(-5deg);
+}
+
+.wheat-2 {
+  position: absolute;
+  bottom: 0;
+  right: 15%;
+  width: 70px;
+  height: 180px;
+  transform: rotate(8deg);
+}
+
+.leaf-1 path { fill: rgba(56,142,60,0.35); }
+.leaf-1 line { stroke: rgba(56,142,60,0.5); stroke-width: 1.5; }
+.leaf-2 path { fill: rgba(104,159,56,0.3); }
+.leaf-2 line { stroke: rgba(104,159,56,0.45); stroke-width: 1.5; }
+.leaf-3 path { fill: rgba(76,175,80,0.25); }
+.leaf-3 line { stroke: rgba(76,175,80,0.4); stroke-width: 2; }
+.leaf-4 path { fill: rgba(129,199,132,0.3); }
+.leaf-4 line { stroke: rgba(129,199,132,0.45); stroke-width: 1.5; }
+.wheat-1 line { stroke: rgba(139,195,74,0.5); stroke-width: 2; }
+.wheat-1 ellipse:first-child { fill: rgba(174,213,129,0.45); }
+.wheat-1 ellipse:nth-child(2), .wheat-1 ellipse:nth-child(3) { fill: rgba(174,213,129,0.35); }
+.wheat-1 ellipse:nth-child(4), .wheat-1 ellipse:nth-child(5) { fill: rgba(174,213,129,0.3); }
+.wheat-2 line { stroke: rgba(139,195,74,0.45); stroke-width: 2; }
+.wheat-2 ellipse:first-child { fill: rgba(174,213,129,0.4); }
+.wheat-2 ellipse:nth-child(2), .wheat-2 ellipse:nth-child(3) { fill: rgba(174,213,129,0.3); }
+.wheat-2 ellipse:nth-child(4), .wheat-2 ellipse:nth-child(5) { fill: rgba(174,213,129,0.25); }
+
+/* Container */
+.container {
+  position: relative;
+  z-index: 1;
+  background: white;
+  color: #555;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  animation: slideIn 0.5s ease-out;
+}
+
+.header-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 100px;
+  height: 100px;
+  animation: fadeIn 1s ease-out;
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Title */
+#title, #roleTitle {
+  text-align: center;
+  color: #2e7d32;
+  margin-bottom: 0;
+  font-size: 28px;
+  font-weight: 600;
+  font-family: 'Lucida Handwriting', cursive;
+  background: linear-gradient(90deg, #1b5e20, #66bb6a, #2e7d32, #a5d6a7, #1b5e20);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerGreen 3s linear infinite;
+}
+
+@keyframes shimmerGreen {
+  0%   { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+
+/* Form Styles */
+#form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+select {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background-color: white;
+  color: #555;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input::placeholder {
+  color: #999;
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* Button */
+#btn {
+  padding: 12px;
+  background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+}
+
+#btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+}
+
+#btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(46, 125, 50, 0.3);
+}
+
+/* Toggle Link */
+.toggle {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #667eea;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.toggle:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Message */
+.message {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  min-height: 20px;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.message .success {
+  color: #27ae60;
+  background-color: #d5f4e6;
+  padding: 10px;
+  border-radius: 4px;
+  display: inline-block;
+  width: 100%;
+}
+
+.message .error {
+  color: #e74c3c;
+  background-color: #fadbd8;
+  padding: 10px;
+  border-radius: 4px;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Hidden */
+.hidden {
+  display: none !important;
+}
+
+/* Role Selection */
+.role-question {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.role-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.role-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 25px 30px;
+  border: 3px solid #e0e0e0;
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.35s ease;
+  flex: 1;
+  max-width: 160px;
+}
+
+.role-btn:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.role-btn:active {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.farmer-btn:hover {
+  border-color: #43a047;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+}
+
+.customer-btn:hover {
+  border-color: #1e88e5;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.role-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.role-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Role badge */
+.role-badge {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0 auto 15px;
+  width: fit-content;
+}
+
+/* Back link */
+.back-link {
+  text-align: center;
+  margin-top: 12px;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #667eea;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container {
+    padding: 30px 20px;
+    border-radius: 8px;
+  }
+
+  #title, #roleTitle {
+    font-size: 24px;
+  }
+
+  input, select {
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  #btn {
+    padding: 11px;
+    font-size: 15px;
+  }
+
+  .toggle {
+    font-size: 13px;
+    margin-top: 15px;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
