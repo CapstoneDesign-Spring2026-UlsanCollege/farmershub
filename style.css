@@ -240,13 +240,13 @@ body {
 
 .main-feed-wrapper {
   position: fixed;
-  left: calc(50% );
+  left: calc(50%);
   transform: translateX(-50%);
   top: 150px;
-  height: calc(100vh - 150px);
+  bottom: 0;
   overflow-y: auto;
   z-index: 5;
-  padding: 16px 28px;
+  padding: 16px 28px 80px;
   border-radius: 10px;
 }
 

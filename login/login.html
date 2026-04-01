@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FarmersHub Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Link external CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+  <h2 id="title">Login</h2>
+
+  <form id="form">
+    <input type="email" id="email" placeholder="Enter email" required>
+    <input type="password" id="password" placeholder="Enter password" required>
+
+    <div id="confirmBox" style="display:none;">
+      <input type="password" id="confirmPassword" placeholder="Confirm password">
+    </div>
+
+    <button type="submit" id="btn">Login</button>
+  </form>
+
+  <div class="toggle" onclick="switchForm()">
+    Don't have an account? Sign Up
+  </div>
+
+  <div id="msg" class="message"></div>
+</div>
+
+<script src="login.js"></script>
+
+</body>
+</html>
