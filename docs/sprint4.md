@@ -40,32 +40,15 @@ TAMANG SONAM
 ---
 
 # Demo
+<img width="1920" height="1080" alt="Screenshot (142)" src="https://github.com/user-attachments/assets/e9e05332-d899-41b8-a08a-aec95efa7bd6" />
+Github pages was deployed and tested.
 
-Demo scheduled for 2026-04-01 at 18:00 UTC+9 (KST)
 
-Demo showing GitHub Pages deployment, updated documentation structure, and project architecture/wireframe documents.
 
-## Demo Script
+<img width="1920" height="1080" alt="Screenshot (143)" src="https://github.com/user-attachments/assets/dd81e27c-7a30-4ada-8927-c52913d7fef1" />
+New files, design docv1.md, architechture-sketch.md and wireframes.md were added
 
-Estimated duration: 5-7 minutes
 
-Step 1 (0:00-1:30): Show GitHub Pages live site with landing page (index.html, style.css).  
-Step 2 (1:30-3:00): Walk through the new docs/ folder structure — architecturesketch.md and wireframes.md.  
-Step 3 (3:00-5:00): Show the updated Docv1.md with separated architecture and wireframe references.  
-Step 4 (5:00-7:00): Demonstrate GitHub Pages deployment workflow and CNAME configuration.
-
----
-
-## Backup Plan
-
-If the live demo fails, what will you show instead?
-
-- Screenshots of GitHub Pages site
-- Pre-recorded walkthrough of docs/ folder
-- Document previews of architecturesketch.md and wireframes.md
-- Commit history showing Sprint 4 work
-
----
 
 # Project Board Snapshot
 
