@@ -7,6 +7,7 @@
 
   <!-- Link external CSS -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="product.css">
 </head>
 
 <body>
@@ -20,53 +21,55 @@
   <a href="login/login.html"><button class="login-btn" type="button">Login</button></a>
 </header>
 
-<div class="search-container">
-  <div class="search-box">
-    <input type="text" placeholder=" ⌕     Search for farmers or products">
-    
-  </div>
-</div>
+<main>
+        <section class="product-details">
+            <div class="product-image-gallery">
+                <img src="placeholder-image.jpg" alt="Product Image 1">
+                <img src="placeholder-image.jpg" alt="Product Image 2">
+                <img src="placeholder-image.jpg" alt="Product Image 3">
+                <img src="placeholder-image.jpg" alt="Product Image 4">
+            </div>
+            <div class="product-info">
+                <h2>Organic Tomatoes</h2>
+                <p class="farmer">Sold by: Farmer John Doe</p>
+                <p class="price">$3.50 per lb</p>
+                <p class="description">Fresh, vine-ripened organic tomatoes grown locally. Perfect for salads, cooking, or snacking. Harvested this morning and ready for pickup.</p>
+                <div class="details">
+                    <p><strong>Category:</strong> Vegetables</p>
+                    <p><strong>Available Quantity:</strong> 50 lbs</p>
+                    <p><strong>Location:</strong> Springfield Farm, 10 miles away</p>
+                    <p><strong>Harvest Date:</strong> April 1, 2026</p>
+                    <p><strong>Organic Certified:</strong> Yes</p>
+                </div>
+                <div class="purchase-options">
+                    <label for="quantity">Quantity (lbs):</label>
+                    <input type="number" id="quantity" name="quantity" min="1" max="50" value="1">
+                    <button class="btn-primary">Add to Cart</button>
+                    <button class="btn-secondary">Contact Farmer</button>
+                </div>
+            </div>
+        </section>
 
-<aside class="left-bar">
-  <a href="profile.html" class="bar-item">
-    <div>Profile</div>
-  </a>
-  <a href="messages.html" class="bar-item">
-    <div>Messages</div>
-  </a>
-  <a href="notifications.html" class="bar-item">
-    <div>Notifications</div>
-  </a>
-</aside>
+        <section class="farmer-info">
+            <h3>About the Farmer</h3>
+            <p>John Doe has been farming organically for over 15 years. His farm specializes in heirloom vegetables and sustainable practices.</p>
+            <p><strong>Contact:</strong> john@springfieldfarm.com | (555) 123-4567</p>
+        </section>
 
-<section class="main-feed-wrapper">
-<section class="farmers-near-you">
-  <h2>Farmers near you</h2>
-  <div class="scrollable-profiles">
-  <div class="profiles-container">
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    <a href="farmers-profile.html" class="profile-link"><div class="profile"></div></a>
-    
-  </div>
-  </div>
-</section>
+        <section class="reviews">
+            <h3>Customer Reviews</h3>
+            <div class="review">
+                <p><strong>Jane S.</strong> - ★★★★☆</p>
+                <p>"These tomatoes are amazing! So fresh and flavorful. Will definitely buy again."</p>
+            </div>
+            <div class="review">
+                <p><strong>Mike R.</strong> - ★★★★★</p>
+                <p>"Best organic tomatoes I've ever had. The farmer is very responsive and helpful."</p>
+            </div>
+        </section>
+    </main>
 
-<section class="browse-products">
-  <h2>Browse Products</h2>
-  <div class="products-container">
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-    <a href="product1.html"><div class="product"></div></a>
-  </div>
-</section>
-</section>
+
 
 <!-- Falling leaves/crops canvas -->
 <canvas id="fallingCanvas"></canvas>
@@ -107,7 +110,7 @@
   </svg>
 </div>
 
-
+<script src="home.js"></script>
 <script>
 (function () {
   const canvas = document.getElementById('fallingCanvas');
@@ -218,7 +221,5 @@
   requestAnimationFrame(animate);
 })();
 </script>
-
-
 </body>
 </html>
