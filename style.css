@@ -353,3 +353,9 @@ body {
   0%   { background-position: 0% center; }
   100% { background-position: 300% center; }
 }
+
+.profile:hover,
+.product:hover,
+.bar-item div:hover {
+  background-color: rgba(0, 0, 0, 0.15);
+}
