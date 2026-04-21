@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:3000/api/auth";
+import { login as loginUser, clearSessionStorage } from '../js/authService.js';
+
 let selectedRole = "";
 
 function showMessage(text, type) {
@@ -16,29 +17,39 @@ async function onSubmit(event) {
     showMessage("Please fill in all required fields", "error");
     return;
   }
+  if (!selectedRole) {
+    showMessage("Please choose Farmer or Customer first", "error");
+    return;
+  }
+
+  const btn = document.getElementById("btn");
+  btn.disabled = true;
+  btn.textContent = "Logging in...";
 
   try {
-    const res = await fetch(`${API_URL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role: selectedRole })
-    });
-    const data = await res.json();
+    const data = await loginUser({ email, password });
+    const user = data.user;
 
-    if (data.success) {
-      showMessage("Login successful", "success");
-      localStorage.setItem("currentUser", email);
-      localStorage.setItem("fh_loggedIn", "true");
-      localStorage.setItem("fh_role", selectedRole);
-
-      setTimeout(() => {
-        window.location.href = "../index.html";
-      }, 1000);
-    } else {
-      showMessage(data.message, "error");
+    if (!user) {
+      showMessage("Login response is missing user data.", "error");
+      return;
     }
+
+    if (user.role !== selectedRole) {
+      clearSessionStorage();
+      showMessage(`This account is registered as ${user.role}. Please pick the correct role.`, "error");
+      return;
+    }
+
+    showMessage("Login successful! Redirecting...", "success");
+    setTimeout(() => {
+      window.location.href = "../index.html";
+    }, 1000);
   } catch (err) {
-    showMessage("Cannot connect to server. Please try again.", "error");
+    showMessage(err.message || "Cannot connect to server. Please try again.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Login";
   }
 }
 
@@ -46,10 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const roleScreen = document.getElementById("roleScreen");
   const formScreen = document.getElementById("formScreen");
   const roleBadge = document.getElementById("roleBadge");
+  const title = document.getElementById("title");
 
   document.getElementById("pickFarmer").addEventListener("click", () => {
     selectedRole = "farmer";
     roleBadge.textContent = "🌾 Farmer";
+    title.textContent = "Farmer Login";
     roleScreen.classList.add("hidden");
     formScreen.classList.remove("hidden");
   });
@@ -57,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("pickCustomer").addEventListener("click", () => {
     selectedRole = "customer";
     roleBadge.textContent = "🛒 Customer";
+    title.textContent = "Customer Login";
     roleScreen.classList.add("hidden");
     formScreen.classList.remove("hidden");
   });

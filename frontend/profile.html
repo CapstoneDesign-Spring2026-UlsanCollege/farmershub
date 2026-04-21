@@ -78,9 +78,9 @@
         </div>
         <div class="form-group">
           <label>Role</label>
-          <select id="editRole">
-            <option value="Farmer">Farmer</option>
-            <option value="Consumer">Consumer</option>
+          <select id="editRole" disabled>
+            <option value="farmer">Farmer</option>
+            <option value="customer">Customer</option>
           </select>
         </div>
         <div class="form-group">
@@ -136,7 +136,7 @@
             <span class="stat-label">Posts</span>
           </div>
           <div class="stat-item">
-            <span class="stat-num">0</span>
+            <span class="stat-num" id="productCount">0</span>
             <span class="stat-label">Products</span>
           </div>
           <div class="stat-item">
@@ -172,6 +172,6 @@
 
 </div>
 
-<script src="profile.js"></script>
+<script type="module" src="profile.js"></script>
 </body>
 </html>

@@ -1,4 +1,12 @@
-// Global variable to store products
+import { getCurrentUser } from '../js/authService.js';
+import {
+  createProduct,
+  getProducts,
+  updateProduct,
+  deleteProduct as removeProduct,
+} from '../js/productService.js';
+
+/* ─── State ──────────────────────────────────────────────────────────── */
 let products = [];
 let currentEditingProductId = null;
 
@@ -22,9 +30,15 @@ const modalTitle = document.getElementById('modalTitle');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-  loadProductsFromStorage();
-  renderProducts();
+  const currentUser = getCurrentUser();
+  if (!currentUser || currentUser.role !== 'farmer') {
+    alert('Please log in as a farmer to manage products.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   setupEventListeners();
+  loadProductsFromAPI();
 });
 
 // Event Listeners
@@ -89,95 +103,98 @@ function handleImageChange(e) {
 }
 
 // Form Submission
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
   e.preventDefault();
 
-  // Get payment methods
   const paymentCheckboxes = document.querySelectorAll('input[name="paymentMethod"]:checked');
   if (paymentCheckboxes.length === 0) {
     alert('Please select at least one payment method');
     return;
   }
 
-  const paymentMethods = Array.from(paymentCheckboxes).map(cb => cb.value);
-
-  // Validate dates
-  const makingDate = new Date(document.getElementById('makingDate').value);
+  const harvestDate = new Date(document.getElementById('harvestDate').value);
   const expiryDate = new Date(document.getElementById('expiryDate').value);
-  
-  if (expiryDate <= makingDate) {
-    alert('Expiry date must be after making/harvest date');
+  if (expiryDate <= harvestDate) {
+    alert('Expiry date must be after harvest date');
     return;
   }
 
-  // Get image
   const imageFile = productImageInput.files[0];
   if (!imageFile && !currentEditingProductId) {
     alert('Please select a product image');
     return;
   }
 
-  if (imageFile) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const productData = createProductObject(paymentMethods, event.target.result);
-      saveProduct(productData);
-    };
-    reader.readAsDataURL(imageFile);
-  } else if (currentEditingProductId) {
-    const productData = createProductObject(paymentMethods, null);
-    saveProduct(productData);
-  }
-}
-
-function createProductObject(paymentMethods, imageData) {
   const costPrice = parseFloat(document.getElementById('costPrice').value);
   const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
-  const discount = parseFloat(document.getElementById('discount').value);
-  const finalPrice = sellingPrice - (sellingPrice * discount / 100);
+  const discount = parseFloat(document.getElementById('discount').value) || 0;
+  const paymentMethods = Array.from(paymentCheckboxes).map(cb => cb.value);
 
-  const product = {
-    id: currentEditingProductId || Date.now(),
-    productName: document.getElementById('productName').value,
-    description: document.getElementById('description').value,
-    category: document.getElementById('category').value,
-    brand: document.getElementById('brand').value,
-    costPrice: costPrice,
-    sellingPrice: sellingPrice,
-    discount: discount,
-    finalPrice: finalPrice.toFixed(2),
-    stock: parseInt(document.getElementById('stock').value),
-    unit: document.getElementById('unit').value,
-    makingDate: document.getElementById('makingDate').value,
-    expiryDate: document.getElementById('expiryDate').value,
-    paymentMethods: paymentMethods,
-    sellerName: document.getElementById('sellerName').value,
-    sellerEmail: document.getElementById('sellerEmail').value,
-    sellerPhone: document.getElementById('sellerPhone').value,
-    sellerLocation: document.getElementById('sellerLocation').value,
-    image: imageData || (currentEditingProductId ? products.find(p => p.id === currentEditingProductId).image : null),
-    createdAt: currentEditingProductId ? products.find(p => p.id === currentEditingProductId).createdAt : new Date().toLocaleString()
-  };
+  const submitBtn = document.getElementById('btn') || productForm.querySelector('button[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
 
-  return product;
-}
-
-function saveProduct(product) {
-  if (currentEditingProductId) {
-    // Update existing product
-    const index = products.findIndex(p => p.id === currentEditingProductId);
-    if (index > -1) {
-      products[index] = product;
+  try {
+    if (currentEditingProductId) {
+      // Update via PUT (JSON, no file re-upload unless new file selected)
+      const updates = {
+        name: document.getElementById('name').value,
+        brand: document.getElementById('brand').value,
+        description: document.getElementById('description').value,
+        category: document.getElementById('category').value,
+        costPrice, sellingPrice, discount,
+        stock: parseInt(document.getElementById('stock').value, 10),
+        unit: document.getElementById('unit').value,
+        harvestDate: document.getElementById('harvestDate').value,
+        expiryDate: document.getElementById('expiryDate').value,
+        paymentMethods,
+        sellerName: document.getElementById('sellerName').value,
+        sellerEmail: document.getElementById('sellerEmail').value,
+        sellerPhone: document.getElementById('sellerPhone').value,
+        location: document.getElementById('sellerLocation').value,
+      };
+      if (imageFile) {
+        // Re-upload with FormData
+        const form = new FormData();
+        Object.entries(updates).forEach(([k, v]) =>
+          Array.isArray(v) ? v.forEach(i => form.append(k + '[]', i)) : form.append(k, v)
+        );
+        form.append('images', imageFile);
+        await updateProduct(currentEditingProductId, form);
+      } else {
+        await updateProduct(currentEditingProductId, updates);
+      }
+      alert('Product updated successfully!');
+    } else {
+      // Create via POST with FormData (multipart)
+      const form = new FormData();
+      form.append('name', document.getElementById('name').value);
+      form.append('brand', document.getElementById('brand').value);
+      form.append('description', document.getElementById('description').value);
+      form.append('category', document.getElementById('category').value);
+      form.append('costPrice', costPrice);
+      form.append('sellingPrice', sellingPrice);
+      form.append('discount', discount);
+      form.append('stock', document.getElementById('stock').value);
+      form.append('unit', document.getElementById('unit').value);
+      form.append('harvestDate', document.getElementById('harvestDate').value);
+      form.append('expiryDate', document.getElementById('expiryDate').value);
+      form.append('sellerName', document.getElementById('sellerName').value);
+      form.append('sellerEmail', document.getElementById('sellerEmail').value);
+      form.append('sellerPhone', document.getElementById('sellerPhone').value);
+      form.append('location', document.getElementById('sellerLocation').value);
+      paymentMethods.forEach(m => form.append('paymentMethods[]', m));
+      form.append('images', imageFile);
+      await createProduct(form);
+      alert('Product added successfully!');
     }
-  } else {
-    // Add new product
-    products.push(product);
-  }
 
-  saveProductsToStorage();
-  renderProducts();
-  closeProductModal();
-  alert(currentEditingProductId ? 'Product updated successfully!' : 'Product added successfully!');
+    await loadProductsFromAPI();
+    closeProductModal();
+  } catch (err) {
+    alert('Failed to save product: ' + err.message);
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = currentEditingProductId ? 'Update Product' : 'Add Product'; }
+  }
 }
 
 // Render Products
@@ -200,12 +217,14 @@ function renderProducts() {
 function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card';
+  const imageUrl = product.imageUrl || '';
+
   card.innerHTML = `
-    <img src="${product.image}" alt="${product.productName}" class="product-card-image">
+    <img src="${imageUrl}" alt="${product.name}" class="product-card-image">
     <div class="product-card-body">
-      <div class="product-card-title">${product.productName}</div>
+      <div class="product-card-title">${product.name}</div>
       <div class="product-card-category">${capitalizeCategory(product.category)}</div>
-      <div class="product-card-price">$${product.finalPrice}</div>
+      <div class="product-card-price">$${Number(product.price || 0).toFixed(2)}</div>
       <div class="product-card-stock">Stock: ${product.stock} ${product.unit}</div>
       <div class="product-card-description">${product.description}</div>
     </div>
@@ -217,7 +236,7 @@ function createProductCard(product) {
 
 // Show Product Details
 function showProductDetails(product) {
-  const paymentMethodsText = product.paymentMethods
+  const paymentMethodsText = (product.paymentMethods || [])
     .map(method => capitalizePaymentMethod(method))
     .join(', ');
 
@@ -225,11 +244,11 @@ function showProductDetails(product) {
   const expiryStatus = daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry < 7 ? `Expires in ${daysUntilExpiry} days` : 'Fresh';
 
   detailsContent.innerHTML = `
-    <img src="${product.image}" alt="${product.productName}" class="detail-image">
+    <img src="${product.imageUrl}" alt="${product.name}" class="detail-image">
     
     <div class="detail-row">
       <div class="detail-label">Product Name:</div>
-      <div class="detail-value">${product.productName}</div>
+      <div class="detail-value">${product.name}</div>
     </div>
 
     <div class="detail-row">
@@ -264,7 +283,7 @@ function showProductDetails(product) {
 
     <div class="detail-row">
       <div class="detail-label">Final Price:</div>
-      <div class="detail-value" style="color: #d32f2f; font-weight: 700;">$${product.finalPrice}</div>
+      <div class="detail-value" style="color: #d32f2f; font-weight: 700;">$${Number(product.price || 0).toFixed(2)}</div>
     </div>
 
     <div class="detail-row">
@@ -274,7 +293,7 @@ function showProductDetails(product) {
 
     <div class="detail-row">
       <div class="detail-label">Harvest Date:</div>
-      <div class="detail-value">${formatDate(product.makingDate)}</div>
+      <div class="detail-value">${formatDate(product.harvestDate)}</div>
     </div>
 
     <div class="detail-row">
@@ -289,22 +308,22 @@ function showProductDetails(product) {
 
     <div class="detail-row">
       <div class="detail-label">Seller Name:</div>
-      <div class="detail-value">${product.sellerName}</div>
+      <div class="detail-value">${product.seller?.name || 'N/A'}</div>
     </div>
 
     <div class="detail-row">
       <div class="detail-label">Seller Email:</div>
-      <div class="detail-value"><a href="mailto:${product.sellerEmail}">${product.sellerEmail}</a></div>
+      <div class="detail-value"><a href="mailto:${product.seller?.email || ''}">${product.seller?.email || 'N/A'}</a></div>
     </div>
 
     <div class="detail-row">
       <div class="detail-label">Seller Phone:</div>
-      <div class="detail-value"><a href="tel:${product.sellerPhone}">${product.sellerPhone}</a></div>
+      <div class="detail-value"><a href="tel:${product.seller?.phone || ''}">${product.seller?.phone || 'N/A'}</a></div>
     </div>
 
     <div class="detail-row">
       <div class="detail-label">Location:</div>
-      <div class="detail-value">${product.sellerLocation}</div>
+      <div class="detail-value">${product.seller?.location || 'N/A'}</div>
     </div>
 
     <div class="detail-row">
@@ -327,7 +346,7 @@ function editProduct() {
   currentEditingProductId = product.id;
   
   // Populate form with product data
-  document.getElementById('productName').value = product.productName;
+  document.getElementById('name').value = product.name;
   document.getElementById('category').value = product.category;
   document.getElementById('brand').value = product.brand;
   document.getElementById('description').value = product.description;
@@ -336,12 +355,12 @@ function editProduct() {
   document.getElementById('discount').value = product.discount;
   document.getElementById('stock').value = product.stock;
   document.getElementById('unit').value = product.unit;
-  document.getElementById('makingDate').value = product.makingDate;
-  document.getElementById('expiryDate').value = product.expiryDate;
-  document.getElementById('sellerName').value = product.sellerName;
-  document.getElementById('sellerEmail').value = product.sellerEmail;
-  document.getElementById('sellerPhone').value = product.sellerPhone;
-  document.getElementById('sellerLocation').value = product.sellerLocation;
+  document.getElementById('harvestDate').value = product.harvestDate ? new Date(product.harvestDate).toISOString().split('T')[0] : '';
+  document.getElementById('expiryDate').value = product.expiryDate ? new Date(product.expiryDate).toISOString().split('T')[0] : '';
+  document.getElementById('sellerName').value = product.seller?.name || '';
+  document.getElementById('sellerEmail').value = product.seller?.email || '';
+  document.getElementById('sellerPhone').value = product.seller?.phone || '';
+  document.getElementById('sellerLocation').value = product.seller?.location || '';
 
   // Set payment methods
   document.querySelectorAll('input[name="paymentMethod"]').forEach(cb => {
@@ -349,7 +368,7 @@ function editProduct() {
   });
 
   // Set image preview
-  imagePreview.innerHTML = `<img src="${product.image}" alt="Product Image">`;
+  imagePreview.innerHTML = `<img src="${product.imageUrl}" alt="Product Image">`;
 
   modalTitle.textContent = 'Edit Product';
   closeDetailsModal();
@@ -358,31 +377,33 @@ function editProduct() {
 }
 
 // Delete Product
-function deleteProduct() {
-  if (confirm('Are you sure you want to delete this product?')) {
-    products = products.filter(p => p.id !== currentEditingProductId);
-    saveProductsToStorage();
-    renderProducts();
+async function deleteProduct() {
+  if (!confirm('Are you sure you want to delete this product?')) return;
+  try {
+    await removeProduct(currentEditingProductId);
+    await loadProductsFromAPI();
     closeDetailsModal();
     alert('Product deleted successfully!');
+  } catch (err) {
+    alert('Failed to delete product: ' + err.message);
   }
 }
 
-// Storage Functions
-function saveProductsToStorage() {
-  localStorage.setItem('farmershubProducts', JSON.stringify(products));
-}
-
-function loadProductsFromStorage() {
-  const stored = localStorage.getItem('farmershubProducts');
-  if (stored) {
-    try {
-      products = JSON.parse(stored);
-    } catch (e) {
-      console.error('Error loading products from storage:', e);
-      products = [];
+// Load products from API
+async function loadProductsFromAPI() {
+  try {
+    const currentUser = getCurrentUser();
+    const params = { limit: 100 };
+    if (currentUser?.id) {
+      params.farmerId = currentUser.id;
     }
+    const data = await getProducts(params);
+    products = data.data || [];
+  } catch (err) {
+    console.error('Failed to load products:', err);
+    products = [];
   }
+  renderProducts();
 }
 
 // Utility Functions
@@ -409,6 +430,7 @@ function capitalizePaymentMethod(method) {
 }
 
 function formatDate(dateString) {
+  if (!dateString) return 'N/A';
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString('en-US', options);
 }

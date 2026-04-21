@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api/users";
+import { getFarmers, getCustomers } from '../js/userService.js';
 
 function formatDate(iso) {
   const d = new Date(iso);
@@ -35,7 +35,7 @@ function renderTable(tableId, emptyId, data) {
       <td>${user.age || "—"}</td>
       <td>${capitalize(user.gender) || "—"}</td>
       <td>${user.address || "—"}</td>
-      <td>${user.contact || "—"}</td>
+      <td>${user.contact || user.phone || "—"}</td>
       <td>${formatPayment(user.paymentMethod)}</td>
       <td>${formatDate(user.createdAt)}</td>
     `;
@@ -45,12 +45,10 @@ function renderTable(tableId, emptyId, data) {
 
 async function loadData() {
   try {
-    const [farmersRes, customersRes] = await Promise.all([
-      fetch(`${API_BASE}/farmers`),
-      fetch(`${API_BASE}/customers`)
+    const [farmersData, customersData] = await Promise.all([
+      getFarmers(),
+      getCustomers(),
     ]);
-    const farmersData = await farmersRes.json();
-    const customersData = await customersRes.json();
 
     renderTable("farmersTable", "farmersEmpty", farmersData.data);
     renderTable("customersTable", "customersEmpty", customersData.data);

@@ -1,20 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const Farmer = require('../models/Farmer');
-const Customer = require('../models/Customer');
+const { signAuthToken } = require('../services/tokenService');
+const { User, findUserByEmail, normalizeBaseUser } = require('../services/userModelService');
+const { requireAuth } = require('../middleware/auth');
 
-function getModel(role) {
-    if (role === 'farmer') return Farmer;
-    if (role === 'customer') return Customer;
-    return null;
+function normalizeIncomingRole(role) {
+    if (!role) return '';
+    const value = String(role).trim().toLowerCase();
+    if (value === 'buyer') return 'customer';
+    return value;
 }
 
-// POST /api/auth/signup
-router.post('/signup', async (req, res) => {
+// POST /api/auth/register
+router.post('/register', async (req, res) => {
     try {
-        const { email, password, role, fullName, age, gender, address, contact, paymentMethod } = req.body;
+        const { fullName, email, password, role, age, gender, address, phone, paymentMethod } = req.body;
+        const normalizedRole = normalizeIncomingRole(role);
 
-        if (!email || !password || !fullName || !age || !gender || !address || !contact || !paymentMethod) {
+        if (!fullName || !email || !password || !normalizedRole || !age || !gender || !address || !phone || !paymentMethod) {
             return res.status(400).json({ success: false, message: 'All fields are required.' });
         }
 
@@ -22,20 +25,36 @@ router.post('/signup', async (req, res) => {
             return res.status(400).json({ success: false, message: 'You must be at least 16 years old.' });
         }
 
-        const Model = getModel(role);
-        if (!Model) {
-            return res.status(400).json({ success: false, message: 'Please select a role (farmer or customer).' });
+        if (!['customer', 'farmer', 'admin'].includes(normalizedRole)) {
+            return res.status(400).json({ success: false, message: 'Role must be either customer, farmer, or admin.' });
         }
 
-        const existing = await Model.findOne({ email });
+        const existing = await findUserByEmail(email);
         if (existing) {
             return res.status(409).json({ success: false, message: 'User already exists.' });
         }
 
-        const user = new Model({ email, password, fullName, age, gender, address, contact, paymentMethod });
-        await user.save();
+        const userDoc = await User.create({
+            fullName,
+            email,
+            password,
+            role: normalizedRole,
+            age,
+            gender,
+            address,
+            phone,
+            paymentMethod,
+        });
 
-        return res.status(201).json({ success: true, message: 'Signup successful! Please login.' });
+        const user = normalizeBaseUser(userDoc);
+        const token = signAuthToken(user);
+
+        return res.status(201).json({
+            success: true,
+            message: 'Registration successful.',
+            token,
+            user,
+        });
     } catch (err) {
         return res.status(500).json({ success: false, message: 'Server error.' });
     }
@@ -44,31 +63,42 @@ router.post('/signup', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Email and password are required.' });
         }
 
-        const Model = getModel(role);
-        if (!Model) {
-            return res.status(400).json({ success: false, message: 'Please select a role (farmer or customer).' });
-        }
-
-        const user = await Model.findOne({ email });
-        if (!user) {
+        const userDoc = await findUserByEmail(email);
+        if (!userDoc) {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
 
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await userDoc.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
 
-        return res.status(200).json({ success: true, message: 'Login successful', user: { email: user.email, role } });
+        const user = normalizeBaseUser(userDoc);
+        const token = signAuthToken(user);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Login successful.',
+            token,
+            user,
+        });
     } catch (err) {
         return res.status(500).json({ success: false, message: 'Server error.' });
     }
+});
+
+// GET /api/auth/me
+router.get('/me', requireAuth, async (req, res) => {
+    return res.status(200).json({
+        success: true,
+        data: req.user,
+    });
 });
 
 module.exports = router;

@@ -1,187 +1,221 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const isLoggedIn = localStorage.getItem("fh_loggedIn") === "true";
-  const loginModal = document.getElementById("loginModal");
-  const profilePage = document.getElementById("profilePage");
+import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover } from './js/profileService.js';
+import { getFeed, createPost, deletePost } from './js/postService.js';
+import { isLoggedIn, logout } from './js/authService.js';
 
-  if (!isLoggedIn) {
-    loginModal.style.display = "flex";
-    profilePage.style.display = "none";
+let currentProfile = null;
+
+function showAuthGate() {
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('profilePage').style.display = 'none';
+}
+
+function showProfilePage() {
+  document.getElementById('loginModal').style.display = 'none';
+  document.getElementById('profilePage').style.display = 'block';
+}
+
+function renderImage(targetId, placeholderId, url, placeholderFallback = '👤') {
+  const img = document.getElementById(targetId);
+  const placeholder = document.getElementById(placeholderId);
+
+  if (url) {
+    img.src = url;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
   } else {
-    loginModal.style.display = "none";
-    profilePage.style.display = "block";
-    loadProfile();
-    loadPosts();
-  }
-
-  // Login redirect
-  document.getElementById("goLoginBtn").addEventListener("click", () => {
-    window.location.href = "login/login.html";
-  });
-
-  // Logout
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("fh_loggedIn");
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("fh_role");
-    window.location.href = "index.html";
-  });
-
-  // Edit Profile
-  document.getElementById("editProfileBtn").addEventListener("click", () => {
-    const profile = JSON.parse(localStorage.getItem("fh_profile")) || {};
-    document.getElementById("editName").value = profile.name || "";
-    document.getElementById("editRole").value = profile.role || "Farmer";
-    document.getElementById("editLocation").value = profile.location || "";
-    document.getElementById("editBio").value = profile.bio || "";
-    document.getElementById("editPhone").value = profile.phone || "";
-    document.getElementById("editFarmName").value = profile.farmName || "";
-    document.getElementById("editProducts").value = profile.products || "";
-    document.getElementById("editModal").style.display = "flex";
-  });
-
-  // Cancel Edit
-  document.getElementById("cancelEditBtn").addEventListener("click", () => {
-    document.getElementById("editModal").style.display = "none";
-  });
-
-  // Save Profile
-  document.getElementById("editForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const profile = {
-      name: document.getElementById("editName").value.trim(),
-      role: document.getElementById("editRole").value,
-      location: document.getElementById("editLocation").value.trim(),
-      bio: document.getElementById("editBio").value.trim(),
-      phone: document.getElementById("editPhone").value.trim(),
-      farmName: document.getElementById("editFarmName").value.trim(),
-      products: document.getElementById("editProducts").value.trim()
-    };
-    localStorage.setItem("fh_profile", JSON.stringify(profile));
-    document.getElementById("editModal").style.display = "none";
-    loadProfile();
-  });
-
-  // Cover photo upload
-  document.getElementById("coverInput").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      document.getElementById("coverImg").src = ev.target.result;
-      document.getElementById("coverImg").style.display = "block";
-      document.getElementById("coverPlaceholder").style.display = "none";
-      localStorage.setItem("fh_cover", ev.target.result);
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Avatar upload
-  document.getElementById("avatarInput").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      document.getElementById("avatarImg").src = ev.target.result;
-      document.getElementById("avatarImg").style.display = "block";
-      document.getElementById("avatarPlaceholder").style.display = "none";
-      localStorage.setItem("fh_avatar", ev.target.result);
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Post submission
-  document.getElementById("submitPostBtn").addEventListener("click", () => {
-    const text = document.getElementById("postInput").value.trim();
-    const imageInput = document.getElementById("postImageInput");
-    if (!text && !imageInput.files[0]) return;
-
-    const posts = JSON.parse(localStorage.getItem("fh_posts")) || [];
-    const post = { text, date: new Date().toISOString(), id: Date.now() };
-
-    if (imageInput.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        post.image = ev.target.result;
-        posts.unshift(post);
-        localStorage.setItem("fh_posts", JSON.stringify(posts));
-        document.getElementById("postInput").value = "";
-        document.getElementById("postImageName").textContent = "";
-        imageInput.value = "";
-        loadPosts();
-      };
-      reader.readAsDataURL(imageInput.files[0]);
-    } else {
-      posts.unshift(post);
-      localStorage.setItem("fh_posts", JSON.stringify(posts));
-      document.getElementById("postInput").value = "";
-      loadPosts();
-    }
-  });
-
-  // Post image name preview
-  document.getElementById("postImageInput").addEventListener("change", (e) => {
-    const name = e.target.files[0] ? e.target.files[0].name : "";
-    document.getElementById("postImageName").textContent = name;
-  });
-});
-
-function loadProfile() {
-  const profile = JSON.parse(localStorage.getItem("fh_profile")) || {};
-  const currentUser = localStorage.getItem("currentUser") || "User";
-
-  document.getElementById("profileName").textContent = profile.name || currentUser;
-  document.getElementById("profileRole").textContent = profile.role || localStorage.getItem("fh_role") || "Farmer";
-  document.getElementById("profileLocation").textContent = profile.location ? "📍 " + profile.location : "📍 Add your location";
-  document.getElementById("bioText").textContent = profile.bio || 'No bio yet. Click "Edit Profile" to add one.';
-  document.getElementById("farmNameDisplay").textContent = profile.farmName || "Not set";
-  document.getElementById("productsDisplay").textContent = profile.products || "Not set";
-  document.getElementById("phoneDisplay").textContent = profile.phone || "Not set";
-
-  // Load cover
-  const cover = localStorage.getItem("fh_cover");
-  if (cover) {
-    document.getElementById("coverImg").src = cover;
-    document.getElementById("coverImg").style.display = "block";
-    document.getElementById("coverPlaceholder").style.display = "none";
-  }
-
-  // Load avatar
-  const avatar = localStorage.getItem("fh_avatar");
-  if (avatar) {
-    document.getElementById("avatarImg").src = avatar;
-    document.getElementById("avatarImg").style.display = "block";
-    document.getElementById("avatarPlaceholder").style.display = "none";
-    document.getElementById("postAvatarSmall").innerHTML = `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    img.removeAttribute('src');
+    img.style.display = 'none';
+    placeholder.style.display = 'flex';
+    placeholder.textContent = placeholderFallback;
   }
 }
 
-function loadPosts() {
-  const posts = JSON.parse(localStorage.getItem("fh_posts")) || [];
-  const feed = document.getElementById("postsFeed");
-  const profile = JSON.parse(localStorage.getItem("fh_profile")) || {};
-  const name = profile.name || localStorage.getItem("currentUser") || "User";
+function renderProfile(profile) {
+  currentProfile = profile;
 
-  document.getElementById("postCount").textContent = posts.length;
+  document.getElementById('profileName').textContent = profile.fullName;
+  document.getElementById('profileRole').textContent = profile.role === 'farmer' ? 'Farmer' : 'Customer';
+  document.getElementById('profileLocation').textContent = profile.location ? `📍 ${profile.location}` : '📍 Add your location';
+  document.getElementById('bioText').textContent = profile.bio || 'No bio yet. Click "Edit Profile" to add one.';
+  document.getElementById('farmNameDisplay').textContent = profile.farmName || 'Not set';
+  document.getElementById('productsDisplay').textContent = profile.products || (profile.cropTypes?.join(', ') || 'Not set');
+  document.getElementById('phoneDisplay').textContent = profile.phone || 'Not set';
+  document.getElementById('postCount').textContent = String(profile.stats?.posts || 0);
+  document.getElementById('productCount').textContent = String(profile.stats?.products || 0);
 
-  feed.innerHTML = posts.map(p => `
+  renderImage('coverImg', 'coverPlaceholder', profile.coverUrl, '🌾 Add a cover photo of your farm');
+  renderImage('avatarImg', 'avatarPlaceholder', profile.avatarUrl);
+
+  const avatarSmall = document.getElementById('postAvatarSmall');
+  avatarSmall.innerHTML = profile.avatarUrl
+    ? `<img src="${profile.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+    : '👤';
+}
+
+function openEditModal() {
+  if (!currentProfile) return;
+
+  document.getElementById('editName').value = currentProfile.fullName || '';
+  document.getElementById('editRole').value = currentProfile.role || 'farmer';
+  document.getElementById('editLocation').value = currentProfile.location || '';
+  document.getElementById('editBio').value = currentProfile.bio || '';
+  document.getElementById('editPhone').value = currentProfile.phone || '';
+  document.getElementById('editFarmName').value = currentProfile.farmName || '';
+  document.getElementById('editProducts').value = currentProfile.products || currentProfile.cropTypes?.join(', ') || '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+async function loadProfileData() {
+  const response = await getProfile();
+  renderProfile(response.data);
+}
+
+function renderPosts(posts) {
+  const feed = document.getElementById('postsFeed');
+
+  if (!posts.length) {
+    feed.innerHTML = '<div class="post-card"><p class="post-text">No posts yet. Share your first update.</p></div>';
+    return;
+  }
+
+  feed.innerHTML = posts.map(post => `
     <div class="post-card">
       <div class="post-header">
-        <strong>${name}</strong>
-        <small>${new Date(p.date).toLocaleDateString()}</small>
-        <button class="delete-post-btn" data-id="${p.id}" title="Delete">✕</button>
+        <strong>${post.author?.name || currentProfile?.fullName || 'User'}</strong>
+        <small>${new Date(post.createdAt).toLocaleDateString()}</small>
+        <button class="delete-post-btn" data-id="${post.id}" title="Delete">✕</button>
       </div>
-      ${p.text ? `<p class="post-text">${p.text}</p>` : ""}
-      ${p.image ? `<img src="${p.image}" class="post-image" alt="Post image" />` : ""}
+      ${post.text ? `<p class="post-text">${post.text}</p>` : ''}
+      ${post.image ? `<img src="${post.image}" class="post-image" alt="Post image" />` : ''}
     </div>
-  `).join("");
+  `).join('');
 
-  // Delete handlers
-  feed.querySelectorAll(".delete-post-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = parseInt(btn.dataset.id);
-      const updated = posts.filter(p => p.id !== id);
-      localStorage.setItem("fh_posts", JSON.stringify(updated));
-      loadPosts();
+  feed.querySelectorAll('.delete-post-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await deletePost(btn.dataset.id);
+        await loadPosts();
+        await loadProfileData();
+      } catch (error) {
+        alert(error.message || 'Failed to delete post.');
+      }
     });
   });
 }
+
+async function loadPosts() {
+  if (!currentProfile) return;
+  const response = await getFeed({ authorId: currentProfile.userId, limit: 100 });
+  renderPosts(response.data || []);
+}
+
+async function handleProfileSave(event) {
+  event.preventDefault();
+
+  const updates = {
+    fullName: document.getElementById('editName').value.trim(),
+    location: document.getElementById('editLocation').value.trim(),
+    bio: document.getElementById('editBio').value.trim(),
+    phone: document.getElementById('editPhone').value.trim(),
+    farmName: document.getElementById('editFarmName').value.trim(),
+    products: document.getElementById('editProducts').value.trim(),
+    cropTypes: document.getElementById('editProducts').value.trim(),
+  };
+
+  try {
+    const action = currentProfile?.role === 'farmer' ? updateFarmerProfile : updateProfile;
+    const response = await action(updates);
+    renderProfile(response.data);
+    document.getElementById('editModal').style.display = 'none';
+  } catch (error) {
+    alert(error.message || 'Failed to update profile.');
+  }
+}
+
+async function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const response = await uploadAvatar(file);
+    renderProfile(response.data);
+  } catch (error) {
+    alert(error.message || 'Failed to upload avatar.');
+  }
+}
+
+async function handleCoverUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const response = await uploadCover(file);
+    renderProfile(response.data);
+  } catch (error) {
+    alert(error.message || 'Failed to upload cover image.');
+  }
+}
+
+async function handlePostSubmit() {
+  const text = document.getElementById('postInput').value.trim();
+  const imageInput = document.getElementById('postImageInput');
+  const file = imageInput.files[0];
+
+  if (!text && !file) return;
+
+  const form = new FormData();
+  if (text) form.append('text', text);
+  if (file) form.append('images', file);
+
+  try {
+    await createPost(form);
+    document.getElementById('postInput').value = '';
+    document.getElementById('postImageName').textContent = '';
+    imageInput.value = '';
+    await loadPosts();
+    await loadProfileData();
+  } catch (error) {
+    alert(error.message || 'Failed to create post.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('goLoginBtn').addEventListener('click', () => {
+    window.location.href = 'login/login.html';
+  });
+
+  if (!isLoggedIn()) {
+    showAuthGate();
+    return;
+  }
+
+  showProfilePage();
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    logout('index.html');
+  });
+
+  document.getElementById('editProfileBtn').addEventListener('click', openEditModal);
+  document.getElementById('cancelEditBtn').addEventListener('click', () => {
+    document.getElementById('editModal').style.display = 'none';
+  });
+  document.getElementById('editForm').addEventListener('submit', handleProfileSave);
+  document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
+  document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
+  document.getElementById('submitPostBtn').addEventListener('click', handlePostSubmit);
+  document.getElementById('postImageInput').addEventListener('change', (event) => {
+    const name = event.target.files[0] ? event.target.files[0].name : '';
+    document.getElementById('postImageName').textContent = name;
+  });
+
+  try {
+    await loadProfileData();
+    await loadPosts();
+  } catch (error) {
+    if ((error.message || '').toLowerCase().includes('invalid') || (error.message || '').toLowerCase().includes('authentication')) {
+      showAuthGate();
+      return;
+    }
+    alert(error.message || 'Failed to load profile data.');
+  }
+});
