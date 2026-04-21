@@ -50,6 +50,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       maxlength: 500,
     },
+    // Optional demographic fields (collected at registration)
+    age: {
+      type: Number,
+      min: 16,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other', ''],
+      default: '',
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -67,7 +77,7 @@ const userSchema = new mongoose.Schema(
     // ── Payment info ──────────────────────────────────────────────────────────
     paymentMethod: {
       type: String,
-      enum: ['cash', 'card', 'bank_transfer', 'mobile_pay', ''],
+      enum: ['cash', 'card', 'bank_transfer', 'mobile_pay', 'Credit / Debit Card', ''],
       default: '',
     },
   },

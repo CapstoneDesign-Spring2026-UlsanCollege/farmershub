@@ -9,8 +9,27 @@ const {
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
+const User = require('../models/User');
+const { successResponse } = require('../utils/apiResponse');
 
-// All routes below require authentication
+// ── Public role-filtered lists (used by dashboard — no auth required for browsing) ──
+// GET /api/users/farmers  — list all farmer accounts
+router.get('/farmers', async (req, res, next) => {
+  try {
+    const farmers = await User.find({ role: 'farmer', isActive: true }, '-password').sort({ createdAt: -1 });
+    return successResponse(res, 'Farmers list', farmers);
+  } catch (err) { next(err); }
+});
+
+// GET /api/users/customers  — list all buyer accounts (legacy name for compatibility)
+router.get('/customers', async (req, res, next) => {
+  try {
+    const buyers = await User.find({ role: 'buyer', isActive: true }, '-password').sort({ createdAt: -1 });
+    return successResponse(res, 'Customers list', buyers);
+  } catch (err) { next(err); }
+});
+
+// ── All routes below require authentication ───────────────────────────────────
 router.use(protect);
 
 // GET  /api/users/profile   — current user's profile
@@ -30,3 +49,4 @@ router.get('/', authorize('admin'), getAllUsers);
 router.delete('/:id', authorize('admin'), deactivateUser);
 
 module.exports = router;
+

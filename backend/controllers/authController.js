@@ -8,14 +8,27 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
  */
 const register = async (req, res, next) => {
   try {
-    const { fullName, email, password, role, phone, address } = req.body;
+    const {
+      fullName, email, password,
+      role: rawRole,
+      phone, contact,  // accept 'contact' as alias for 'phone'
+      address, age, gender, paymentMethod,
+    } = req.body;
+
+    // Normalize role: old frontend sends 'customer', new schema uses 'buyer'
+    const role = rawRole === 'customer' ? 'buyer' : (rawRole || 'buyer');
+    // Normalize phone field
+    const phoneNorm = phone || contact || '';
 
     const existing = await User.findOne({ email });
     if (existing) {
       return errorResponse(res, 'An account with that email already exists', 409);
     }
 
-    const user = await User.create({ fullName, email, password, role, phone, address });
+    const user = await User.create({
+      fullName, email, password, role,
+      phone: phoneNorm, address, age, gender, paymentMethod,
+    });
     const token = generateToken(user._id);
 
     return successResponse(res, 'Account created successfully', { token, user }, 201);
