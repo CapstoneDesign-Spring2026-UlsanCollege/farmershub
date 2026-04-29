@@ -1,4 +1,4 @@
-Weekly Progress Demo
+﻿Weekly Progress Demo
 
 ## Team
 
@@ -20,18 +20,25 @@ In 2 minutes, we will show the login and signup feature working.
 
 ### Demo Screenshot Evidence
 
-> Insert the same Week 9 create-account screenshot here in the final submission/export.
 
-- Screenshot used: Live create account page screenshot from the deployed FarmersHub site.
-- Live page: https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/login/createAccount.html
-- What it proves: The signup UI is deployed and the full farmer registration form is visible for demo evidence.
+![Create Account - Live Deployed Site](images/create-account.png)
+
+> **Evidence:** Create Account page live at https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/login/createAccount.html — full farmer registration form deployed and working.
 
 
 ## 3) Evidence Check 1 minute
 
-- Screenshot: Live create account page screenshot
+**Screenshot 1 - Live Create Account Page:**
+
+![Create Account - Live Deployed Site](images/create-account.png)
+
 - Live link: https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/login/createAccount.html
-- Database evidence: MongoDB Compass screenshot showing saved farmer records
+
+**Screenshot 2 - MongoDB Compass (Database Evidence):**
+
+![MongoDB Compass - Farmer Records Saved](images/mongodb-compass.png)
+
+- Database: `farmershub` > `farmers` collection - 2 registered farmer documents confirmed saved.
 
 
 
@@ -53,3 +60,4 @@ What do you need?
 -
 
 ---
+
