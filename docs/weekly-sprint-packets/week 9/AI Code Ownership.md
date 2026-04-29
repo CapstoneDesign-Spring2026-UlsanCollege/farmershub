@@ -1,6 +1,4 @@
-# TEMPLATE - AI Code Ownership Audit
-
-> Save this as `docs/AI_CODE_OWNERSHIP_AUDIT.md`.
+# AI Code Ownership
 
 ## 1) Team + Project
 
@@ -31,9 +29,9 @@ Our main user can:
 | Working item | Evidence link | Owner who can explain it |
 |---|---|---|
 | Live site is deployed and accessible | https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/ | Sonam |
-| Login and account UI flow | `frontend/login/login.html`, `frontend/login/createAccount.html`, `frontend/login/login.js` | Sonam |
+| Login and account UI flow | Live create account page screenshot attached on 4/29/2026 + `frontend/login/login.html`, `frontend/login/createAccount.html`, `frontend/login/login.js` | Sonam |
 | Product upload UI and page flow | `frontend/login/sell_crops.html`, `frontend/login/sell_crops.js`, `frontend/product.html` | Sonam |
-| Backend auth and route structure exists | `backend/routes/auth.js`, `backend/controllers/profileController.js`, `backend/server.js` | Sonam |
+| Backend auth and route structure exists | MongoDB Compass screenshot showing saved farmer records + `backend/routes/auth.js`, `backend/controllers/profileController.js`, `backend/server.js` | Sonam |
 
 ## 4) Code We Understand
 
@@ -59,6 +57,23 @@ Our main user can:
 | Project cleanup and file organization | GitHub Copilot | Proposed archive flow, branching flow, and folder organization | Human verified moved files, preserved code behavior, reviewed `CLEANUP_LOG.md` | `CLEANUP_LOG.md`, commit `d680ed4` |
 | Frontend/backend refactor support | GitHub Copilot | Suggested service-layer alignment and path fixes | Human reviewed pages and kept working flows before push | Commit history and changed files in `frontend/` |
 | Documentation organization | GitHub Copilot | Structured docs into `docs/class library/` | Human verified matching class library layout and pushed branch | commit `7709c32` |
+
+## Screenshot Evidence Added
+
+### 1) Live Create Account Page Evidence
+
+- Evidence type: Browser screenshot
+- Source: Live deployed site
+- Link used in audit: https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/login/createAccount.html
+- What it shows: The create account page is publicly deployed and the farmer signup form renders with fields for full name, email, password, age, gender, address, contact number, and payment method.
+- Why it matters: Confirms the signup UI is live and supports the ownership claims in sections 2 and 3.
+
+### 2) Database Record Evidence
+
+- Evidence type: MongoDB Compass screenshot
+- Source: Local database view
+- What it shows: Records exist in the `farmers` collection, including saved email, full name, age, gender, address, contact, payment method, and timestamps.
+- Why it matters: Confirms account-related data is being persisted in the database and supports the claim that the backend auth/data flow exists.
 
 ## 7) Bugs / Unreliable Features
 
