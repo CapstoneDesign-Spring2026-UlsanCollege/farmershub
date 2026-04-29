@@ -31,31 +31,30 @@ If no one can explain the code, it is **Not Yet**.
 
 ## Today’s Class Goals
 
-By the end of class, your team should have:
-
+By the end of class, we completed
 - [ ] Completed a 5-minute Weekly Progress Demo.
 - [ ] Created or updated `docs/AI_CODE_OWNERSHIP_AUDIT.md`.
 - [ ] Listed what works right now.
 - [ ] Listed what is broken or unreliable.
-- [ ] Listed code your team understands.
-- [ ] Listed code your team does **not** fully understand yet.
-- [ ] Cleaned your GitHub board.
+- [ ] Listed code our team understands.
+- [ ] Listed code our team does **not** fully understand yet.
+- [ ] Cleaned our GitHub board.
 - [ ] Created Issues for major bugs or blockers.
-- [ ] Chosen your top 3 stabilization goals.
-- [ ] Started your Week 9 Weekly Sprint Packet Issue.
+- [ ] Chosen  top 3 stabilization goals.
+- [ ]  we Started  Week 9 Weekly Sprint Packet Issue.
 
 ## Class Schedule
 
 | Time | Activity | Output |
 |---:|---|---|
-| 0:00–0:10 | Sprint 3 kickoff | Understand the new standard |
-| 0:10–0:40 | Weekly Progress Demos | Show one visible improvement |
-| 0:40–1:00 | Mini-lesson: AI code ownership | Understand safe AI use |
-| 1:00–1:40 | AI Code Ownership Audit | Update `/docs/AI_CODE_OWNERSHIP_AUDIT.md` |
-| 1:40–2:20 | GitHub board cleanup | Done / Doing / To Do / Blocked / Nice Later |
-| 2:20–3:20 | Studio work | Fix, test, document, or stabilize one thing |
-| 3:20–3:50 | Instructor check-ins | Show evidence and blockers |
-| 3:50–4:00 | Exit checkpoint | Confirm Friday submission plan |
+| 10:40–11:10 | Sprint 3 kickoff | Understand the new standard |
+| 11:10–11:40 | Weekly Progress Demos | Show one visible improvement |
+| 11:40–12:00 | Mini-lesson: AI code ownership | Understand safe AI use |
+| 12:00–12:30 | AI Code Ownership Audit | Update `/docs/AI_CODE_OWNERSHIP_AUDIT.md` |
+| 12:30–12:40 | GitHub board cleanup | Done / Doing / To Do / Blocked / Nice Later |
+| 12:40–3:45 | Studio work | Fix, test, document, or stabilize one thing |
+| 12:45–12:50 | Instructor check-ins | Show evidence and blockers |
+| 12:50–1:00 | Exit checkpoint | Confirm Friday submission plan |
 
 ## Weekly Progress Demo
 
