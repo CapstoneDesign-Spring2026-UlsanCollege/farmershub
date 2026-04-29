@@ -9,7 +9,7 @@
 
 ## Team Members
 
-Codingpowerplant, DJTwoTone, lama, sthasagar236, TAMANG SONAM, yubarajsubedi07 ,tulsiramsubedi123
+Codingpowerplant, sthasagar236, TAMANG SONAM, yubarajsubedi07 ,tulsiramsubedi123
 
 ---
 

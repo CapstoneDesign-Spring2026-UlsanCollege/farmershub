@@ -5,8 +5,8 @@ Weekly Progress Demo
 - **Team:** CodingFarmers
 - **Week:** 9 
 - **Demo Driver:**
-- **PM:** 
-- **QA Lead / Scribe:**
+- **PM:** Tamang Rupesh
+- **QA Lead / Scribe:** Shrestha Chiranjibi
 
 ---
 
@@ -22,6 +22,8 @@ In 2 minutes, we will show the login and signup feature working.
 ## 3) Evidence Check 1 minute
 
 - Screenshot 
+
+
 
 
 
