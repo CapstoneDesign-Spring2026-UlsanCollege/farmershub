@@ -3,7 +3,7 @@
 **Sprint Name:** Sprint 2 - Development & Integration  
 **Duration:** Week 6-7 (Apr 15 - Apr 28, 2026)  
 **Repository:** https://github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub  
-**PM:** TAMANG SONAM
+**PM:** YUBARAJ SUBEDI
 
 ---
 
