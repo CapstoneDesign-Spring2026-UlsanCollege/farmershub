@@ -2,19 +2,19 @@
 
 ## Team
 
-- **Team:**
-- **Project:**
-- **Date:**
-- **QA Lead:**
+- **Team:** FarmersHub Team
+- **Project:** FarmersHub
+- **Date:** 4/29/2026
+- **QA Lead:** Sonam
 
 ## Core Flow Tested
 
 Describe the main user flow:
 
-1.
-2.
-3.
-4.
+1. Open app and navigate to login/create account.
+2. Authenticate and load user flow.
+3. Navigate to upload/product flow and submit data.
+4. Validate profile/product/message UI states.
 
 ## Smoke Test
 
@@ -31,7 +31,9 @@ Describe the main user flow:
 
 | User type | Test | Result | Evidence |
 |---|---|---|---|
-|  |  | Pass / Fail |  |
+| Visitor | Open live home page and browse static sections | Pass | https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/ |
+| Auth user | Login/create account UI flow | Pass / Needs backend retest | `frontend/login/login.html`, `frontend/login/createAccount.html` |
+| Seller | Upload product/media flow | Pass / Needs backend retest | `frontend/login/sell_crops.html`, `frontend/product.html` |
 
 ## Browser / Device Checks
 
@@ -44,8 +46,9 @@ Describe the main user flow:
 
 | Bug | Severity | Issue link | Owner |
 |---|---|---|---|
-|  | P0 / P1 / P2 / P3 |  |  |
+| Backend unavailable can break upload/login actions | P1 | Add issue link | Sonam |
+| Messaging integration status not fully verified | P2 | Add issue link | Sonam |
 
 ## Final QA Notes
 
--
+- Prioritize P1 upload/auth reliability checks before demo day.

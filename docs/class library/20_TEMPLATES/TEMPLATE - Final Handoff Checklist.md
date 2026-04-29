@@ -2,17 +2,17 @@
 
 ## Repo Readiness
 
-- [ ] README is updated.
-- [ ] Setup guide exists.
-- [ ] Architecture/handoff doc exists.
-- [ ] Final demo instructions are clear.
-- [ ] Known bugs are documented.
+- [x] README is updated.
+- [x] Setup guide exists.
+- [x] Architecture/handoff doc exists.
+- [x] Final demo instructions are clear.
+- [x] Known bugs are documented.
 - [ ] Secrets are not committed.
 - [ ] Main branch runs.
 
 ## Demo Readiness
 
-- [ ] Core flow works.
+- [x] Core flow works.
 - [ ] Backup demo exists.
 - [ ] Demo data is prepared.
 - [ ] Demo driver has practiced.
@@ -20,12 +20,12 @@
 
 ## Evidence Readiness
 
-- [ ] Final Sprint Packet is linked.
+- [x] Final Sprint Packet is linked.
 - [ ] Each student has contribution receipts.
 - [ ] Key PRs are linked.
-- [ ] Bug list is linked.
-- [ ] QA checklist is linked.
-- [ ] AI ownership evidence is linked.
+- [x] Bug list is linked.
+- [x] QA checklist is linked.
+- [x] AI ownership evidence is linked.
 
 ## Technical Defense Readiness
 
