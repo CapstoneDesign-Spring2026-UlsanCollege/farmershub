@@ -1,115 +1,162 @@
 const Post = require('../models/Post');
-const { successResponse, errorResponse } = require('../utils/apiResponse');
+const Product = require('../models/Product');
+const Profile = require('../models/Profile');
+const { buildMediaUrl } = require('../services/mediaUrlService');
+const { toUploadPath } = require('../middleware/upload');
 
-/**
- * POST /api/posts
- * Creates a new feed post. Farmer role only.
- */
-const createPost = async (req, res, next) => {
-  try {
-    const { content, linkedProduct, tags } = req.body;
+function serializePost(postDoc, req) {
+    const imageUrls = (postDoc.imagePaths || []).map(path => buildMediaUrl(req, path));
+    return {
+        id: String(postDoc._id),
+        content: postDoc.content,
+        text: postDoc.content,
+        caption: postDoc.content,
+        imageUrls,
+        image: imageUrls[0] || '',
+        linkedProductId: postDoc.linkedProductId ? String(postDoc.linkedProductId) : null,
+        author: {
+            id: String(postDoc.author.userId),
+            role: postDoc.author.role,
+            name: postDoc.author.name,
+            avatarUrl: buildMediaUrl(req, postDoc.author.avatarPath),
+        },
+        likesCount: postDoc.likes.length,
+        likes: postDoc.likes.length,
+        createdAt: postDoc.createdAt,
+        updatedAt: postDoc.updatedAt,
+    };
+}
 
-    const images = req.files
-      ? req.files.map((f) => ({ url: `/uploads/${f.filename}`, publicId: f.filename }))
-      : [];
+async function createPost(req, res) {
+    try {
+        const content = String(req.body.content || req.body.text || req.body.caption || '').trim();
+        const linkedProductId = req.body.linkedProduct || req.body.linkedProductId || null;
+        const files = req.files || [];
 
-    const post = await Post.create({
-      author: req.user._id,
-      content,
-      images,
-      linkedProduct: linkedProduct || undefined,
-      tags: tags ? (Array.isArray(tags) ? tags : tags.split(',').map((t) => t.trim())) : [],
-    });
+        if (!content && files.length === 0) {
+            return res.status(400).json({ success: false, message: 'Post content or an image is required.' });
+        }
 
-    const populated = await post.populate('author', 'fullName avatar farmName isVerified');
-    return successResponse(res, 'Post created', populated, 201);
-  } catch (err) {
-    next(err);
-  }
-};
+        if (linkedProductId) {
+            const linked = await Product.findById(linkedProductId);
+            if (!linked) {
+                return res.status(404).json({ success: false, message: 'Linked product not found.' });
+            }
+        }
 
-/**
- * GET /api/posts
- * Returns the paginated feed (all published posts, newest first).
- * Optionally filter by author (farmerId).
- */
-const getFeed = async (req, res, next) => {
-  try {
-    const { farmerId, page = 1, limit = 10 } = req.query;
-    const filter = { isPublished: true };
-    if (farmerId) filter.author = farmerId;
+        const profile = await Profile.findOne({ userId: req.user.id, role: req.user.role });
+        const post = await Post.create({
+            content,
+            imagePaths: files.map(file => toUploadPath(file)),
+            linkedProductId: linkedProductId || null,
+            author: {
+                userId: req.user.id,
+                role: req.user.role,
+                name: req.user.fullName,
+                avatarPath: profile?.avatarPath || '',
+            },
+        });
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [posts, total] = await Promise.all([
-      Post.find(filter)
-        .populate('author', 'fullName avatar farmName isVerified')
-        .populate('linkedProduct', 'title price images category')
-        .skip(skip)
-        .limit(parseInt(limit))
-        .sort({ createdAt: -1 }),
-      Post.countDocuments(filter),
-    ]);
-
-    return successResponse(res, 'Feed posts', {
-      posts,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit) },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * POST /api/posts/:id/like
- * Toggles a like on a post for the authenticated user.
- */
-const likePost = async (req, res, next) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) return errorResponse(res, 'Post not found', 404);
-
-    const userId = req.user._id.toString();
-    const alreadyLiked = post.likes.map((id) => id.toString()).includes(userId);
-
-    if (alreadyLiked) {
-      post.likes = post.likes.filter((id) => id.toString() !== userId);
-      post.likesCount = Math.max(0, post.likesCount - 1);
-    } else {
-      post.likes.push(req.user._id);
-      post.likesCount += 1;
+        return res.status(201).json({
+            success: true,
+            message: 'Post created successfully.',
+            data: serializePost(post, req),
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Failed to create post.' });
     }
+}
 
-    await post.save();
-    return successResponse(res, alreadyLiked ? 'Post unliked' : 'Post liked', {
-      liked: !alreadyLiked,
-      likesCount: post.likesCount,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+async function getPosts(req, res) {
+    try {
+        const { farmerId, authorId, limit = 20 } = req.query;
+        const query = {};
+        const ownerId = farmerId || authorId;
+        if (ownerId) query['author.userId'] = ownerId;
 
-/**
- * DELETE /api/posts/:id
- * Deletes a post. Only the author or an admin may delete.
- */
-const deletePost = async (req, res, next) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) return errorResponse(res, 'Post not found', 404);
+        const posts = await Post.find(query)
+            .sort({ createdAt: -1 })
+            .limit(Math.min(Number(limit) || 20, 100));
 
-    const isAuthor = post.author.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-
-    if (!isAuthor && !isAdmin) {
-      return errorResponse(res, 'Not authorized to delete this post', 403);
+        return res.json({
+            success: true,
+            data: posts.map(post => serializePost(post, req)),
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Failed to load posts.' });
     }
+}
 
-    await post.deleteOne();
-    return successResponse(res, 'Post deleted', null);
-  } catch (err) {
-    next(err);
-  }
+async function updatePost(req, res) {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'Post not found.' });
+        }
+
+        if (String(post.author.userId) !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'You can only update your own posts.' });
+        }
+
+        if (req.body.content !== undefined || req.body.text !== undefined || req.body.caption !== undefined) {
+            post.content = String(req.body.content || req.body.text || req.body.caption || '').trim();
+        }
+
+        if (req.files && req.files.length) {
+            post.imagePaths = req.files.map(file => toUploadPath(file));
+        }
+
+        await post.save();
+        return res.json({ success: true, message: 'Post updated successfully.', data: serializePost(post, req) });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Failed to update post.' });
+    }
+}
+
+async function toggleLike(req, res) {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'Post not found.' });
+        }
+
+        const likeKey = req.user.id;
+        const liked = post.likes.includes(likeKey);
+        post.likes = liked ? post.likes.filter(entry => entry !== likeKey) : [...post.likes, likeKey];
+        await post.save();
+
+        return res.json({
+            success: true,
+            message: liked ? 'Post unliked.' : 'Post liked.',
+            data: serializePost(post, req),
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Failed to update like.' });
+    }
+}
+
+async function deletePost(req, res) {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'Post not found.' });
+        }
+
+        if (String(post.author.userId) !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'You can only delete your own posts.' });
+        }
+
+        await post.deleteOne();
+        return res.json({ success: true, message: 'Post deleted successfully.' });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Failed to delete post.' });
+    }
+}
+
+module.exports = {
+    createPost,
+    getPosts,
+    updatePost,
+    toggleLike,
+    deletePost,
 };
-
-module.exports = { createPost, getFeed, likePost, deletePost };

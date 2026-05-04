@@ -1,136 +1,189 @@
 const Product = require('../models/Product');
-const { successResponse, errorResponse } = require('../utils/apiResponse');
+const { buildMediaUrl } = require('../services/mediaUrlService');
+const { toUploadPath } = require('../middleware/upload');
 
-/**
- * POST /api/products
- * Creates a new product listing. Farmer role only.
- */
-const createProduct = async (req, res, next) => {
-  try {
-    const { title, description, category, price, unit, quantityAvailable, location, tags } = req.body;
+function firstValue(value, fallback = '') {
+    if (Array.isArray(value)) return value[0] || fallback;
+    return value ?? fallback;
+}
 
-    const images = req.files
-      ? req.files.map((f) => ({ url: `/uploads/${f.filename}`, publicId: f.filename }))
-      : [];
+function normalizePaymentMethods(value) {
+    if (Array.isArray(value)) return value.filter(Boolean);
+    if (typeof value === 'string' && value.trim()) return [value.trim()];
+    return [];
+}
 
-    const product = await Product.create({
-      farmer: req.user._id,
-      title, description, category, price, unit, quantityAvailable, location,
-      tags: tags ? (Array.isArray(tags) ? tags : tags.split(',').map((t) => t.trim())) : [],
-      images,
-    });
+function serializeProduct(productDoc, req) {
+    const price = Number((productDoc.sellingPrice - (productDoc.sellingPrice * (productDoc.discount || 0) / 100)).toFixed(2));
+    const imageUrl = buildMediaUrl(req, productDoc.imagePath);
 
-    return successResponse(res, 'Product created', product, 201);
-  } catch (err) {
-    next(err);
-  }
-};
+    return {
+        id: String(productDoc._id),
+        name: productDoc.name,
+        brand: productDoc.brand,
+        description: productDoc.description,
+        category: productDoc.category,
+        costPrice: productDoc.costPrice,
+        sellingPrice: productDoc.sellingPrice,
+        discount: productDoc.discount,
+        price,
+        stock: productDoc.stock,
+        unit: productDoc.unit,
+        harvestDate: productDoc.harvestDate,
+        expiryDate: productDoc.expiryDate,
+        imageUrl,
+        paymentMethods: productDoc.paymentMethods,
+        seller: {
+            id: String(productDoc.seller.userId),
+            role: productDoc.seller.role,
+            name: productDoc.seller.name,
+            email: productDoc.seller.email,
+            phone: productDoc.seller.phone,
+            location: productDoc.seller.location,
+        },
+        createdAt: productDoc.createdAt,
+        updatedAt: productDoc.updatedAt,
+    };
+}
 
-/**
- * GET /api/products
- * Returns paginated product listings with optional filters.
- */
-const getProducts = async (req, res, next) => {
-  try {
-    const { category, search, farmerId, minPrice, maxPrice, page = 1, limit = 16 } = req.query;
-    const filter = { isAvailable: true };
+function buildProductPayload(req, existing = null) {
+    const body = req.body || {};
+    const paymentMethods = normalizePaymentMethods(body['paymentMethods[]'] || body.paymentMethods);
+    const imagePath = req.file ? toUploadPath(req.file) : existing?.imagePath || '';
+    const sellerLocation = firstValue(body.location, req.user.address || existing?.seller?.location || '');
 
-    if (category) filter.category = category;
-    if (farmerId) filter.farmer = farmerId;
-    if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = parseFloat(minPrice);
-      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+    return {
+        name: firstValue(body.name, existing?.name || '').trim(),
+        brand: firstValue(body.brand, existing?.brand || '').trim(),
+        description: firstValue(body.description, existing?.description || '').trim(),
+        category: firstValue(body.category, existing?.category || 'other').trim().toLowerCase(),
+        costPrice: Number(firstValue(body.costPrice, existing?.costPrice ?? 0) || 0),
+        sellingPrice: Number(firstValue(body.sellingPrice, existing?.sellingPrice ?? 0) || 0),
+        discount: Number(firstValue(body.discount, existing?.discount ?? 0) || 0),
+        stock: Number(firstValue(body.stock, existing?.stock ?? 0) || 0),
+        unit: firstValue(body.unit, existing?.unit || 'pcs').trim() || 'pcs',
+        harvestDate: firstValue(body.harvestDate, existing?.harvestDate || null) || null,
+        expiryDate: firstValue(body.expiryDate, existing?.expiryDate || null) || null,
+        paymentMethods: paymentMethods.length ? paymentMethods : (existing?.paymentMethods || []),
+        imagePath,
+        seller: {
+            userId: req.user.id,
+            userModel: 'User',
+            role: req.user.role,
+            name: firstValue(body.sellerName, req.user.fullName || existing?.seller?.name || '').trim(),
+            email: firstValue(body.sellerEmail, req.user.email || existing?.seller?.email || '').trim().toLowerCase(),
+            phone: firstValue(body.sellerPhone, req.user.phone || existing?.seller?.phone || '').trim(),
+            location: sellerLocation.trim(),
+        },
+    };
+}
+
+async function createProduct(req, res) {
+    try {
+        const payload = buildProductPayload(req);
+
+        if (!payload.name || !payload.sellingPrice) {
+            return res.status(400).json({ success: false, message: 'Product name and selling price are required.' });
+        }
+
+        const product = await Product.create(payload);
+        return res.status(201).json({
+            success: true,
+            message: 'Product created successfully.',
+            data: serializeProduct(product, req),
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Failed to create product.' });
     }
-    if (search) {
-      filter.$text = { $search: search };
+}
+
+async function getProducts(req, res) {
+    try {
+        const { category, search, farmerId, minPrice, maxPrice, limit = 20 } = req.query;
+        const query = {};
+
+        if (category) query.category = String(category).toLowerCase();
+        if (farmerId) query['seller.userId'] = farmerId;
+        if (search) query.$text = { $search: search };
+        if (minPrice || maxPrice) {
+            query.sellingPrice = {};
+            if (minPrice) query.sellingPrice.$gte = Number(minPrice);
+            if (maxPrice) query.sellingPrice.$lte = Number(maxPrice);
+        }
+
+        const products = await Product.find(query)
+            .sort({ createdAt: -1 })
+            .limit(Math.min(Number(limit) || 20, 100));
+
+        return res.json({
+            success: true,
+            data: products.map(product => serializeProduct(product, req)),
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Failed to load products.' });
     }
+}
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [products, total] = await Promise.all([
-      Product.find(filter)
-        .populate('farmer', 'fullName farmName avatar farmLocation isVerified')
-        .skip(skip)
-        .limit(parseInt(limit))
-        .sort({ createdAt: -1 }),
-      Product.countDocuments(filter),
-    ]);
+async function getProductById(req, res) {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found.' });
+        }
 
-    return successResponse(res, 'Products list', {
-      products,
-      pagination: { total, page: parseInt(page), limit: parseInt(limit) },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * GET /api/products/:id
- * Returns a single product with farmer details. Increments view count.
- */
-const getProductById = async (req, res, next) => {
-  try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { views: 1 } },
-      { new: true }
-    ).populate('farmer', 'fullName farmName avatar farmLocation isVerified phone');
-
-    if (!product) return errorResponse(res, 'Product not found', 404);
-
-    return successResponse(res, 'Product details', product);
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * PUT /api/products/:id
- * Updates a product. Only the owning farmer may update.
- */
-const updateProduct = async (req, res, next) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return errorResponse(res, 'Product not found', 404);
-
-    if (product.farmer.toString() !== req.user._id.toString()) {
-      return errorResponse(res, 'Not authorized to update this product', 403);
+        return res.json({ success: true, data: serializeProduct(product, req) });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Invalid product id.' });
     }
+}
 
-    const allowedFields = ['title', 'description', 'category', 'price', 'unit', 'quantityAvailable', 'location', 'tags', 'isAvailable'];
-    allowedFields.forEach((f) => {
-      if (req.body[f] !== undefined) product[f] = req.body[f];
-    });
+async function updateProduct(req, res) {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found.' });
+        }
 
-    await product.save();
-    return successResponse(res, 'Product updated', product);
-  } catch (err) {
-    next(err);
-  }
-};
+        if (String(product.seller.userId) !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'You can only update your own products.' });
+        }
 
-/**
- * DELETE /api/products/:id
- * Deletes a product. Only the owning farmer or an admin may delete.
- */
-const deleteProduct = async (req, res, next) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return errorResponse(res, 'Product not found', 404);
+        const payload = buildProductPayload(req, product);
+        Object.assign(product, payload);
+        await product.save();
 
-    const isOwner = product.farmer.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-
-    if (!isOwner && !isAdmin) {
-      return errorResponse(res, 'Not authorized to delete this product', 403);
+        return res.json({
+            success: true,
+            message: 'Product updated successfully.',
+            data: serializeProduct(product, req),
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Failed to update product.' });
     }
+}
 
-    await product.deleteOne();
-    return successResponse(res, 'Product deleted', null);
-  } catch (err) {
-    next(err);
-  }
+async function deleteProduct(req, res) {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found.' });
+        }
+
+        if (String(product.seller.userId) !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'You can only delete your own products.' });
+        }
+
+        await product.deleteOne();
+        return res.json({ success: true, message: 'Product deleted successfully.' });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: 'Failed to delete product.' });
+    }
+}
+
+module.exports = {
+    createProduct,
+    getProducts,
+    getProductById,
+    updateProduct,
+    deleteProduct,
 };
-
-module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct };

@@ -1,68 +1,103 @@
 const mongoose = require('mongoose');
 
-/**
- * Product model — represents a crop/item listed by a farmer.
- */
-const productSchema = new mongoose.Schema(
-  {
-    farmer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    title: {
-      type: String,
-      required: [true, 'Product title is required'],
-      trim: true,
+const productSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true,
     },
     description: {
-      type: String,
-      trim: true,
+        type: String,
+        default: '',
+        trim: true,
+    },
+    brand: {
+        type: String,
+        default: '',
+        trim: true,
     },
     category: {
-      type: String,
-      enum: ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Poultry', 'Herbs', 'Organic', 'Bulk Supply', 'Farm Tools', 'Seedlings', 'Other'],
-      default: 'Other',
+        type: String,
+        default: 'other',
+        trim: true,
+        lowercase: true,
     },
-    price: {
-      type: Number,
-      required: [true, 'Price is required'],
-      min: 0,
+    costPrice: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    sellingPrice: {
+        type: Number,
+        required: true,
+        min: 0,
+    },
+    discount: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    stock: {
+        type: Number,
+        default: 0,
+        min: 0,
     },
     unit: {
-      type: String,
-      default: 'kg', // kg, piece, bunch, litre, etc.
+        type: String,
+        default: 'pcs',
+        trim: true,
     },
-    quantityAvailable: {
-      type: Number,
-      default: 0,
-      min: 0,
+    harvestDate: Date,
+    expiryDate: Date,
+    paymentMethods: {
+        type: [String],
+        default: [],
     },
-    images: [
-      {
-        url: { type: String },
-        publicId: { type: String }, // cloud storage reference
-      },
-    ],
-    isAvailable: {
-      type: Boolean,
-      default: true,
+    imagePath: {
+        type: String,
+        default: '',
     },
-    location: {
-      type: String,
-      trim: true,
+    seller: {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            refPath: 'seller.userModel',
+        },
+        userModel: {
+            type: String,
+            required: true,
+            enum: ['User', 'Farmer', 'Customer'],
+            default: 'User',
+        },
+        role: {
+            type: String,
+            required: true,
+            enum: ['farmer', 'customer'],
+        },
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            trim: true,
+            lowercase: true,
+        },
+        phone: {
+            type: String,
+            default: '',
+            trim: true,
+        },
+        location: {
+            type: String,
+            default: '',
+            trim: true,
+        },
     },
-    tags: [{ type: String }],
-    views: {
-      type: Number,
-      default: 0,
-    },
-  },
-  { timestamps: true }
-);
+}, { timestamps: true });
 
-// Index for search and filtering
-productSchema.index({ title: 'text', description: 'text', tags: 'text' });
-productSchema.index({ category: 1, isAvailable: 1 });
+productSchema.index({ name: 'text', description: 'text', category: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

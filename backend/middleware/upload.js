@@ -1,37 +1,62 @@
-const multer = require('multer');
+const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
-const ALLOWED_TYPES = /jpeg|jpg|png|webp/;
-const MAX_SIZE_MB = 5;
+const ROOT_UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 
-// Store files locally under uploads/
+function ensureDir(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+}
+
+ensureDir(ROOT_UPLOAD_DIR);
+
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-  },
+    destination: (req, file, cb) => {
+        const segment = req.uploadFolder || 'misc';
+        const target = path.join(ROOT_UPLOAD_DIR, segment);
+        ensureDir(target);
+        cb(null, target);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname || '').toLowerCase();
+        const safeBase = path.basename(file.originalname || 'upload', ext).replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
+        cb(null, `${Date.now()}-${safeBase}${ext}`);
+    },
 });
 
-const fileFilter = (_req, file, cb) => {
-  const isAllowed =
-    ALLOWED_TYPES.test(path.extname(file.originalname).toLowerCase()) &&
-    ALLOWED_TYPES.test(file.mimetype);
+function fileFilter(req, file, cb) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.mimetype)) {
+        return cb(new Error('Only image uploads are allowed.'));
+    }
+    return cb(null, true);
+}
 
-  if (isAllowed) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPEG, JPG, PNG, and WEBP images are allowed'), false);
-  }
+const uploader = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+function withUploadFolder(folder) {
+    return (req, res, next) => {
+        req.uploadFolder = folder;
+        next();
+    };
+}
+
+function toUploadPath(file) {
+    if (!file) return '';
+    const normalized = file.path.replace(/\\/g, '/');
+    const marker = '/uploads/';
+    const idx = normalized.lastIndexOf(marker);
+    return idx >= 0 ? normalized.slice(idx) : `/uploads/${file.filename}`;
+}
+
+module.exports = {
+    uploader,
+    withUploadFolder,
+    toUploadPath,
 };
-
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: MAX_SIZE_MB * 1024 * 1024 },
-});
-
-module.exports = upload;

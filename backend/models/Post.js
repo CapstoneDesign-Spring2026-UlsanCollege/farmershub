@@ -1,56 +1,44 @@
 const mongoose = require('mongoose');
 
-/**
- * Post model — farmer feed posts (updates, harvest news, promotions).
- */
-const postSchema = new mongoose.Schema(
-  {
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+const postSchema = new mongoose.Schema({
     content: {
-      type: String,
-      required: [true, 'Post content is required'],
-      trim: true,
-      maxlength: 2000,
+        type: String,
+        default: '',
+        trim: true,
     },
-    images: [
-      {
-        url: { type: String },
-        publicId: { type: String },
-      },
-    ],
-    // Optional product tag — link post to a listed product
-    linkedProduct: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+    imagePaths: {
+        type: [String],
+        default: [],
     },
-    likes: [
-      {
+    linkedProductId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-    likesCount: {
-      type: Number,
-      default: 0,
+        ref: 'Product',
+        default: null,
     },
-    commentsCount: {
-      type: Number,
-      default: 0,
+    author: {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+        },
+        role: {
+            type: String,
+            required: true,
+            enum: ['farmer', 'customer'],
+        },
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        avatarPath: {
+            type: String,
+            default: '',
+        },
     },
-    isPublished: {
-      type: Boolean,
-      default: true,
+    likes: {
+        type: [String],
+        default: [],
     },
-    tags: [{ type: String }],
-  },
-  { timestamps: true }
-);
-
-postSchema.index({ author: 1, createdAt: -1 });
-postSchema.index({ content: 'text' });
+}, { timestamps: true });
 
 module.exports = mongoose.model('Post', postSchema);

@@ -1,26 +1,41 @@
-const jwt = require('jsonwebtoken');
+const { verifyAuthToken } = require('../services/tokenService');
+const { findUserById, normalizeBaseUser } = require('../services/userModelService');
 
-function authRequired(req, res, next) {
-  const authHeader = req.headers.authorization || '';
-  const [scheme, token] = authHeader.split(' ');
+async function requireAuth(req, res, next) {
+    try {
+        const header = req.headers.authorization || '';
+        const [, token] = header.split(' ');
 
-  if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Authorization token is required.'
-    });
-  }
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Authentication required.' });
+        }
 
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'farmershub-dev-secret');
-    req.user = payload;
-    return next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid or expired token.'
-    });
-  }
+        const payload = verifyAuthToken(token);
+        const userDoc = await findUserById(payload.sub);
+
+        if (!userDoc || payload.role !== userDoc.role) {
+            return res.status(401).json({ success: false, message: 'Invalid token.' });
+        }
+
+        req.auth = payload;
+        req.userDoc = userDoc;
+        req.user = normalizeBaseUser(userDoc, payload.role);
+        return next();
+    } catch (error) {
+        return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
+    }
 }
 
-module.exports = authRequired;
+function requireRole(...allowedRoles) {
+    return (req, res, next) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ success: false, message: 'You do not have permission to perform this action.' });
+        }
+        return next();
+    };
+}
+
+module.exports = {
+    requireAuth,
+    requireRole,
+};

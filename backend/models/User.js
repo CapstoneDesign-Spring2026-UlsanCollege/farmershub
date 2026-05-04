@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-/**
- * Unified User model.
- * Roles: 'buyer' | 'farmer' | 'admin'
- * Farmer-specific fields are only relevant when role === 'farmer'.
- */
-const userSchema = new mongoose.Schema(
-  {
-    // ── Core auth fields ──────────────────────────────────────────────────────
+const userSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+        trim: true
+    },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -17,16 +15,41 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: {
-      type: String,
-      required: [true, 'Password is required'],
-      minlength: 6,
-      select: false, // never returned in queries by default
+        type: String,
+        required: true
     },
     role: {
-      type: String,
-      enum: ['buyer', 'farmer', 'admin'],
-      default: 'buyer',
+        type: String,
+        required: true,
+        enum: ['farmer', 'customer', 'admin'],
+        default: 'customer'
     },
+    age: {
+        type: Number,
+        required: true,
+        min: 16
+    },
+    gender: {
+        type: String,
+        required: true,
+        enum: ['male', 'female', 'other']
+    },
+    address: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    phone: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    paymentMethod: {
+        type: String,
+        required: true,
+        enum: ['cash', 'card', 'bank_transfer', 'mobile_pay']
+    }
+}, { timestamps: true });
 
     // ── Shared profile fields ─────────────────────────────────────────────────
     fullName: {

@@ -1,41 +1,35 @@
 const express = require('express');
-const authRequired = require('../middleware/auth');
+const router = express.Router();
+const User = require('../models/User');
+const { getCurrentProfile, getProfileById, updateCurrentProfile, uploadAvatar, uploadCover } = require('../controllers/profileController');
+const { requireAuth } = require('../middleware/auth');
+const { uploader, withUploadFolder } = require('../middleware/upload');
 
 function createUserRouter(store) {
   const router = express.Router();
 
   router.get('/farmers', async (req, res) => {
     try {
-      const farmers = await store.listUsers('farmer');
-      return res.json({ success: true, data: farmers });
-    } catch (error) {
-      return res.status(500).json({ success: false, message: 'Server error.' });
+        const farmers = await User.find({ role: 'farmer' }, '-password').sort({ createdAt: -1 });
+        return res.json({ success: true, data: farmers });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Server error.' });
     }
   });
 
   router.get('/customers', async (req, res) => {
     try {
-      const customers = await store.listUsers('customer');
-      return res.json({ success: true, data: customers });
-    } catch (error) {
-      return res.status(500).json({ success: false, message: 'Server error.' });
+        const customers = await User.find({ role: 'customer' }, '-password').sort({ createdAt: -1 });
+        return res.json({ success: true, data: customers });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Server error.' });
     }
   });
 
-  router.get('/me', authRequired, async (req, res) => {
-    try {
-      const me = await store.getUserById(req.user.role, req.user.id);
-      if (!me) {
-        return res.status(404).json({ success: false, message: 'User not found.' });
-      }
+router.get('/profile', requireAuth, getCurrentProfile);
+router.get('/profile/:id', getProfileById);
+router.put('/profile', requireAuth, updateCurrentProfile);
+router.post('/avatar', requireAuth, withUploadFolder('profiles'), uploader.single('avatar'), uploadAvatar);
+router.post('/cover', requireAuth, withUploadFolder('profiles'), uploader.single('cover'), uploadCover);
 
-      return res.json({ success: true, data: me });
-    } catch (error) {
-      return res.status(500).json({ success: false, message: 'Server error.' });
-    }
-  });
-
-  return router;
-}
-
-module.exports = createUserRouter;
+module.exports = router;
