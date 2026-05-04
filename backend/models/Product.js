@@ -1,95 +1,68 @@
 const mongoose = require('mongoose');
 
+/**
+ * Product model — represents a crop/item listed by a farmer.
+ */
 const productSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    farmer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
-      trim: true
     },
-    brand: {
+    title: {
       type: String,
-      default: '',
-      trim: true
+      required: [true, 'Product title is required'],
+      trim: true,
     },
     description: {
       type: String,
-      default: '',
-      trim: true
+      trim: true,
     },
     category: {
       type: String,
-      default: 'General',
-      trim: true
-    },
-    costPrice: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-    sellingPrice: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-    discount: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100
+      enum: ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Poultry', 'Herbs', 'Organic', 'Bulk Supply', 'Farm Tools', 'Seedlings', 'Other'],
+      default: 'Other',
     },
     price: {
       type: Number,
-      default: 0,
-      min: 0
-    },
-    stock: {
-      type: Number,
-      default: 0,
-      min: 0
+      required: [true, 'Price is required'],
+      min: 0,
     },
     unit: {
       type: String,
-      default: 'kg',
-      trim: true
+      default: 'kg', // kg, piece, bunch, litre, etc.
     },
-    harvestDate: {
-      type: String,
-      default: ''
+    quantityAvailable: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
-    expiryDate: {
-      type: String,
-      default: ''
-    },
-    imageUrl: {
-      type: String,
-      default: ''
-    },
-    paymentMethods: {
-      type: [String],
-      default: []
-    },
-    seller: {
-      id: {
-        type: String,
-        required: true
+    images: [
+      {
+        url: { type: String },
+        publicId: { type: String }, // cloud storage reference
       },
-      email: {
-        type: String,
-        required: true
-      },
-      fullName: {
-        type: String,
-        required: true
-      },
-      role: {
-        type: String,
-        required: true,
-        enum: ['farmer', 'customer']
-      }
-    }
+    ],
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
+    location: {
+      type: String,
+      trim: true,
+    },
+    tags: [{ type: String }],
+    views: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
+
+// Index for search and filtering
+productSchema.index({ title: 'text', description: 'text', tags: 'text' });
+productSchema.index({ category: 1, isAvailable: 1 });
 
 module.exports = mongoose.model('Product', productSchema);
