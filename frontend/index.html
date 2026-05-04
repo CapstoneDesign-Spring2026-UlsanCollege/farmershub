@@ -31,9 +31,25 @@
     <a href="profile.html" class="nav-chip">Profile</a>
     <a href="messages.html" class="nav-chip">Messages</a>
     <a href="notifications.html" class="nav-chip">Alerts</a>
-    <a href="login/login.html" class="login-btn">Login</a>
+    <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
+    <button class="login-btn" id="navLogoutBtn" style="display:none;" onclick="(function(){['fh_token','fh_user','fh_loggedIn','fh_role','currentUser'].forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k);});window.location.reload();})()">Logout</button>
   </nav>
 </header>
+
+<script>
+(function () {
+  var token = localStorage.getItem('fh_token');
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('fh_user')); } catch(e) {}
+  if (token) {
+    var loginBtn = document.getElementById('navLoginBtn');
+    var logoutBtn = document.getElementById('navLogoutBtn');
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'inline-block';
+    if (user && user.fullName && logoutBtn) logoutBtn.textContent = 'Logout (' + user.fullName.split(' ')[0] + ')';
+  }
+})();
+</script>
 
 <main class="page-feed">
   <section class="hero-card reveal">

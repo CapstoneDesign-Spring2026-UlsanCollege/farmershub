@@ -37,6 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
 
+  // Pre-fill seller info from logged-in user
+  const sellerNameEl = document.getElementById('sellerName');
+  const sellerEmailEl = document.getElementById('sellerEmail');
+  const sellerPhoneEl = document.getElementById('sellerPhone');
+  const sellerLocationEl = document.getElementById('sellerLocation');
+  if (sellerNameEl && currentUser.fullName) sellerNameEl.value = currentUser.fullName;
+  if (sellerEmailEl && currentUser.email) sellerEmailEl.value = currentUser.email;
+  if (sellerPhoneEl && currentUser.phone) sellerPhoneEl.value = currentUser.phone;
+  if (sellerLocationEl && currentUser.address) sellerLocationEl.value = currentUser.address;
+
   setupEventListeners();
   loadProductsFromAPI();
 });
