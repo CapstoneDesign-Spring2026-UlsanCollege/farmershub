@@ -8,8 +8,7 @@ const {
   deleteProduct,
 } = require('../controllers/productController');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const upload = require('../middleware/upload');
-const { createProductRules } = require('../middleware/validate');
+const { uploader, withUploadFolder } = require('../middleware/upload');
 
 // GET  /api/products         — public product listing
 router.get('/', getProducts);
@@ -22,13 +21,13 @@ router.post(
   '/',
   protect,
   authorize('farmer'),
-  upload.array('images', 6),
-  createProductRules,
+  withUploadFolder('products'),
+  uploader.single('images'),
   createProduct
 );
 
 // PUT  /api/products/:id     — update product (farmer only, owner check in controller)
-router.put('/:id', protect, authorize('farmer'), updateProduct);
+router.put('/:id', protect, authorize('farmer'), withUploadFolder('products'), uploader.single('images'), updateProduct);
 
 // DELETE /api/products/:id   — delete product (farmer or admin)
 router.delete('/:id', protect, authorize('farmer', 'admin'), deleteProduct);

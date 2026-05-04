@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getProfile,
-  updateProfile,
-  uploadAvatar,
   getAllUsers,
   deactivateUser,
 } = require('../controllers/userController');
+const {
+  getCurrentProfile,
+  updateCurrentProfile,
+  uploadAvatar,
+  uploadCover,
+} = require('../controllers/profileController');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const upload = require('../middleware/upload');
+const { uploader, withUploadFolder } = require('../middleware/upload');
 const User = require('../models/User');
 const { successResponse } = require('../utils/apiResponse');
 
@@ -24,8 +27,8 @@ router.get('/farmers', async (req, res, next) => {
 // GET /api/users/customers  — list all buyer accounts (legacy name for compatibility)
 router.get('/customers', async (req, res, next) => {
   try {
-    const buyers = await User.find({ role: 'buyer', isActive: true }, '-password').sort({ createdAt: -1 });
-    return successResponse(res, 'Customers list', buyers);
+    const customers = await User.find({ role: 'customer', isActive: true }, '-password').sort({ createdAt: -1 });
+    return successResponse(res, 'Customers list', customers);
   } catch (err) { next(err); }
 });
 
@@ -33,13 +36,16 @@ router.get('/customers', async (req, res, next) => {
 router.use(protect);
 
 // GET  /api/users/profile   — current user's profile
-router.get('/profile', getProfile);
+router.get('/profile', getCurrentProfile);
 
 // PUT  /api/users/profile   — update current user's profile
-router.put('/profile', updateProfile);
+router.put('/profile', updateCurrentProfile);
 
 // POST /api/users/avatar    — upload profile picture
-router.post('/avatar', upload.single('avatar'), uploadAvatar);
+router.post('/avatar', withUploadFolder('profiles'), uploader.single('avatar'), uploadAvatar);
+
+// POST /api/users/cover     — upload profile cover image
+router.post('/cover', withUploadFolder('profiles'), uploader.single('cover'), uploadCover);
 
 // ── Admin only ────────────────────────────────────────────────────────────────
 // GET  /api/users           — list all users

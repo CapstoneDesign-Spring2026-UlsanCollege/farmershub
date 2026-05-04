@@ -15,8 +15,7 @@ const register = async (req, res, next) => {
       address, age, gender, paymentMethod,
     } = req.body;
 
-    // Normalize role: old frontend sends 'customer', new schema uses 'buyer'
-    const role = rawRole === 'customer' ? 'buyer' : (rawRole || 'buyer');
+    const role = rawRole || 'customer';
     // Normalize phone field
     const phoneNorm = phone || contact || '';
 

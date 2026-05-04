@@ -34,4 +34,5 @@ build/
 .idea/
 
 # Upload/generated media
-backend/uploads/
+backend/uploads/*
+!backend/uploads/.gitkeep

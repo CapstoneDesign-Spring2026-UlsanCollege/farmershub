@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const Post = require('../models/Post');
 const Profile = require('../models/Profile');
+const User = require('../models/User');
 const { buildMediaUrl } = require('../services/mediaUrlService');
 const { findUserAcrossRolesById, normalizeBaseUser } = require('../services/userModelService');
 const { toUploadPath } = require('../middleware/upload');
@@ -79,11 +80,20 @@ async function updateCurrentProfile(req, res) {
         const profile = await ensureProfile(req.user);
         const { fullName, phone, address, paymentMethod, bio, location, farmName, products, cropTypes, farmLocation, farmSizeAcres } = req.body;
 
-        if (fullName !== undefined) req.userDoc.fullName = String(fullName).trim();
-        if (phone !== undefined) req.userDoc.phone = String(phone).trim();
-        if (address !== undefined) req.userDoc.address = String(address).trim();
-        if (paymentMethod !== undefined) req.userDoc.paymentMethod = String(paymentMethod).trim();
-        await req.userDoc.save();
+        let userDoc = req.userDoc;
+        if (!userDoc) {
+            const userId = req.user?._id || req.user?.id;
+            userDoc = await User.findById(userId);
+            if (!userDoc) {
+                return res.status(404).json({ success: false, message: 'User not found.' });
+            }
+        }
+
+        if (fullName !== undefined) userDoc.fullName = String(fullName).trim();
+        if (phone !== undefined) userDoc.phone = String(phone).trim();
+        if (address !== undefined) userDoc.address = String(address).trim();
+        if (paymentMethod !== undefined) userDoc.paymentMethod = String(paymentMethod).trim();
+        await userDoc.save();
 
         if (bio !== undefined) profile.bio = String(bio).trim();
         if (location !== undefined) profile.location = String(location).trim();
@@ -100,10 +110,11 @@ async function updateCurrentProfile(req, res) {
 
         const refreshedUser = {
             ...req.user,
-            fullName: req.userDoc.fullName,
-            phone: req.userDoc.phone,
-            address: req.userDoc.address,
-            paymentMethod: req.userDoc.paymentMethod,
+            id: String(userDoc._id || req.user.id),
+            fullName: userDoc.fullName,
+            phone: userDoc.phone,
+            address: userDoc.address,
+            paymentMethod: userDoc.paymentMethod,
         };
 
         const data = await buildProfileResponse(profile, refreshedUser, req);

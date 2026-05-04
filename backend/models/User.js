@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
-    fullName: {
-        type: String,
-        required: true,
-        trim: true
-    },
+const userSchema = new mongoose.Schema(
+  {
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -15,43 +11,16 @@ const userSchema = new mongoose.Schema({
       trim: true,
     },
     password: {
-        type: String,
-        required: true
+      type: String,
+      required: [true, 'Password is required'],
+      select: false,
     },
     role: {
-        type: String,
-        required: true,
-        enum: ['farmer', 'customer', 'admin'],
-        default: 'customer'
+      type: String,
+      enum: ['farmer', 'customer', 'admin'],
+      default: 'customer',
+      required: true,
     },
-    age: {
-        type: Number,
-        required: true,
-        min: 16
-    },
-    gender: {
-        type: String,
-        required: true,
-        enum: ['male', 'female', 'other']
-    },
-    address: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    phone: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    paymentMethod: {
-        type: String,
-        required: true,
-        enum: ['cash', 'card', 'bank_transfer', 'mobile_pay']
-    }
-}, { timestamps: true });
-
-    // ── Shared profile fields ─────────────────────────────────────────────────
     fullName: {
       type: String,
       required: [true, 'Full name is required'],
@@ -73,7 +42,6 @@ const userSchema = new mongoose.Schema({
       type: String,
       maxlength: 500,
     },
-    // Optional demographic fields (collected at registration)
     age: {
       type: Number,
       min: 16,
@@ -87,8 +55,6 @@ const userSchema = new mongoose.Schema({
       type: Boolean,
       default: true,
     },
-
-    // ── Farmer-specific fields (only populated when role === 'farmer') ─────────
     farmName: { type: String, trim: true },
     farmLocation: { type: String, trim: true },
     farmSizeAcres: { type: Number },
@@ -96,8 +62,6 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     rating: { type: Number, default: 0, min: 0, max: 5 },
     totalReviews: { type: Number, default: 0 },
-
-    // ── Payment info ──────────────────────────────────────────────────────────
     paymentMethod: {
       type: String,
       enum: ['cash', 'card', 'bank_transfer', 'mobile_pay', 'Credit / Debit Card', ''],
