@@ -8,7 +8,8 @@ async function register(payload) {
     headers: jsonHeaders(false),
     body: JSON.stringify(payload),
   });
-  _saveSession(data.user, data.token);
+  const session = data?.data || data;
+  _saveSession(session.user, session.token);
   return data;
 }
 
@@ -18,7 +19,8 @@ async function login(payload) {
     headers: jsonHeaders(false),
     body: JSON.stringify(payload),
   });
-  _saveSession(data.user, data.token);
+  const session = data?.data || data;
+  _saveSession(session.user, session.token);
   return data;
 }
 
