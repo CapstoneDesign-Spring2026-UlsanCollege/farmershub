@@ -4,7 +4,6 @@
  */
 
 const LOCAL_API_BASE = 'http://localhost:5000/api';
-const PROD_FALLBACK_API_BASE = 'https://your-backend-domain.example.com/api';
 
 function normalizeBase(url) {
   return String(url || '').replace(/\/+$/, '');
@@ -21,7 +20,9 @@ function detectApiBase() {
     return LOCAL_API_BASE;
   }
 
-  return PROD_FALLBACK_API_BASE;
+  // Temporary live/demo default: use local API from hosted frontend.
+  // For real production, set window.FARMERSHUB_API_BASE to your deployed backend URL.
+  return LOCAL_API_BASE;
 }
 
 const API_BASE = detectApiBase();
