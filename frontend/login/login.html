@@ -56,6 +56,10 @@
     <h2 id="roleTitle">FarmersHub</h2>
     <img src="logo.png" alt="FarmersHub Logo" class="logo" width="100" height="100">
   </div>
+  <div class="auth-tabs" aria-label="Authentication mode">
+    <button type="button" class="auth-tab active" id="roleLoginTab">Login</button>
+    <button type="button" class="auth-tab" id="roleSignupTab">Sign Up</button>
+  </div>
   <p class="role-question">Are you a <strong>Farmer</strong> or a <strong>Customer</strong>?</p>
   <div class="role-buttons">
     <button class="role-btn farmer-btn" id="pickFarmer">
@@ -76,23 +80,61 @@
     <img src="logo.png" alt="FarmersHub Logo" class="logo" width="100" height="100" id="logo">
   </div>
   <p class="role-badge" id="roleBadge"></p>
+  <div class="auth-tabs" aria-label="Authentication mode">
+    <button type="button" class="auth-tab active" id="loginTab">Login</button>
+    <button type="button" class="auth-tab" id="signupTab">Sign Up</button>
+  </div>
   <form id="form">
+    <div class="signup-fields hidden" id="signupFields">
+      <input type="text" id="fullName" placeholder="Full name">
+      <input type="number" id="age" placeholder="Age (must be 16+)" min="16" max="120">
+      <select id="gender">
+        <option value="" disabled selected>Select gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" id="address" placeholder="Address">
+      <input type="tel" id="phone" placeholder="Phone number">
+      <select id="paymentMethod">
+        <option value="" disabled selected>Payment method</option>
+        <option value="cash">Cash</option>
+        <option value="card">Credit / Debit Card</option>
+        <option value="bank_transfer">Bank Transfer</option>
+        <option value="mobile_pay">Mobile Pay</option>
+      </select>
+    </div>
     <input type="email" id="email" placeholder="Enter email" required>
     <input type="password" id="password" placeholder="Enter password" required>
+    <input type="password" id="confirmPassword" class="signup-only hidden" placeholder="Confirm password">
+
+    <div class="password-panel signup-only hidden" id="passwordPanel">
+      <div class="strength-meter" aria-hidden="true">
+        <span id="strengthBar"></span>
+      </div>
+      <p id="strengthText">Password strength: Not started</p>
+      <ul class="password-rules" id="passwordRules">
+        <li data-rule="length">At least 8 characters</li>
+        <li data-rule="upper">One uppercase letter</li>
+        <li data-rule="lower">One lowercase letter</li>
+        <li data-rule="number">One number</li>
+        <li data-rule="special">One special character</li>
+      </ul>
+    </div>
 
     <button type="submit" id="btn">Login</button>
   </form>
 
-  <a class="toggle" href="createAccount.html">
+  <button type="button" class="toggle toggle-button" id="modeToggle">
     Don't have an account? Sign Up
-  </a>
+  </button>
 
   <div class="back-link" id="backToRole">← Change role</div>
 
   <div id="msg" class="message"></div>
 </div>
 
-<script type="module" src="../assets/js/login.js"></script>
+<script src="login.js"></script>
 <script>
 (function () {
   const canvas = document.getElementById('fallingCanvas');
