@@ -4,7 +4,6 @@
  */
 
 const LOCAL_API_BASE = 'http://localhost:5000/api';
-const PROD_FALLBACK_API_BASE = 'https://your-backend-domain.example.com/api';
 
 function normalizeBase(url) {
   return String(url || '').replace(/\/+$/, '');
@@ -21,7 +20,9 @@ function detectApiBase() {
     return LOCAL_API_BASE;
   }
 
-  return PROD_FALLBACK_API_BASE;
+  // On GitHub Pages (or any static host), default to same-origin proxy path.
+  // Set window.FARMERSHUB_API_BASE in production when backend is hosted elsewhere.
+  return '/api';
 }
 
 const API_BASE = detectApiBase();

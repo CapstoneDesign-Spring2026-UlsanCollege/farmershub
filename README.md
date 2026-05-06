@@ -46,7 +46,8 @@ Frontend API base is centralized in:
 
 Behavior:
 - localhost/127.0.0.1 -> http://localhost:5000/api
-- production -> window.FARMERSHUB_API_BASE override or configured fallback URL
+- production/static hosting -> same-origin /api by default
+- override with window.FARMERSHUB_API_BASE before app scripts load
 
 ## Deployment
 - .github/workflows/deploy-pages.yml deploys only frontend/ to GitHub Pages.

@@ -342,7 +342,144 @@ function resetMemoryStore() {
   idCounter = 1;
 }
 
+async function seedMemoryData(store) {
+  if (memory.users.farmer.length > 0 || memory.products.length > 0) {
+    return; // already seeded
+  }
+
+  const now = new Date();
+  const harvestDate = now.toISOString().slice(0, 10);
+  const expiryDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  // Demo farmers
+  const farmer1Result = await store.registerUser({
+    email: 'green.valley@farmershub.demo',
+    password: 'Demo1234!',
+    role: 'farmer',
+    fullName: 'Green Valley Farm',
+    age: 38,
+    gender: 'male',
+    address: 'Ulsan, South Korea',
+    phone: '010-1234-5678',
+    paymentMethod: 'bank_transfer'
+  });
+
+  const farmer2Result = await store.registerUser({
+    email: 'sunny.acres@farmershub.demo',
+    password: 'Demo1234!',
+    role: 'farmer',
+    fullName: 'Sunny Acres',
+    age: 45,
+    gender: 'female',
+    address: 'Busan, South Korea',
+    phone: '010-8765-4321',
+    paymentMethod: 'mobile_pay'
+  });
+
+  // Demo customer
+  await store.registerUser({
+    email: 'demo.customer@farmershub.demo',
+    password: 'Demo1234!',
+    role: 'customer',
+    fullName: 'Demo Customer',
+    age: 30,
+    gender: 'other',
+    address: 'Seoul, South Korea',
+    phone: '010-1111-2222',
+    paymentMethod: 'card'
+  });
+
+  if (!farmer1Result.error) {
+    const f1 = farmer1Result.user;
+    const seller1 = { id: f1.id, email: f1.email, fullName: f1.fullName, role: 'farmer' };
+
+    await store.createProduct({
+      name: 'Fresh Tomatoes',
+      brand: 'Green Valley',
+      description: 'Sun-ripened tomatoes, harvested fresh daily. Perfect for salads and cooking.',
+      category: 'Vegetable',
+      sellingPrice: 4500,
+      discount: 10,
+      stock: 120,
+      unit: 'kg',
+      harvestDate,
+      expiryDate
+    }, seller1);
+
+    await store.createProduct({
+      name: 'Organic Spinach',
+      brand: 'Green Valley',
+      description: 'Pesticide-free spinach. Rich in iron and nutrients.',
+      category: 'Vegetable',
+      sellingPrice: 3200,
+      discount: 0,
+      stock: 80,
+      unit: 'bundle',
+      harvestDate,
+      expiryDate
+    }, seller1);
+
+    await store.createProduct({
+      name: 'Brown Rice',
+      brand: 'Green Valley',
+      description: 'Whole grain brown rice. Locally grown and stone-milled.',
+      category: 'Grain',
+      sellingPrice: 8000,
+      discount: 5,
+      stock: 200,
+      unit: 'kg',
+      harvestDate,
+      expiryDate
+    }, seller1);
+  }
+
+  if (!farmer2Result.error) {
+    const f2 = farmer2Result.user;
+    const seller2 = { id: f2.id, email: f2.email, fullName: f2.fullName, role: 'farmer' };
+
+    await store.createProduct({
+      name: 'Jeju Mandarins',
+      brand: 'Sunny Acres',
+      description: 'Sweet and juicy mandarins from Jeju-style orchard. Seedless.',
+      category: 'Fruit',
+      sellingPrice: 12000,
+      discount: 15,
+      stock: 300,
+      unit: 'box',
+      harvestDate,
+      expiryDate
+    }, seller2);
+
+    await store.createProduct({
+      name: 'Strawberries',
+      brand: 'Sunny Acres',
+      description: 'Premium-grade strawberries. Freshly picked.',
+      category: 'Fruit',
+      sellingPrice: 9500,
+      discount: 0,
+      stock: 60,
+      unit: 'punnet',
+      harvestDate,
+      expiryDate
+    }, seller2);
+
+    await store.createProduct({
+      name: 'Garlic Bulbs',
+      brand: 'Sunny Acres',
+      description: 'Locally grown Korean garlic. Strong flavour.',
+      category: 'Vegetable',
+      sellingPrice: 5500,
+      discount: 5,
+      stock: 150,
+      unit: 'kg',
+      harvestDate,
+      expiryDate
+    }, seller2);
+  }
+}
+
 module.exports = {
   createStore,
-  resetMemoryStore
+  resetMemoryStore,
+  seedMemoryData
 };

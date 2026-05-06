@@ -13,14 +13,23 @@ const userRoutes = require('./routes/users.routes');
 const farmerRoutes = require('./routes/farmers.routes');
 const productRoutes = require('./routes/products.routes');
 const postRoutes = require('./routes/posts.routes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
 
 // ── Security headers ───────────────────────────────────────────────────────────
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: isProduction ? undefined : false,
+  })
+);
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5500,http://127.0.0.1:5500')
+const allowedOrigins = (
+  process.env.CLIENT_ORIGIN ||
+  'http://localhost:5000,http://127.0.0.1:5000,http://localhost:5500,http://127.0.0.1:5500,http://localhost:5501,http://127.0.0.1:5501,http://localhost:7778,http://127.0.0.1:7778'
+)
   .split(',')
   .map((o) => o.trim());
 
@@ -35,7 +44,7 @@ app.use(
   })
 );
 
-// ── Global rate limiter ────────────────────────────────────────────────────────
+// ── API rate limiter ───────────────────────────────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 200,
@@ -43,7 +52,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests — please try again later' },
 });
-app.use(limiter);
+app.use('/api', limiter);
 
 // Stricter limiter on auth endpoints
 const authLimiter = rateLimit({
@@ -64,6 +73,12 @@ if (process.env.NODE_ENV !== 'production') {
 // ── Serve uploaded files statically ───────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ── Serve frontend in local development for one-command run ───────────────────
+if (!isProduction) {
+  const frontendDir = path.resolve(__dirname, '..', 'frontend');
+  app.use(express.static(frontendDir));
+}
+
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, message: 'FarmersHub API is healthy', env: process.env.NODE_ENV });
@@ -75,6 +90,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((_req, res) => {

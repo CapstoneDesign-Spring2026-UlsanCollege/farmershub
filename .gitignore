@@ -28,6 +28,7 @@ dist/
 build/
 .cache/
 .parcel-cache/
+coverage/
 
 # Editor/IDE
 .vscode/
