@@ -20,9 +20,9 @@ function detectApiBase() {
     return LOCAL_API_BASE;
   }
 
-  // On GitHub Pages (or any static host), default to same-origin proxy path.
-  // Set window.FARMERSHUB_API_BASE in production when backend is hosted elsewhere.
-  return '/api';
+  // Temporary live/demo default: use local API from hosted frontend.
+  // For real production, set window.FARMERSHUB_API_BASE to your deployed backend URL.
+  return LOCAL_API_BASE;
 }
 
 const API_BASE = detectApiBase();

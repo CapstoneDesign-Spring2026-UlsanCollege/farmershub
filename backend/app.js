@@ -38,6 +38,7 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. curl, Postman) in development
       if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      if (/^https:\/\/.+\.github\.io$/i.test(origin)) return callback(null, true);
       callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
     credentials: true,

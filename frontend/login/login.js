@@ -28,7 +28,8 @@ async function onSubmit(event) {
 
   try {
     const data = await loginUser({ email, password });
-    const user = data.user;
+    const session = data?.data || data;
+    const user = session?.user;
 
     if (!user) {
       showMessage("Login response is missing user data.", "error");
