@@ -27,28 +27,28 @@ Our main user can:
 ## 3) What Works Right Now
 
 | Working item | Evidence link | Owner who can explain it |
-|---|---|---|
-| Live site is deployed and accessible | https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/ | Sonam |
-| Login and account UI flow | Live create account page screenshot attached on 4/29/2026 + `frontend/login/login.html`, `frontend/login/createAccount.html`, `frontend/login/login.js` | Sonam |
-| Product upload UI and page flow | `frontend/login/sell_crops.html`, `frontend/login/sell_crops.js`, `frontend/product.html` | Sonam |
-| Backend auth and route structure exists | MongoDB Compass screenshot showing saved farmer records + `backend/routes/auth.js`, `backend/controllers/profileController.js`, `backend/server.js` | Sonam |
+|--sonam-|--yubaraj-|-rupesh--|
+| Live site is deployed and accessible | https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/ | tulsiram |
+| Login and account UI flow | Live create account page screenshot attached on 4/29/2026 + `frontend/login/login.html`, `frontend/login/createAccount.html`, `frontend/login/login.js` |  chiranjibi|
+| Product upload UI and page flow | `frontend/login/sell_crops.html`, `frontend/login/sell_crops.js`, `frontend/product.html` | yubaraj |
+| Backend auth and route structure exists | MongoDB Compass screenshot showing saved farmer records + `backend/routes/auth.js`, `backend/controllers/profileController.js`, `backend/server.js` | rupesh|
 
 ## 4) Code We Understand
 
 | Code area | File / folder | What it does | Who can explain it? | Evidence |
-|---|---|---|---|---|
-| Frontend routing and page structure | `frontend/` | Main pages and navigation flow for product/profile/login/message | Sonam | `frontend/index.html`, `frontend/product.html`, `frontend/profile.html` |
-| Frontend service layer | `frontend/js/` | API configuration and service wrappers for auth, users, products, posts, profile | Sonam | `frontend/js/api.config.js`, `frontend/js/authService.js` |
-| Backend API setup | `backend/server.js`, `backend/routes/` | Express app, route mounting, endpoint organization | Sonam | `backend/server.js`, `backend/routes/products.js` |
-| Upload handling | `backend/middleware/upload.js`, `backend/controllers/productController.js` | File upload middleware and product upload handling | Sonam | `backend/middleware/upload.js` |
+|tulsiram---|-yubaraj--|--rupesh-|--sonam-|-chiranjibi--|
+| Frontend routing and page structre | `frontend/` | Main pages and navigation flow for product/profile/login/message | Sonam | `frontend/index.html`, `frontend/product.html`, `frontend/profile.html` |
+| Frontend service layer | `frontend/js/` | API configuration and service wrappers for auth, users, products, posts, profile | | `frontend/js/api.config.js`, `frontend/js/authService.js` |
+| Backend API setup | `backend/server.js`, `backend/routes/` | Express app, route mounting, endpoint organization |  | `backend/server.js`, `backend/routes/products.js` |
+| Upload handling | `backend/middleware/upload.js`, `backend/controllers/productController.js` | File upload middleware and product upload handling |  | `backend/middleware/upload.js` |
 
 ## 5) Code We Do NOT Fully Understand Yet
 
 | Code area | What is confusing? | Risk level | Owner | Next step |
 |---|---|---|---|---|
 | Production/deployment behavior vs local API calls | Some frontend flows depend on backend availability and environment URLs | High | Sonam | Verify `frontend/js/api.config.js`, document production API strategy |
-| Incomplete edge-case validation | Some forms and route error states are not fully validated end to end | Medium | Sonam | Add test checklist and negative test cases in Sprint packet |
-| Messaging backend linkage | Message UI exists, but full backend integration status needs verification | Medium | Sonam | Trace message endpoints and test with seeded data |
+| Incomplete edge-case validation | Some forms and route error states are not fully validated end to end | Medium | yubaraj | Add test checklist and negative test cases in Sprint packet |
+| Messaging backend linkage | Message UI exists, but full backend integration status needs verification | Medium | tulsiram | Trace message endpoints and test with seeded data |
 
 ## 6) AI-Assisted Work
 
@@ -80,16 +80,16 @@ Our main user can:
 | Bug / problem | Severity | Evidence link | Owner | Next action |
 |---|---|---|---|---|
 | Backend-dependent flows may fail when server is not running | P1 | `frontend/js/api.config.js`, manual testing on live vs local | Sonam | Add clear fallback message and environment handling |
-| Upload and media display consistency across pages needs retest | P2 | `frontend/login/sell_crops.js`, `backend/services/mediaUrlService.js` | Sonam | Run upload regression checklist and log findings |
-| Some pages are UI-complete but integration status not fully documented | P2 | `frontend/notifications.html`, `frontend/Message/messages.html` | Sonam | Add integration status table in weekly sprint packet |
+| Upload and media display consistency across pages needs retest | P2 | `frontend/login/sell_crops.js`, `backend/services/mediaUrlService.js` | rupesh | Run upload regression checklist and log findings |
+| Some pages are UI-complete but integration status not fully documented | P2 | `frontend/notifications.html`, `frontend/Message/messages.html` | chiranjibi| Add integration status table in weekly sprint packet |
 
 ## 8) Risk List
 
 | Risk | Why it matters | Mitigation | Owner |
 |---|---|---|---|
-| API endpoint mismatch between environments | Can break login/upload in production | Centralize base URL strategy and verify all service files | Sonam |
-| Unclear ownership for some modules | Slows debugging and demo confidence | Maintain this audit weekly and assign explicit owners per module | Sonam |
-| Limited automated test coverage | Regressions can slip into demo branch | Add lightweight smoke test checklist for critical user flows | Sonam |
+| API endpoint mismatch between environments | Can break login/upload in production | Centralize base URL strategy and verify all service files |yubaraj |
+| Unclear ownership for some modules | Slows debugging and demo confidence | Maintain this audit weekly and assign explicit owners per module | rupesh |
+| Limited automated test coverage | Regressions can slip into demo branch | Add lightweight smoke test checklist for critical user flows | rupesh |
 
 ## 9) Team Ownership Map
 
