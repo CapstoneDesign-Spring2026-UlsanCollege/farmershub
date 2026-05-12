@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const fs = require('fs');
 
 const errorHandler = require('./middleware/errorHandler');
 
@@ -17,10 +18,19 @@ const postRoutes = require('./routes/posts.routes');
 const app = express();
 
 // ── Security headers ───────────────────────────────────────────────────────────
-app.use(helmet());
+const isProduction = process.env.NODE_ENV === 'production';
+app.use(
+  helmet({
+    // Existing frontend pages contain inline scripts; keep strict CSP in production.
+    contentSecurityPolicy: isProduction ? undefined : false,
+  })
+);
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5500,http://127.0.0.1:5500')
+const allowedOrigins = (
+  process.env.CLIENT_ORIGIN ||
+  'http://localhost:5000,http://127.0.0.1:5000,http://localhost:5500,http://127.0.0.1:5500,http://localhost:7778,http://127.0.0.1:7778,http://localhost:3000,http://127.0.0.1:3000'
+)
   .split(',')
   .map((o) => o.trim());
 
@@ -43,7 +53,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests — please try again later' },
 });
-app.use(limiter);
+app.use('/api', limiter);
 
 // Stricter limiter on auth endpoints
 const authLimiter = rateLimit({
@@ -63,6 +73,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 // ── Serve uploaded files statically ───────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ── Serve frontend locally from the backend in development ───────────────────
+const frontendDir = path.resolve(__dirname, '..', 'frontend');
+if (process.env.NODE_ENV !== 'production' && fs.existsSync(frontendDir)) {
+  app.use(express.static(frontendDir));
+}
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
