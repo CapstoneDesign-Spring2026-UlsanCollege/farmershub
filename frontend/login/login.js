@@ -1,4 +1,55 @@
-import { login as loginUser, clearSessionStorage } from '../js/authService.js';
+function normalizeBase(url) {
+  return String(url || '').replace(/\/+$/, '');
+}
+
+function detectApiBase() {
+  const runtimeOverride = normalizeBase(window.FARMERSHUB_API_BASE);
+  if (runtimeOverride) return runtimeOverride;
+
+  if (window.location.protocol === 'file:') {
+    return 'https://farmershub-kkjd.onrender.com/api';
+  }
+
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return 'https://farmershub-kkjd.onrender.com/api';
+  }
+
+  return 'https://farmershub-kkjd.onrender.com/api';
+}
+
+const API_BASE = detectApiBase();
+
+function clearSessionStorage() {
+  ['fh_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'].forEach((key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+}
+
+async function loginUser(payload) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Login failed');
+
+  clearSessionStorage();
+  if (data?.data?.token) {
+    localStorage.setItem('fh_token', data.data.token);
+  }
+  if (data?.data?.user) {
+    localStorage.setItem('fh_user', JSON.stringify(data.data.user));
+    localStorage.setItem('fh_loggedIn', 'true');
+    localStorage.setItem('fh_role', data.data.user.role || '');
+    localStorage.setItem('currentUser', data.data.user.email || '');
+  }
+
+  return data.data || {};
+}
 
 let selectedRole = "";
 
