@@ -3,25 +3,31 @@
  * Override in production by setting window.FARMERSHUB_API_BASE before loading scripts.
  */
 
+const PRODUCTION_API_BASE = 'https://farmershub-kkjd.onrender.com/api';
 const LOCAL_API_BASE = 'http://localhost:5000/api';
-const PROD_FALLBACK_API_BASE = 'https://your-backend-domain.example.com/api';
 
 function normalizeBase(url) {
   return String(url || '').replace(/\/+$/, '');
 }
 
 function detectApiBase() {
-  if (typeof window === 'undefined') return LOCAL_API_BASE;
+  if (typeof window === 'undefined') return PRODUCTION_API_BASE;
 
   const runtimeOverride = normalizeBase(window.FARMERSHUB_API_BASE);
   if (runtimeOverride) return runtimeOverride;
+
+  // Support local development when opening static files directly (file://).
+  if (window.location.protocol === 'file:') {
+    return LOCAL_API_BASE;
+  }
 
   const host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1') {
     return LOCAL_API_BASE;
   }
 
-  return PROD_FALLBACK_API_BASE;
+  // For deployed static frontend, default to production API unless overridden.
+  return PRODUCTION_API_BASE;
 }
 
 const API_BASE = detectApiBase();
