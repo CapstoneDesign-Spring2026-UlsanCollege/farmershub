@@ -23,6 +23,7 @@ app.use(
   helmet({
     // Existing frontend pages contain inline scripts; keep strict CSP in production.
     contentSecurityPolicy: isProduction ? undefined : false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
