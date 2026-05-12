@@ -18,7 +18,7 @@ function detectApiBase() {
 
   // Support local development when opening static files directly (file://).
   if (window.location.protocol === 'file:') {
-    return LOCAL_API_BASE;
+    return PRODUCTION_API_BASE;
   }
 
   const host = window.location.hostname;

@@ -1,4 +1,43 @@
-import { register, clearSessionStorage } from '../js/authService.js';
+function normalizeBase(url) {
+  return String(url || '').replace(/\/+$/, '');
+}
+
+function detectApiBase() {
+  const runtimeOverride = normalizeBase(window.FARMERSHUB_API_BASE);
+  if (runtimeOverride) return runtimeOverride;
+
+  if (window.location.protocol === 'file:') {
+    return 'http://localhost:5000/api';
+  }
+
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return 'http://localhost:5000/api';
+  }
+
+  return 'https://your-backend-domain.com/api';
+}
+
+const API_BASE = detectApiBase();
+
+function clearSessionStorage() {
+  ['fh_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'].forEach((key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+}
+
+async function register(payload) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Account creation failed');
+  return data.data || {};
+}
 
 let selectedRole = "";
 

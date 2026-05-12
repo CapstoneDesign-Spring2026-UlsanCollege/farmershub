@@ -21,7 +21,7 @@ function detectApiBase() {
 const API_BASE = detectApiBase();
 
 function clearSessionStorage() {
-  ['fh_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'].forEach((key) => {
+  ['fh_token', 'farmershub_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'].forEach((key) => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);
   });
@@ -40,6 +40,7 @@ async function loginUser(payload) {
   clearSessionStorage();
   if (data?.data?.token) {
     localStorage.setItem('fh_token', data.data.token);
+    localStorage.setItem('farmershub_token', data.data.token);
   }
   if (data?.data?.user) {
     localStorage.setItem('fh_user', JSON.stringify(data.data.user));

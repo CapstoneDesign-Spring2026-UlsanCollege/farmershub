@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
       url: { type: String, default: '' },
       publicId: { type: String, default: '' },
     },
+    coverImage: {
+      url: { type: String, default: '' },
+      publicId: { type: String, default: '' },
+    },
     bio: {
       type: String,
       maxlength: 500,
