@@ -1,12 +1,13 @@
+
 let selectedRole = "";
 let authMode = "login";
 const API_BASE = getApiBase();
-const AUTH_STORAGE_KEYS = ['fh_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'];
+const AUTH_STORAGE_KEYS = ['fh_token', 'farmershub_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'];
 
 function getApiBase() {
   const override = window.FARMERSHUB_API_BASE || "";
   if (override.trim()) return override.replace(/\/+$/, "");
-  return "http://localhost:5000/api";
+  return "https://farmershub-kkjd.onrender.com/api";
 }
 
 function jsonHeaders() {
@@ -29,7 +30,10 @@ function clearSessionStorage() {
 
 function saveSession(user, token) {
   clearSessionStorage();
-  if (token) localStorage.setItem("fh_token", token);
+  if (token) {
+    localStorage.setItem("fh_token", token);
+    localStorage.setItem("farmershub_token", token);
+  }
   if (user) {
     localStorage.setItem("fh_user", JSON.stringify(user));
     localStorage.setItem("fh_loggedIn", "true");

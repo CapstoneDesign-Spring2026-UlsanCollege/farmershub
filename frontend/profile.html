@@ -27,7 +27,7 @@
   <!-- Top Nav -->
   <header class="profile-nav">
     <a href="index.html" class="nav-logo">
-      <img src="logo.png" alt="FarmersHub Logo" class="nav-logo-img" />
+      <img src="logo.png" alt="FarmersHub Logo" class="nav-logo-img" onerror="this.style.display='none'" />
       <span>FarmersHub</span>
     </a>
     <div class="nav-actions">
@@ -36,6 +36,8 @@
       <button class="btn btn-logout" id="logoutBtn">Log Out</button>
     </div>
   </header>
+
+  <div id="actionStatus" class="action-status" role="status" aria-live="polite"></div>
 
   <!-- Cover Photo -->
   <section class="cover-section">

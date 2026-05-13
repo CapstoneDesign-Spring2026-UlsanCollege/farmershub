@@ -4,6 +4,24 @@ import { isLoggedIn, logout } from './js/authService.js';
 
 let currentProfile = null;
 
+function setStatus(message, type = 'info') {
+  const el = document.getElementById('actionStatus');
+  if (!el) return;
+  el.textContent = message || '';
+  el.className = `action-status ${type}`;
+}
+
+function validateImageFile(file, maxMb = 5) {
+  if (!file) return { ok: false, message: 'Please choose an image first.' };
+  if (!file.type || !file.type.startsWith('image/')) {
+    return { ok: false, message: 'Only image files are allowed.' };
+  }
+  if (file.size > maxMb * 1024 * 1024) {
+    return { ok: false, message: `Image must be smaller than ${maxMb}MB.` };
+  }
+  return { ok: true };
+}
+
 function showAuthGate() {
   document.getElementById('loginModal').style.display = 'flex';
   document.getElementById('profilePage').style.display = 'none';
@@ -123,36 +141,54 @@ async function handleProfileSave(event) {
   };
 
   try {
+    setStatus('Saving profile...', 'info');
     const action = currentProfile?.role === 'farmer' ? updateFarmerProfile : updateProfile;
     const response = await action(updates);
     renderProfile(response.data);
     document.getElementById('editModal').style.display = 'none';
+    setStatus('Profile updated successfully.', 'success');
   } catch (error) {
-    alert(error.message || 'Failed to update profile.');
+    setStatus(error.message || 'Failed to update profile.', 'error');
   }
 }
 
 async function handleAvatarUpload(event) {
   const file = event.target.files[0];
-  if (!file) return;
+  const check = validateImageFile(file);
+  if (!check.ok) {
+    setStatus(check.message, 'error');
+    event.target.value = '';
+    return;
+  }
 
   try {
+    setStatus('Uploading avatar...', 'info');
     const response = await uploadAvatar(file);
     renderProfile(response.data);
+    setStatus('Avatar uploaded successfully.', 'success');
+    event.target.value = '';
   } catch (error) {
-    alert(error.message || 'Failed to upload avatar.');
+    setStatus(error.message || 'Failed to upload avatar.', 'error');
   }
 }
 
 async function handleCoverUpload(event) {
   const file = event.target.files[0];
-  if (!file) return;
+  const check = validateImageFile(file);
+  if (!check.ok) {
+    setStatus(check.message, 'error');
+    event.target.value = '';
+    return;
+  }
 
   try {
+    setStatus('Uploading cover photo...', 'info');
     const response = await uploadCover(file);
     renderProfile(response.data);
+    setStatus('Cover photo uploaded successfully.', 'success');
+    event.target.value = '';
   } catch (error) {
-    alert(error.message || 'Failed to upload cover image.');
+    setStatus(error.message || 'Failed to upload cover image.', 'error');
   }
 }
 
@@ -161,21 +197,34 @@ async function handlePostSubmit() {
   const imageInput = document.getElementById('postImageInput');
   const file = imageInput.files[0];
 
-  if (!text && !file) return;
+  if (!text && !file) {
+    setStatus('Write something or select an image before posting.', 'error');
+    return;
+  }
+
+  if (file) {
+    const check = validateImageFile(file);
+    if (!check.ok) {
+      setStatus(check.message, 'error');
+      return;
+    }
+  }
 
   const form = new FormData();
   if (text) form.append('text', text);
   if (file) form.append('images', file);
 
   try {
+    setStatus('Publishing post...', 'info');
     await createPost(form);
     document.getElementById('postInput').value = '';
     document.getElementById('postImageName').textContent = '';
     imageInput.value = '';
     await loadPosts();
     await loadProfileData();
+    setStatus('Post published successfully.', 'success');
   } catch (error) {
-    alert(error.message || 'Failed to create post.');
+    setStatus(error.message || 'Failed to create post.', 'error');
   }
 }
 
@@ -209,13 +258,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   try {
+    setStatus('Loading profile...', 'info');
     await loadProfileData();
     await loadPosts();
+    setStatus('Profile loaded.', 'success');
   } catch (error) {
     if ((error.message || '').toLowerCase().includes('invalid') || (error.message || '').toLowerCase().includes('authentication')) {
       showAuthGate();
       return;
     }
-    alert(error.message || 'Failed to load profile data.');
+    setStatus(error.message || 'Failed to load profile data.', 'error');
   }
 });

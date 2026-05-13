@@ -21,8 +21,8 @@ async function buildProfileResponse(profileDoc, user, req) {
     ]);
 
     return {
-        id: profileDoc.id,
-        userId: user.id,
+        id: String(user._id || user.id || profileDoc.userId),
+        userId: String(user._id || user.id || profileDoc.userId),
         fullName: user.fullName,
         email: user.email,
         role: user.role,
@@ -141,7 +141,14 @@ async function uploadAvatar(req, res) {
         const profile = await ensureProfile(req.user);
         profile.avatarPath = toUploadPath(req.file);
         await profile.save();
+
         const data = await buildProfileResponse(profile, req.user, req);
+        const userDoc = await User.findById(req.user._id || req.user.id);
+        if (userDoc) {
+            userDoc.avatar = { url: data.avatarUrl, publicId: req.file.filename };
+            await userDoc.save();
+        }
+
         return res.json({ success: true, message: 'Avatar uploaded successfully.', data });
     } catch (error) {
         return res.status(400).json({ success: false, message: 'Failed to upload avatar.' });
@@ -157,7 +164,14 @@ async function uploadCover(req, res) {
         const profile = await ensureProfile(req.user);
         profile.coverPath = toUploadPath(req.file);
         await profile.save();
+
         const data = await buildProfileResponse(profile, req.user, req);
+        const userDoc = await User.findById(req.user._id || req.user.id);
+        if (userDoc) {
+            userDoc.coverImage = { url: data.coverUrl, publicId: req.file.filename };
+            await userDoc.save();
+        }
+
         return res.json({ success: true, message: 'Cover uploaded successfully.', data });
     } catch (error) {
         return res.status(400).json({ success: false, message: 'Failed to upload cover image.' });
