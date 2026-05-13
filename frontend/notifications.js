@@ -7,6 +7,8 @@ const notifications = [
     time: '8 minutes ago',
     href: 'product.html',
     read: false,
+    sender: 'Maya Green Farm',
+    senderRole: 'Customer',
   },
   {
     id: 'message-berry',
@@ -16,6 +18,8 @@ const notifications = [
     time: '24 minutes ago',
     href: 'messages.html',
     read: false,
+    sender: 'Ulsan Berry Co-op',
+    senderRole: 'Customer',
   },
   {
     id: 'profile-live',
@@ -25,6 +29,8 @@ const notifications = [
     time: 'Today',
     href: 'profile.html',
     read: true,
+    sender: 'FarmersHub Team',
+    senderRole: 'System',
   },
   {
     id: 'listing-trending',
@@ -34,6 +40,8 @@ const notifications = [
     time: 'Yesterday',
     href: 'product.html',
     read: false,
+    sender: 'Marketplace Insights',
+    senderRole: 'System',
   },
   {
     id: 'order-rice',
@@ -43,6 +51,8 @@ const notifications = [
     time: 'Mon',
     href: 'product.html',
     read: true,
+    sender: 'Harvest Logistics',
+    senderRole: 'Customer',
   },
 ];
 
@@ -63,8 +73,15 @@ const refreshBtn = document.getElementById('refreshNotificationsBtn');
 const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
 const loginBtn = document.getElementById('navLoginBtn');
 const logoutBtn = document.getElementById('navLogoutBtn');
+const replyModal = document.getElementById('replyModal');
+const replyContextEl = document.getElementById('replyContext');
+const replyInputEl = document.getElementById('replyInput');
+const sendReplyBtn = document.getElementById('sendReplyBtn');
+const cancelReplyBtn = document.getElementById('cancelReplyBtn');
+const closeReplyModalBtn = document.getElementById('closeReplyModal');
 
 let activeFilter = 'all';
+let currentReplyTargetId = null;
 
 function setupSessionNav() {
   const token = localStorage.getItem('fh_token');
@@ -113,6 +130,7 @@ function getFilteredNotifications() {
     const matchesSearch = !term
       || item.title.toLowerCase().includes(term)
       || item.body.toLowerCase().includes(term)
+      || item.sender.toLowerCase().includes(term)
       || typeLabels[item.type].toLowerCase().includes(term);
 
     return matchesFilter && matchesSearch;
@@ -130,6 +148,27 @@ function createNotificationCard(item) {
   const content = document.createElement('div');
   content.className = 'notification-content';
 
+  const senderRow = document.createElement('div');
+  senderRow.className = 'notification-sender-row';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'notification-avatar';
+  avatar.textContent = item.sender ? item.sender.charAt(0) : 'F';
+
+  const senderMeta = document.createElement('div');
+  senderMeta.className = 'notification-sender-meta';
+
+  const senderName = document.createElement('span');
+  senderName.className = 'notification-sender';
+  senderName.textContent = item.sender || 'FarmersHub Team';
+
+  const senderRole = document.createElement('span');
+  senderRole.className = 'notification-role';
+  senderRole.textContent = item.senderRole || (item.type === 'message' ? 'Customer' : 'System');
+
+  senderMeta.append(senderName, senderRole);
+  senderRow.append(avatar, senderMeta);
+
   const kicker = document.createElement('span');
   kicker.className = 'notification-kicker';
   kicker.textContent = typeLabels[item.type];
@@ -142,7 +181,18 @@ function createNotificationCard(item) {
 
   const meta = document.createElement('div');
   meta.className = 'notification-meta';
-  meta.textContent = item.time + (item.read ? ' - Read' : ' - Unread');
+  meta.textContent = item.time + ' • ' + (item.read ? 'Read' : 'Unread');
+
+  content.append(senderRow, kicker, title, body);
+
+  if (item.type === 'message') {
+    const chatNote = document.createElement('div');
+    chatNote.className = 'notification-chat-note';
+    chatNote.textContent = 'Customer ↔ Farmer chat support';
+    content.append(chatNote);
+  }
+
+  content.append(meta);
 
   const actions = document.createElement('div');
   actions.className = 'notification-card-actions';
@@ -150,15 +200,30 @@ function createNotificationCard(item) {
   const openLink = document.createElement('a');
   openLink.className = 'open-link';
   openLink.href = item.href;
-  openLink.textContent = 'Open';
+  openLink.textContent = item.type === 'message' ? 'Open chat' : 'View details';
+  openLink.setAttribute('aria-label', `Open ${item.type} notification`);
+  actions.append(openLink);
+
+  if (item.type === 'message') {
+    const replyBtn = document.createElement('button');
+    replyBtn.type = 'button';
+    replyBtn.dataset.action = 'reply';
+    replyBtn.textContent = 'Reply';
+    actions.append(replyBtn);
+
+    const historyBtn = document.createElement('button');
+    historyBtn.type = 'button';
+    historyBtn.dataset.action = 'history';
+    historyBtn.textContent = 'Message history';
+    actions.append(historyBtn);
+  }
 
   const readBtn = document.createElement('button');
   readBtn.type = 'button';
   readBtn.dataset.action = 'toggle-read';
   readBtn.textContent = item.read ? 'Mark unread' : 'Mark read';
+  actions.append(readBtn);
 
-  content.append(kicker, title, body, meta);
-  actions.append(openLink, readBtn);
   card.append(dot, content, actions);
 
   return card;
@@ -174,7 +239,7 @@ function renderNotifications() {
 
   statusEl.textContent = filtered.length
     ? filtered.length + ' notification' + (filtered.length === 1 ? '' : 's') + ' shown'
-    : '';
+    : 'No notifications match this view.';
 
   if (!filtered.length) {
     listEl.innerHTML = '<div class="empty-panel">No notifications match this view.</div>';
@@ -187,6 +252,99 @@ function renderNotifications() {
   });
 }
 
+function openReplyModal(item) {
+  currentReplyTargetId = item.id;
+  replyContextEl.textContent = `Reply to ${item.sender} (${item.senderRole})`;
+  replyInputEl.value = '';
+  replyModal.classList.remove('hidden');
+  replyModal.setAttribute('aria-hidden', 'false');
+  replyInputEl.focus();
+}
+
+function closeReplyModal() {
+  currentReplyTargetId = null;
+  replyModal.classList.add('hidden');
+  replyModal.setAttribute('aria-hidden', 'true');
+}
+
+function sendReply() {
+  if (!currentReplyTargetId) {
+    return;
+  }
+
+  const messageText = replyInputEl.value.trim();
+  const item = notifications.find((notification) => notification.id === currentReplyTargetId);
+  if (!item) {
+    return closeReplyModal();
+  }
+
+  item.read = true;
+  statusEl.textContent = messageText
+    ? `Reply sent to ${item.sender}.`
+    : `Closed reply to ${item.sender}.`;
+  closeReplyModal();
+  renderNotifications();
+}
+
+function showHistory(item) {
+  statusEl.textContent = `Showing message history for ${item.sender}.`;
+  item.read = true;
+  renderNotifications();
+}
+
+function simulateRealtimeUpdates() {
+  setInterval(() => {
+    const nextId = `message-${Date.now()}`;
+    const newNotification = {
+      id: nextId,
+      type: 'message',
+      title: 'New customer chat',
+      body: 'A customer wants to check farm availability and delivery timing.',
+      time: 'Just now',
+      href: 'messages.html',
+      read: false,
+      sender: 'Harvest Market',
+      senderRole: 'Customer',
+    };
+
+    notifications.unshift(newNotification);
+    statusEl.textContent = 'New realtime notification has arrived.';
+    renderNotifications();
+  }, 25000);
+}
+
+function handleNotificationListClick(event) {
+  const toggleBtn = event.target.closest('button[data-action="toggle-read"]');
+  if (toggleBtn) {
+    const card = toggleBtn.closest('.notification-card');
+    const item = notifications.find((notification) => notification.id === card.dataset.id);
+    if (item) {
+      item.read = !item.read;
+      renderNotifications();
+    }
+    return;
+  }
+
+  const replyBtn = event.target.closest('button[data-action="reply"]');
+  if (replyBtn) {
+    const card = replyBtn.closest('.notification-card');
+    const item = notifications.find((notification) => notification.id === card.dataset.id);
+    if (item) {
+      openReplyModal(item);
+    }
+    return;
+  }
+
+  const historyBtn = event.target.closest('button[data-action="history"]');
+  if (historyBtn) {
+    const card = historyBtn.closest('.notification-card');
+    const item = notifications.find((notification) => notification.id === card.dataset.id);
+    if (item) {
+      showHistory(item);
+    }
+  }
+}
+
 tabBtns.forEach((button) => {
   button.addEventListener('click', () => {
     activeFilter = button.dataset.filter;
@@ -195,21 +353,14 @@ tabBtns.forEach((button) => {
 });
 
 searchEl.addEventListener('input', renderNotifications);
-
-listEl.addEventListener('click', (event) => {
-  const button = event.target.closest('button[data-action="toggle-read"]');
-  if (!button) {
-    return;
+listEl.addEventListener('click', handleNotificationListClick);
+sendReplyBtn.addEventListener('click', sendReply);
+cancelReplyBtn.addEventListener('click', closeReplyModal);
+closeReplyModalBtn.addEventListener('click', closeReplyModal);
+replyModal.addEventListener('click', (event) => {
+  if (event.target === replyModal) {
+    closeReplyModal();
   }
-
-  const card = button.closest('.notification-card');
-  const item = notifications.find((notification) => notification.id === card.dataset.id);
-  if (!item) {
-    return;
-  }
-
-  item.read = !item.read;
-  renderNotifications();
 });
 
 markAllReadBtn.addEventListener('click', () => {
@@ -226,3 +377,4 @@ refreshBtn.addEventListener('click', () => {
 
 setupSessionNav();
 renderNotifications();
+simulateRealtimeUpdates();
