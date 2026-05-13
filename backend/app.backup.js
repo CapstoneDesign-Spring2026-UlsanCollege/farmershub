@@ -14,7 +14,6 @@ const userRoutes = require('./routes/users.routes');
 const farmerRoutes = require('./routes/farmers.routes');
 const productRoutes = require('./routes/products.routes');
 const postRoutes = require('./routes/posts.routes');
-const messageRoutes = require('./routes/messages.routes');
 
 const app = express();
 
@@ -94,7 +93,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/posts', postRoutes);
-app.use('/api/messages', messageRoutes);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((_req, res) => {
