@@ -2,24 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notifications - FarmersHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
-  <style>
-    .placeholder-wrap { max-width: 900px; margin: 60px auto; padding: 24px; background: #fff; border: 1px solid #d7e6d4; border-radius: 14px; }
-    .placeholder-wrap h2 { margin-top: 0; }
-    .placeholder-wrap p { color: #4a6156; }
-    .placeholder-actions a { display: inline-block; margin-right: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid #b8d0ba; text-decoration: none; color: #1f4f27; }
-  </style>
+  <link rel="stylesheet" href="assets/css/notification.css">
 </head>
 <body>
-  <div class="placeholder-wrap">
-    <h2>Notifications</h2>
-    <p>This page is reserved for the upcoming notifications feature.</p>
-    <div class="placeholder-actions">
-      <a href="index.html">Go Home</a>
-      <a href="profile.html">Open Profile</a>
+<canvas id="fallingCanvas"></canvas>
+
+<header class="top-nav">
+  <a href="index.html" class="brand">
+    <img src="logo.png" alt="FarmersHub Logo" class="home-logo">
+    <div>
+      <p class="brand-overline">Green Marketplace</p>
+      <h1>FarmersHub</h1>
     </div>
-  </div>
+  </a>
+
+  <form class="global-search" action="#" method="get">
+    <span class="search-icon">Search</span>
+    <input type="text" placeholder="Search farmers, crops, and updates">
+  </form>
+
+  <nav class="user-nav">
+    <a href="index.html" class="nav-chip">Home</a>
+    <a href="profile.html" class="nav-chip">Profile</a>
+    <a href="messages.html" class="nav-chip">Messages</a>
+    <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
+    <button class="login-btn" id="navLogoutBtn" style="display:none;">Logout</button>
+  </nav>
+</header>
+
+<main class="notifications-shell">
+  <section class="notifications-heading">
+    <div>
+      <p class="eyebrow">Alerts Center</p>
+      <h2>Notifications</h2>
+    </div>
+    <div class="notification-actions">
+      <button type="button" class="notification-btn" id="refreshNotificationsBtn">Refresh</button>
+      <button type="button" class="notification-btn primary" id="markAllReadBtn">Mark all read</button>
+    </div>
+  </section>
+
+  <section class="notification-summary" aria-label="Notification summary">
+    <article>
+      <span id="unreadCount">0</span>
+      <p>Unread</p>
+    </article>
+    <article>
+      <span id="orderCount">0</span>
+      <p>Orders</p>
+    </article>
+    <article>
+      <span id="messageCount">0</span>
+      <p>Messages</p>
+    </article>
+  </section>
+
+  <section class="notification-toolbar">
+    <div class="notification-tabs" aria-label="Notification filters">
+      <button type="button" class="tab-btn active" data-filter="all">All</button>
+      <button type="button" class="tab-btn" data-filter="order">Orders</button>
+      <button type="button" class="tab-btn" data-filter="message">Messages</button>
+      <button type="button" class="tab-btn" data-filter="market">Marketplace</button>
+    </div>
+    <label class="notification-search">
+      <span>Search</span>
+      <input type="search" id="notificationSearch" placeholder="Search alerts">
+    </label>
+  </section>
+
+  <p class="notification-status" id="notificationStatus"></p>
+  <section class="notification-list" id="notificationList" aria-live="polite"></section>
+</main>
+
+<script type="module" src="notifications.js"></script>
 </body>
 </html>

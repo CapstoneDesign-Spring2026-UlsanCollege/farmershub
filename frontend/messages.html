@@ -2,24 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Messages - FarmersHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
-  <style>
-    .placeholder-wrap { max-width: 900px; margin: 60px auto; padding: 24px; background: #fff; border: 1px solid #d7e6d4; border-radius: 14px; }
-    .placeholder-wrap h2 { margin-top: 0; }
-    .placeholder-wrap p { color: #4a6156; }
-    .placeholder-actions a { display: inline-block; margin-right: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid #b8d0ba; text-decoration: none; color: #1f4f27; }
-  </style>
+  <link rel="stylesheet" href="assets/css/messages.css">
 </head>
 <body>
-  <div class="placeholder-wrap">
-    <h2>Messages</h2>
-    <p>This page is reserved for the upcoming direct messaging feature.</p>
-    <div class="placeholder-actions">
-      <a href="index.html">Go Home</a>
-      <a href="profile.html">Open Profile</a>
+<canvas id="fallingCanvas"></canvas>
+
+<header class="top-nav">
+  <a href="index.html" class="brand">
+    <img src="logo.png" alt="FarmersHub Logo" class="home-logo">
+    <div>
+      <p class="brand-overline">Green Marketplace</p>
+      <h1>FarmersHub</h1>
     </div>
-  </div>
+  </a>
+
+  <form class="global-search" action="#" method="get">
+    <span class="search-icon">Search</span>
+    <input type="text" placeholder="Search farmers, crops, and updates">
+  </form>
+
+  <nav class="user-nav">
+    <a href="index.html" class="nav-chip">Home</a>
+    <a href="profile.html" class="nav-chip">Profile</a>
+    <a href="notifications.html" class="nav-chip">Alerts</a>
+    <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
+    <button class="login-btn" id="navLogoutBtn" style="display:none;">Logout</button>
+  </nav>
+</header>
+
+<main class="messages-shell">
+  <section class="messages-heading">
+    <div>
+      <p class="eyebrow">Direct Messages</p>
+      <h2>Messages</h2>
+    </div>
+    <a class="message-action" href="farmers-profile.html">Find farmers</a>
+  </section>
+
+  <section class="messages-layout" aria-label="Messages workspace">
+    <aside class="conversation-panel">
+      <div class="conversation-tools">
+        <label class="conversation-search">
+          <span>Search</span>
+          <input type="search" id="conversationSearch" placeholder="Search conversations">
+        </label>
+      </div>
+      <div class="conversation-list" id="conversationList"></div>
+    </aside>
+
+    <section class="chat-panel" aria-live="polite">
+      <header class="chat-header" id="chatHeader"></header>
+      <div class="message-thread" id="messageThread"></div>
+      <form class="message-composer" id="messageComposer">
+        <textarea id="messageInput" rows="2" placeholder="Type a message"></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+  </section>
+</main>
+
+<script type="module" src="messages.js"></script>
 </body>
 </html>
