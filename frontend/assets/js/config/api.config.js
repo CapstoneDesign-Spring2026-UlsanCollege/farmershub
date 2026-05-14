@@ -33,7 +33,7 @@ function detectApiBase() {
 const API_BASE = detectApiBase();
 
 function getToken() {
-  return localStorage.getItem('fh_token');
+  return localStorage.getItem('fh_token') || localStorage.getItem('farmershub_token');
 }
 
 function jsonHeaders(auth = true) {

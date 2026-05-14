@@ -45,6 +45,12 @@ import { getFeed } from './js/postService.js';
       }
       const link = card.querySelector('.mini-link');
       link.href = `profile.html?farmer=${encodeURIComponent(farmer.id)}`;
+
+      const messageLink = card.querySelector('.message-link');
+      if (messageLink) {
+        messageLink.href = `messages.html?farmer=${encodeURIComponent(farmer.id)}`;
+      }
+
       farmerGrid.appendChild(card);
     });
   }
