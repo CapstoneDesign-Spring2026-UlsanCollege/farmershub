@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 
 const Message = require('../models/Message');
 const User = require('../models/User');
-const { requireAuth } = require('../middleware/auth');
+const { protect } = require('../middleware/authMiddleware');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 const router = express.Router();
 
-router.use(requireAuth);
+router.use(protect);
 
 function isValidObjectId(id) {
   return mongoose.Types.ObjectId.isValid(id);
@@ -33,7 +33,7 @@ function getConversationKey(userA, userB) {
 // GET /api/messages/conversations
 router.get('/conversations', async (req, res, next) => {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = String(req.user._id);
 
     const messages = await Message.find({
       $or: [
@@ -85,7 +85,7 @@ router.get('/conversations', async (req, res, next) => {
 // GET /api/messages/:conversationId
 router.get('/:conversationId', async (req, res, next) => {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = String(req.user._id);
     const otherUserId = String(req.params.conversationId).split(':').find((id) => id !== currentUserId);
 
     if (!otherUserId || !isValidObjectId(otherUserId)) {
@@ -132,7 +132,7 @@ router.get('/:conversationId', async (req, res, next) => {
 // POST /api/messages/start
 router.post('/start', async (req, res, next) => {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = String(req.user._id);
     const { receiverId, content, relatedProduct } = req.body;
 
     if (!receiverId || !isValidObjectId(receiverId)) {
@@ -180,7 +180,7 @@ router.post('/start', async (req, res, next) => {
 // POST /api/messages/:conversationId
 router.post('/:conversationId', async (req, res, next) => {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = String(req.user._id);
     const otherUserId = String(req.params.conversationId).split(':').find((id) => id !== currentUserId);
 
     if (!otherUserId || !isValidObjectId(otherUserId)) {
