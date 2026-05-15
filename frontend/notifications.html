@@ -80,6 +80,19 @@
   <section class="notification-list" id="notificationList" aria-live="polite"></section>
 </main>
 
+<div class="reply-modal hidden" id="replyModal" aria-hidden="true">
+  <div class="reply-box" role="dialog" aria-modal="true" aria-labelledby="replyModalTitle">
+    <button type="button" class="modal-close" id="closeReplyModal" aria-label="Close reply dialog">×</button>
+    <h3 id="replyModalTitle">Reply to notification</h3>
+    <p class="reply-context" id="replyContext">Send a response directly from the alert.</p>
+    <textarea id="replyInput" placeholder="Write a quick reply..."></textarea>
+    <div class="reply-actions">
+      <button type="button" class="cancel-btn" id="cancelReplyBtn">Cancel</button>
+      <button type="button" class="send-btn" id="sendReplyBtn">Send Reply</button>
+    </div>
+  </div>
+</div>
+
 <script type="module" src="notifications.js"></script>
 </body>
 </html>
