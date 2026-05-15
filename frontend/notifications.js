@@ -32,6 +32,7 @@ async function fetchNotifications() {
         time: formatTimeAgo(notification.createdAt),
         href: getNotificationHref(notification),
         read: notification.read,
+        recipientId: getNotificationRecipientId(notification),
         sender: getNotificationSender(notification),
         senderRole: getNotificationSenderRole(notification),
       }));
@@ -139,6 +140,15 @@ function getNotificationSender(notification) {
     return notification.user.fullName;
   }
   return 'FarmersHub Team';
+}
+
+function getNotificationRecipientId(notification) {
+  if (notification.type !== 'message') {
+    return null;
+  }
+
+  const sender = notification.relatedId?.sender;
+  return sender?._id || (typeof sender === 'string' ? sender : null);
 }
 
 function getNotificationSenderRole(notification) {
@@ -374,7 +384,7 @@ function closeReplyModal() {
   replyModal.setAttribute('aria-hidden', 'true');
 }
 
-function sendReply() {
+async function sendReply() {
   if (!currentReplyTargetId) {
     return;
   }
@@ -385,22 +395,43 @@ function sendReply() {
     return closeReplyModal();
   }
 
-  // Mark as read via API
-  markAsRead(currentReplyTargetId);
+  try {
+    if (messageText && item.type === 'message' && item.recipientId) {
+      const token = localStorage.getItem('fh_token');
+      const response = await fetch(`${API_BASE}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          receiverId: item.recipientId,
+          content: messageText,
+        }),
+      });
 
-  item.read = true;
-  syncFloatingAlertState();
-  statusEl.textContent = messageText
-    ? `Reply sent to ${item.sender}.`
-    : `Closed reply to ${item.sender}.`;
-  closeReplyModal();
-  renderNotifications();
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.message || 'Failed to send reply.');
+      }
+    }
+
+    await markAsRead(currentReplyTargetId);
+    item.read = true;
+    syncFloatingAlertState();
+    statusEl.textContent = messageText
+      ? `Reply sent to ${item.sender}.`
+      : `Closed reply to ${item.sender}.`;
+    closeReplyModal();
+    renderNotifications();
+  } catch (error) {
+    statusEl.textContent = error.message || 'Failed to send reply.';
+  }
 }
 
-function showHistory(item) {
+async function showHistory(item) {
   statusEl.textContent = `Showing message history for ${item.sender}.`;
-  // Mark as read via API
-  markAsRead(item.id);
+  await markAsRead(item.id);
   item.read = true;
   syncFloatingAlertState();
   renderNotifications();

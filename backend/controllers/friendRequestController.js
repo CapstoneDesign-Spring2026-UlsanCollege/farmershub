@@ -19,7 +19,16 @@ function serializeFriendRequest(friendRequest) {
 
 async function ensureFriendRequestNotification(friendRequest, requester, recipientId) {
   if (friendRequest.notification) {
-    return Notification.findById(friendRequest.notification);
+    const notification = await Notification.findById(friendRequest.notification);
+    if (notification) {
+      notification.read = false;
+      notification.title = 'New friend request';
+      notification.body = `${requester.fullName} sent you a friend request.`;
+      notification.relatedId = requester._id;
+      notification.relatedModel = 'User';
+      await notification.save();
+      return notification;
+    }
   }
 
   const existingNotification = await Notification.findOne({
@@ -31,6 +40,10 @@ async function ensureFriendRequestNotification(friendRequest, requester, recipie
   }).sort({ createdAt: -1 });
 
   if (existingNotification) {
+    existingNotification.read = false;
+    existingNotification.title = 'New friend request';
+    existingNotification.body = `${requester.fullName} sent you a friend request.`;
+    await existingNotification.save();
     friendRequest.notification = existingNotification._id;
     await friendRequest.save();
     return existingNotification;

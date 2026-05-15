@@ -16,13 +16,15 @@ const getUserNotifications = async (req, res, next) => {
       .skip(skip)
       .limit(limit)
       .populate('user', 'fullName')
-      .populate({
-        path: 'relatedId',
-        populate: [
-          { path: 'sender', select: 'fullName role' },
-          { path: 'receiver', select: 'fullName role' },
-        ],
-      });
+      .populate('relatedId');
+
+    const messageNotifications = notifications.filter(
+      (notification) => notification.relatedModel === 'Message' && notification.relatedId
+    );
+    await Notification.populate(messageNotifications, [
+      { path: 'relatedId.sender', select: 'fullName role' },
+      { path: 'relatedId.receiver', select: 'fullName role' },
+    ]);
 
     const total = await Notification.countDocuments({ user: req.user._id });
 
