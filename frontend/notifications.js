@@ -130,8 +130,8 @@ function getFilteredNotifications() {
     const matchesSearch = !term
       || item.title.toLowerCase().includes(term)
       || item.body.toLowerCase().includes(term)
-      || item.sender.toLowerCase().includes(term)
-      || typeLabels[item.type].toLowerCase().includes(term);
+      || (item.sender || '').toLowerCase().includes(term)
+      || (typeLabels[item.type] || '').toLowerCase().includes(term);
 
     return matchesFilter && matchesSearch;
   });
@@ -267,50 +267,24 @@ function closeReplyModal() {
   replyModal.setAttribute('aria-hidden', 'true');
 }
 
-function sendReply() {
-  if (!currentReplyTargetId) {
-    return;
-  }
+function openMessagePage(item) {
+  item.read = true;
+  renderNotifications();
+  window.location.href = item.href || 'messages.html';
+}
 
-  const messageText = replyInputEl.value.trim();
+function sendReply() {
   const item = notifications.find((notification) => notification.id === currentReplyTargetId);
   if (!item) {
     return closeReplyModal();
   }
 
-  item.read = true;
-  statusEl.textContent = messageText
-    ? `Reply sent to ${item.sender}.`
-    : `Closed reply to ${item.sender}.`;
   closeReplyModal();
-  renderNotifications();
+  openMessagePage(item);
 }
 
 function showHistory(item) {
-  statusEl.textContent = `Showing message history for ${item.sender}.`;
-  item.read = true;
-  renderNotifications();
-}
-
-function simulateRealtimeUpdates() {
-  setInterval(() => {
-    const nextId = `message-${Date.now()}`;
-    const newNotification = {
-      id: nextId,
-      type: 'message',
-      title: 'New customer chat',
-      body: 'A customer wants to check farm availability and delivery timing.',
-      time: 'Just now',
-      href: 'messages.html',
-      read: false,
-      sender: 'Harvest Market',
-      senderRole: 'Customer',
-    };
-
-    notifications.unshift(newNotification);
-    statusEl.textContent = 'New realtime notification has arrived.';
-    renderNotifications();
-  }, 25000);
+  openMessagePage(item);
 }
 
 function handleNotificationListClick(event) {
@@ -377,4 +351,3 @@ refreshBtn.addEventListener('click', () => {
 
 setupSessionNav();
 renderNotifications();
-simulateRealtimeUpdates();
