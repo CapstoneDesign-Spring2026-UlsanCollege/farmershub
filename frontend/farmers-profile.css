@@ -67,61 +67,22 @@
 }
 
 .directory-card {
-  min-height: 230px;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 12px;
-  border: 1px solid rgba(61, 154, 69, 0.16);
-  border-radius: 8px;
-  padding: 16px;
-  background: #fff;
-  box-shadow: 0 8px 18px rgba(31, 90, 40, 0.08);
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.directory-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
+  min-height: 240px;
 }
 
 .directory-avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
   display: grid;
   place-items: center;
   color: #fff;
-  background: linear-gradient(145deg, var(--green-700), var(--green-500));
-  font-size: 22px;
+  background:
+    linear-gradient(145deg, rgba(46, 125, 50, 0.85), rgba(103, 189, 111, 0.8));
+  font-size: 24px;
   font-weight: 900;
 }
 
-.directory-card-body {
-  min-width: 0;
-}
-
-.directory-card h4 {
-  color: var(--green-900);
-  font-size: 18px;
-}
-
-.directory-location {
-  margin-top: 7px;
-  color: var(--green-700);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.directory-specialty {
-  margin-top: 8px;
-  color: var(--text-muted);
-  line-height: 1.45;
-}
-
 .directory-card .mini-link {
-  display: inline-flex;
-  margin-top: 14px;
+  margin-top: auto;
 }
 
 .empty-panel {

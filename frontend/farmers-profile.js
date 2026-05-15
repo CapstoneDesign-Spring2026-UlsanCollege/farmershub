@@ -73,16 +73,21 @@ function renderFarmers(farmers) {
     const location = farmer.location || farmer.address || 'Location not set';
     const specialty = farmer.bio || farmer.farmType || farmer.productsLabel || 'Fresh produce from local farms';
     const card = document.createElement('article');
-    card.className = 'directory-card';
+    card.className = 'farmer-card card-shell directory-card';
     card.innerHTML = `
-      <div class="directory-avatar">${escHtml((farmer.fullName || 'F').charAt(0).toUpperCase())}</div>
-      <div class="directory-card-body">
-        <h4>${escHtml(farmer.fullName || 'Unnamed farmer')}</h4>
-        <p class="directory-location">${escHtml(location)}</p>
-        <p class="directory-specialty">${escHtml(specialty)}</p>
-        <a class="mini-link" href="${profileHref}">View profile</a>
-      </div>
+      <div class="avatar-ring directory-avatar">${escHtml((farmer.fullName || 'F').charAt(0).toUpperCase())}</div>
+      <h4>${escHtml(farmer.fullName || 'Unnamed farmer')}</h4>
+      <p class="location">${escHtml(location)}</p>
+      <p class="specialty">${escHtml(specialty)}</p>
+      <a class="mini-link" href="${profileHref}">View profile</a>
     `;
+    const avatar = card.querySelector('.directory-avatar');
+    if (farmer.avatarUrl) {
+      avatar.textContent = '';
+      avatar.style.backgroundImage = `url('${farmer.avatarUrl}')`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
+    }
     card.addEventListener('click', (event) => {
       if (event.target.closest('a')) return;
       window.location.href = profileHref;
