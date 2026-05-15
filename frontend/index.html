@@ -15,7 +15,7 @@
 
 <header class="top-nav">
   <a href="index.html" class="brand">
-    <img src="assets/images/logorefined.png" alt="FarmersHub Logo" class="home-logo" id="homeLogo">
+    <img src="logo.png" alt="FarmersHub Logo" class="home-logo" id="homeLogo">
     <div>
       <p class="brand-overline">Green Marketplace</p>
       <h1>FarmersHub</h1>
@@ -51,44 +51,37 @@
 })();
 </script>
 
-<!-- Hero Popup Modal -->
-<div id="heroModal" class="hero-modal">
-  <div class="hero-modal-overlay"></div>
-  <div class="hero-modal-content">
-    <button id="heroModalClose" class="hero-modal-close" aria-label="Close">✕</button>
-    <section class="hero-card reveal">
-      <div>
-        <p class="eyebrow">Fresh, Local, Real Farmers</p>
-        <h2>Discover harvests and stories from nearby farms in one endless feed.</h2>
-        <p class="hero-copy">FarmersHub blends marketplace discovery with social browsing so buyers and farmers connect naturally as they scroll.</p>
-        <div class="hero-actions">
-          <a href="product.html" class="cta-primary">Explore Products</a>
-          <a href="login/sell_crops.html" class="cta-ghost">Start Selling</a>
-        </div>
-      </div>
-      <div class="hero-metrics">
-        <article>
-          <h3>1.8K+</h3>
-          <p>Active growers</p>
-        </article>
-        <article>
-          <h3>340+</h3>
-          <p>Fresh listings today</p>
-        </article>
-        <article>
-          <h3>99%</h3>
-          <p>Verified farm sources</p>
-        </article>
-      </div>
-    </section>
-  </div>
-</div>
-
 <main class="page-feed">
+  <section class="hero-card reveal">
+    <div>
+      <p class="eyebrow">Fresh, Local, Real Farmers</p>
+      <h2>Discover harvests and stories from nearby farms in one endless feed.</h2>
+      <p class="hero-copy">FarmersHub blends marketplace discovery with social browsing so buyers and farmers connect naturally as they scroll.</p>
+      <div class="hero-actions">
+        <a href="product.html" class="cta-primary">Explore Products</a>
+        <a href="login/sell_crops.html" class="cta-ghost">Start Selling</a>
+      </div>
+    </div>
+    <div class="hero-metrics">
+      <article>
+        <h3>1.8K+</h3>
+        <p>Active growers</p>
+      </article>
+      <article>
+        <h3>340+</h3>
+        <p>Fresh listings today</p>
+      </article>
+      <article>
+        <h3>99%</h3>
+        <p>Verified farm sources</p>
+      </article>
+    </div>
+  </section>
+
   <section class="feed-section reveal">
     <div class="section-heading">
       <h3>Featured Farmers</h3>
-      <a href="farmers-profile.html">See all</a>
+      <a href="#featuredFarmers">See all</a>
     </div>
     <div class="farmer-grid" id="featuredFarmers"></div>
   </section>
@@ -135,7 +128,8 @@
     <h4></h4>
     <p class="location"></p>
     <p class="specialty"></p>
-    <a href="farmers-profile.html" class="mini-link">View profile</a>
+    <a href="profile.html" class="mini-link">View profile</a>
+    <a href="messages.html" class="mini-link message-link">Message</a>
   </article>
 </template>
 
