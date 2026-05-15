@@ -1,4 +1,5 @@
 import { getFarmers, getCustomers } from '../js/userService.js';
+import '../assets/js/notification-float.js';
 
 function formatDate(iso) {
   const d = new Date(iso);

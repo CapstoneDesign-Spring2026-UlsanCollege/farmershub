@@ -1,4 +1,5 @@
 import { getCurrentUser } from '../js/authService.js';
+import '../assets/js/notification-float.js';
 import {
   createProduct,
   getProducts,

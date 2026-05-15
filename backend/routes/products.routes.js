@@ -6,6 +6,7 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
+  placeOrder,
 } = require('../controllers/productController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { uploader, withUploadFolder } = require('../middleware/upload');
@@ -31,5 +32,8 @@ router.put('/:id', protect, authorize('farmer'), withUploadFolder('products'), u
 
 // DELETE /api/products/:id   — delete product (farmer or admin)
 router.delete('/:id', protect, authorize('farmer', 'admin'), deleteProduct);
+
+// POST /api/products/:id/order — place order for product (customer only)
+router.post('/:id/order', protect, authorize('customer'), placeOrder);
 
 module.exports = router;

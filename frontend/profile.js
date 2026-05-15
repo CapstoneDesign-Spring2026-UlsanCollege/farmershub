@@ -1,8 +1,23 @@
-import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover } from './js/profileService.js';
+import {
+  getProfile,
+  getProfileById,
+  updateProfile,
+  updateFarmerProfile,
+  uploadAvatar,
+  uploadCover,
+  sendFriendRequest,
+} from './js/profileService.js';
 import { getFeed, createPost, deletePost } from './js/postService.js';
-import { isLoggedIn, logout } from './js/authService.js';
+import { getCurrentUser, isLoggedIn, logout } from './js/authService.js';
+import './assets/js/notification-float.js';
 
 let currentProfile = null;
+let isViewingOwnProfile = true;
+
+function getProfileIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id') || params.get('farmer') || params.get('userId');
+}
 
 function setStatus(message, type = 'info') {
   const el = document.getElementById('actionStatus');
@@ -50,6 +65,9 @@ function renderImage(targetId, placeholderId, url, placeholderFallback = '👤')
 
 function renderProfile(profile) {
   currentProfile = profile;
+  const currentUser = getCurrentUser();
+  const currentUserId = currentUser?.id || currentUser?._id;
+  isViewingOwnProfile = !getProfileIdFromUrl() || String(currentUserId) === String(profile.userId);
 
   document.getElementById('profileName').textContent = profile.fullName;
   document.getElementById('profileRole').textContent = profile.role === 'farmer' ? 'Farmer' : 'Customer';
@@ -70,6 +88,30 @@ function renderProfile(profile) {
     : '👤';
 }
 
+function updateProfileActions() {
+  const addFriendBtn = document.getElementById('addFriendBtn');
+  const messageProfileBtn = document.getElementById('messageProfileBtn');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const coverUploadBtn = document.querySelector('.cover-upload-btn');
+  const avatarUploadBtn = document.querySelector('.avatar-upload-btn');
+  const createPostCard = document.querySelector('.create-post-card');
+
+  if (addFriendBtn) {
+    addFriendBtn.style.display = isViewingOwnProfile ? 'none' : 'inline-flex';
+    addFriendBtn.disabled = false;
+    addFriendBtn.textContent = 'Add Friend';
+  }
+
+  if (messageProfileBtn) {
+    messageProfileBtn.style.display = isViewingOwnProfile ? 'none' : 'inline-flex';
+  }
+
+  if (editProfileBtn) editProfileBtn.style.display = isViewingOwnProfile ? 'inline-flex' : 'none';
+  if (coverUploadBtn) coverUploadBtn.style.display = isViewingOwnProfile ? 'inline-flex' : 'none';
+  if (avatarUploadBtn) avatarUploadBtn.style.display = isViewingOwnProfile ? 'inline-flex' : 'none';
+  if (createPostCard) createPostCard.style.display = isViewingOwnProfile ? 'block' : 'none';
+}
+
 function openEditModal() {
   if (!currentProfile) return;
 
@@ -84,8 +126,10 @@ function openEditModal() {
 }
 
 async function loadProfileData() {
-  const response = await getProfile();
+  const profileId = getProfileIdFromUrl();
+  const response = profileId ? await getProfileById(profileId) : await getProfile();
   renderProfile(response.data);
+  updateProfileActions();
 }
 
 function renderPosts(posts) {
@@ -228,6 +272,37 @@ async function handlePostSubmit() {
   }
 }
 
+async function handleAddFriend() {
+  if (!currentProfile || isViewingOwnProfile) return;
+
+  const addFriendBtn = document.getElementById('addFriendBtn');
+  const originalText = addFriendBtn.textContent;
+  addFriendBtn.disabled = true;
+  addFriendBtn.textContent = 'Sending...';
+
+  try {
+    const response = await sendFriendRequest(currentProfile.userId);
+    addFriendBtn.textContent = 'Request Sent';
+    setStatus(response.message || 'Friend request sent.', 'success');
+  } catch (error) {
+    addFriendBtn.disabled = false;
+    addFriendBtn.textContent = originalText;
+    setStatus(error.message || 'Failed to send friend request.', 'error');
+  }
+}
+
+function handleMessageProfile() {
+  if (!currentProfile || isViewingOwnProfile) return;
+
+  const recipientId = currentProfile.userId || currentProfile.id || currentProfile._id;
+  const params = new URLSearchParams();
+  if (recipientId) params.set('recipientId', recipientId);
+  if (currentProfile.fullName) params.set('recipientName', currentProfile.fullName);
+  if (currentProfile.role) params.set('recipientRole', currentProfile.role);
+
+  window.location.href = `messages.html?${params.toString()}`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('goLoginBtn').addEventListener('click', () => {
     window.location.href = 'login/login.html';
@@ -252,6 +327,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
   document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
   document.getElementById('submitPostBtn').addEventListener('click', handlePostSubmit);
+  document.getElementById('addFriendBtn').addEventListener('click', handleAddFriend);
+  document.getElementById('messageProfileBtn').addEventListener('click', handleMessageProfile);
   document.getElementById('postImageInput').addEventListener('change', (event) => {
     const name = event.target.files[0] ? event.target.files[0].name : '';
     document.getElementById('postImageName').textContent = name;

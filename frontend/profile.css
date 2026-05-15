@@ -220,6 +220,13 @@ a {
   box-shadow: var(--shadow);
 }
 
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .profile-name {
   margin: 0;
 }
@@ -415,6 +422,7 @@ a {
 
 .btn-primary,
 .btn-edit,
+.btn-message,
 .btn-post,
 .btn-logout {
   background: var(--accent);
@@ -423,6 +431,7 @@ a {
 
 .btn-primary:hover,
 .btn-edit:hover,
+.btn-message:hover,
 .btn-post:hover,
 .btn-logout:hover {
   background: var(--accent-strong);

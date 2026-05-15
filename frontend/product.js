@@ -5,6 +5,7 @@
  */
 import { getProducts } from './js/productService.js';
 import { isLoggedIn, logout } from './js/authService.js';
+import './assets/js/notification-float.js';
 
 let allProducts = [];
 let activeCategory = '';
@@ -148,6 +149,11 @@ function openDetail(p) {
     const harvestStr = p.harvestDate ? new Date(p.harvestDate).toLocaleDateString() : '—';
     const expiryStr  = p.expiryDate  ? new Date(p.expiryDate).toLocaleDateString()  : '—';
 
+    const sellerName = escHtml(p.seller?.name || 'Seller');
+    const sellerLabel = p.seller?.id
+        ? `<a href="profile.html?id=${encodeURIComponent(p.seller.id)}">${sellerName}</a>`
+        : sellerName;
+
     detailBody.innerHTML = `
         ${imgHtml}
         <h2 class="detail-name">${escHtml(p.name)}</h2>
@@ -163,7 +169,7 @@ function openDetail(p) {
         </div>
         <div class="detail-seller">
             <h4>Seller</h4>
-            <p><strong>${escHtml(p.seller?.name || '—')}</strong></p>
+            <p><strong>${sellerLabel}</strong></p>
             <p>${escHtml(p.seller?.location || p.seller?.email || '—')}</p>
             <p>${escHtml(p.seller?.phone || '')}</p>
         </div>

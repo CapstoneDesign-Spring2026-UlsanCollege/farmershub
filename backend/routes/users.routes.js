@@ -6,6 +6,7 @@ const {
 } = require('../controllers/userController');
 const {
   getCurrentProfile,
+  getProfileById,
   updateCurrentProfile,
   uploadAvatar,
   uploadCover,
@@ -37,6 +38,7 @@ router.use(protect);
 
 // GET  /api/users/profile   — current user's profile
 router.get('/profile', getCurrentProfile);
+router.get('/:id/profile', getProfileById);
 
 // PUT  /api/users/profile   — update current user's profile
 router.put('/profile', updateCurrentProfile);

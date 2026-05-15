@@ -21,19 +21,14 @@ function detectApiBase() {
     return PRODUCTION_API_BASE;
   }
 
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return LOCAL_API_BASE;
-  }
-
-  // For deployed static frontend, default to production API unless overridden.
+  // Match the login page: default to the deployed API unless explicitly overridden.
   return PRODUCTION_API_BASE;
 }
 
 const API_BASE = detectApiBase();
 
 function getToken() {
-  return localStorage.getItem('fh_token') || localStorage.getItem('farmershub_token');
+  return localStorage.getItem('fh_token');
 }
 
 function jsonHeaders(auth = true) {

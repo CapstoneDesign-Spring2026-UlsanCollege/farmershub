@@ -14,7 +14,9 @@ const userRoutes = require('./routes/users.routes');
 const farmerRoutes = require('./routes/farmers.routes');
 const productRoutes = require('./routes/products.routes');
 const postRoutes = require('./routes/posts.routes');
+const notificationRoutes = require('./routes/notifications.routes');
 const messageRoutes = require('./routes/messages.routes');
+const friendRequestRoutes = require('./routes/friendRequests.routes');
 
 const app = express();
 
@@ -94,7 +96,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/friend-requests', friendRequestRoutes);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((_req, res) => {

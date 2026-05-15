@@ -1,6 +1,8 @@
 const Product = require('../models/Product');
 const { buildMediaUrl } = require('../services/mediaUrlService');
 const { toUploadPath } = require('../middleware/upload');
+const { createNotification } = require('./notificationController');
+const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 function firstValue(value, fallback = '') {
     if (Array.isArray(value)) return value[0] || fallback;
@@ -180,10 +182,57 @@ async function deleteProduct(req, res) {
     }
 }
 
+/**
+ * POST /api/products/:id/order
+ * Place an order for a product (creates notification for seller).
+ */
+async function placeOrder(req, res, next) {
+    try {
+        const { quantity = 1, notes } = req.body;
+
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return errorResponse(res, 'Product not found', 404);
+        }
+
+        if (product.stock < quantity) {
+            return errorResponse(res, 'Insufficient stock available', 400);
+        }
+
+        // Create notification for the seller
+        const productDetails = `${quantity} ${product.unit} of ${product.name}`;
+        const body = notes
+            ? `${productDetails}. Notes: ${notes}`
+            : productDetails;
+
+        await createNotification(
+            product.seller.userId,
+            'order',
+            'New order request',
+            body,
+            product._id,
+            'Product'
+        );
+
+        // Update product stock (optional - depending on business logic)
+        // product.stock -= quantity;
+        // await product.save();
+
+        return successResponse(res, 'Order placed successfully', {
+            product: serializeProduct(product, req),
+            quantity,
+            notes,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     createProduct,
     getProducts,
     getProductById,
     updateProduct,
     deleteProduct,
+    placeOrder,
 };

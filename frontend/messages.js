@@ -1,6 +1,7 @@
-import { getToken } from './assets/js/config/api.config.js';
-import { getConversations, getMessages, startConversation, sendMessage } from './assets/js/services/messageService.js';
-import { getFarmerById } from './js/farmerService.js';
+import './assets/js/notification-float.js';
+import { apiFetch, getToken, jsonHeaders } from './assets/js/config/api.config.js';
+
+const conversations = [];
 
 const listEl = document.getElementById('conversationList');
 const headerEl = document.getElementById('chatHeader');
@@ -11,11 +12,31 @@ const inputEl = document.getElementById('messageInput');
 const loginBtn = document.getElementById('navLoginBtn');
 const logoutBtn = document.getElementById('navLogoutBtn');
 
-let conversations = [];
-let activeId = null;
-let activeThread = null;
-let pendingReceiver = null;
-let isLoading = false;
+function getRequestedConversation() {
+  const params = new URLSearchParams(window.location.search);
+  const recipientId = params.get('recipientId');
+
+  if (!recipientId) {
+    return null;
+  }
+
+  return {
+    id: `profile-${recipientId}`,
+    recipientId,
+    name: params.get('recipientName') || 'FarmersHub member',
+    role: params.get('recipientRole') || 'Profile contact',
+    time: 'New',
+    unread: 0,
+    messages: [],
+  };
+}
+
+const requestedConversation = getRequestedConversation();
+if (requestedConversation && !conversations.some((conversation) => conversation.id === requestedConversation.id)) {
+  conversations.unshift(requestedConversation);
+}
+
+let activeId = requestedConversation?.id || conversations[0]?.id || null;
 
 function getStoredUser() {
   try {
@@ -30,39 +51,30 @@ function setupSessionNav() {
   const user = getStoredUser();
 
   if (!token) {
-    if (loginBtn) loginBtn.style.display = 'inline-block';
-    if (logoutBtn) logoutBtn.style.display = 'none';
     return;
   }
 
-  if (loginBtn) loginBtn.style.display = 'none';
+  if (loginBtn) {
+    loginBtn.style.display = 'none';
+  }
 
   if (logoutBtn) {
     logoutBtn.style.display = 'inline-block';
     if (user?.fullName) {
       logoutBtn.textContent = 'Logout (' + user.fullName.split(' ')[0] + ')';
     }
-
     logoutBtn.addEventListener('click', () => {
-      [
-        'fh_token',
-        'farmershub_token',
-        'fh_user',
-        'farmershub_user',
-        'fh_loggedIn',
-        'fh_role',
-        'currentUser',
-      ].forEach((key) => {
+      ['fh_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'].forEach((key) => {
         localStorage.removeItem(key);
         sessionStorage.removeItem(key);
       });
-      window.location.href = 'index.html';
+      window.location.reload();
     });
   }
 }
 
-function initials(name = '') {
-  return String(name || 'User')
+function initials(name) {
+  return name
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
@@ -71,99 +83,30 @@ function initials(name = '') {
     .toUpperCase();
 }
 
-function formatTime(value) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-
-  const today = new Date();
-  const sameDay = date.toDateString() === today.toDateString();
-
-  if (sameDay) {
-    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  }
-
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+function getActiveConversation() {
+  return conversations.find((conversation) => conversation.id === activeId);
 }
 
-function getParticipantName(conversation) {
-  return conversation?.participant?.farmName
-    || conversation?.participant?.fullName
-    || 'Unknown user';
-}
-
-function getParticipantRole(conversation) {
-  const participant = conversation?.participant;
-  if (!participant) return 'Direct message';
-  if (participant.role === 'farmer') {
-    return participant.location || 'Farmer';
-  }
-  if (participant.role === 'customer') {
-    return 'Customer';
-  }
-  return participant.role || 'Direct message';
-}
-
-function getLastMessage(conversation) {
-  return conversation?.lastMessage?.content || 'No messages yet';
-}
-
-function showAuthRequired() {
-  headerEl.innerHTML = '';
-  listEl.innerHTML = '<p class="empty-message">Please login to view your messages.</p>';
-  threadEl.innerHTML = '<p class="empty-message">Login first, then you can message farmers and customers.</p>';
-  composerEl.hidden = true;
+function lastMessage(conversation) {
+  return conversation.messages[conversation.messages.length - 1]?.text || 'No messages yet';
 }
 
 function renderConversationList() {
-  const term = (searchEl.value || '').trim().toLowerCase();
-
+  const term = searchEl.value.trim().toLowerCase();
   const filtered = conversations.filter((conversation) => {
-    const name = getParticipantName(conversation).toLowerCase();
-    const role = getParticipantRole(conversation).toLowerCase();
-    const preview = getLastMessage(conversation).toLowerCase();
-    return name.includes(term) || role.includes(term) || preview.includes(term);
+    return conversation.name.toLowerCase().includes(term)
+      || conversation.role.toLowerCase().includes(term)
+      || lastMessage(conversation).toLowerCase().includes(term);
   });
 
-  if (pendingReceiver && !term) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'conversation-card' + (!activeId ? ' active' : '');
-    button.dataset.pending = 'true';
-
-    const avatar = document.createElement('span');
-    avatar.className = 'conversation-avatar';
-    avatar.textContent = initials(pendingReceiver.fullName);
-
-    const main = document.createElement('span');
-    main.className = 'conversation-main';
-
-    const name = document.createElement('span');
-    name.className = 'conversation-name';
-    name.textContent = pendingReceiver.farmName || pendingReceiver.fullName || 'New conversation';
-
-    const preview = document.createElement('span');
-    preview.className = 'conversation-preview';
-    preview.textContent = 'Write your first message';
-
-    const time = document.createElement('span');
-    time.className = 'conversation-time';
-    time.textContent = 'New';
-
-    main.append(name, preview);
-    button.append(avatar, main, time);
-
-    listEl.innerHTML = '';
-    listEl.appendChild(button);
-  } else {
-    listEl.innerHTML = '';
-  }
-
-  if (!filtered.length && !pendingReceiver) {
-    listEl.innerHTML = '<p class="empty-message">No conversations yet.</p>';
+  if (!filtered.length) {
+    listEl.innerHTML = term
+      ? '<p class="empty-message">No conversations match your search.</p>'
+      : '<p class="empty-message">No conversations yet.</p>';
     return;
   }
 
+  listEl.innerHTML = '';
   filtered.forEach((conversation) => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -172,30 +115,30 @@ function renderConversationList() {
 
     const avatar = document.createElement('span');
     avatar.className = 'conversation-avatar';
-    avatar.textContent = initials(getParticipantName(conversation));
+    avatar.textContent = initials(conversation.name);
 
     const main = document.createElement('span');
     main.className = 'conversation-main';
 
     const name = document.createElement('span');
     name.className = 'conversation-name';
-    name.textContent = getParticipantName(conversation);
+    name.textContent = conversation.name;
 
     const preview = document.createElement('span');
     preview.className = 'conversation-preview';
-    preview.textContent = getLastMessage(conversation);
+    preview.textContent = lastMessage(conversation);
 
     const time = document.createElement('span');
     time.className = 'conversation-time';
-    time.textContent = formatTime(conversation.updatedAt || conversation.lastMessage?.createdAt);
+    time.textContent = conversation.time;
 
     main.append(name, preview);
     button.append(avatar, main, time);
 
-    if (conversation.unreadCount) {
+    if (conversation.unread) {
       const badge = document.createElement('span');
       badge.className = 'unread-badge';
-      badge.textContent = conversation.unreadCount;
+      badge.textContent = conversation.unread;
       button.appendChild(badge);
     }
 
@@ -203,219 +146,84 @@ function renderConversationList() {
   });
 }
 
-function renderChat() {
-  if (pendingReceiver && !activeThread) {
-    composerEl.hidden = false;
-    headerEl.innerHTML = '';
+function formatMessageTime(value) {
+  if (!value) return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-    const avatar = document.createElement('span');
-    avatar.className = 'chat-avatar';
-    avatar.textContent = initials(pendingReceiver.fullName);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
 
-    const title = document.createElement('span');
-    title.className = 'chat-title';
+  const today = new Date();
+  if (date.toDateString() === today.toDateString()) {
+    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
 
-    const heading = document.createElement('h3');
-    heading.textContent = pendingReceiver.farmName || pendingReceiver.fullName || 'New conversation';
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
 
-    const role = document.createElement('p');
-    role.textContent = pendingReceiver.location || 'Write your first message';
+function normalizeConversation(item) {
+  const currentUser = getStoredUser();
+  const currentUserId = String(currentUser?.id || currentUser?._id || '');
+  const user = item.user || {};
+  const recipientId = String(user._id || user.id || '');
+  const messages = Array.isArray(item.messages) ? item.messages : [];
 
-    title.append(heading, role);
-    headerEl.append(avatar, title);
+  return {
+    id: `profile-${recipientId || item.id || Date.now()}`,
+    recipientId,
+    name: user.fullName || 'FarmersHub member',
+    role: user.role || 'Direct message',
+    time: formatMessageTime(item.lastMessage?.createdAt || messages[0]?.createdAt),
+    unread: Number(item.unreadCount || 0),
+    messages: messages
+      .slice()
+      .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+      .map((message) => {
+        const senderId = String(message.sender?._id || message.sender || '');
+        return {
+          id: message._id || message.id,
+          from: senderId && currentUserId && senderId === currentUserId ? 'me' : 'them',
+          text: message.content || '',
+          time: formatMessageTime(message.createdAt),
+        };
+      }),
+  };
+}
 
-    threadEl.innerHTML = '<p class="empty-message">Send your first message to start this conversation.</p>';
+function upsertConversation(conversation) {
+  const index = conversations.findIndex((item) => item.id === conversation.id);
+  if (index === -1) {
+    conversations.push(conversation);
     return;
   }
 
-  if (!activeThread) {
-    headerEl.innerHTML = '';
-    threadEl.innerHTML = '<p class="empty-message">Choose a conversation to start messaging.</p>';
+  conversations[index] = {
+    ...conversations[index],
+    ...conversation,
+  };
+}
+
+async function loadConversations() {
+  if (!getToken()) {
+    listEl.innerHTML = '<p class="empty-message">Log in to view your messages.</p>';
+    threadEl.innerHTML = '<p class="empty-message">Open your account first, then you can message farmers and customers.</p>';
     composerEl.hidden = true;
     return;
   }
 
-  composerEl.hidden = false;
-  headerEl.innerHTML = '';
+  try {
+    const response = await apiFetch('/messages', {
+      method: 'GET',
+      headers: jsonHeaders(),
+    });
 
-  const participant = activeThread.participant || {};
-  const displayName = participant.farmName || participant.fullName || 'Conversation';
+    (response.data || []).map(normalizeConversation).forEach(upsertConversation);
 
-  const avatar = document.createElement('span');
-  avatar.className = 'chat-avatar';
-  avatar.textContent = initials(displayName);
+    if (!activeId && conversations.length) {
+      activeId = conversations[0].id;
+    }
 
-  const title = document.createElement('span');
-  title.className = 'chat-title';
-
-  const heading = document.createElement('h3');
-  heading.textContent = displayName;
-
-  const role = document.createElement('p');
-  role.textContent = participant.location || participant.role || 'Direct message';
-
-  title.append(heading, role);
-  headerEl.append(avatar, title);
-
-  const messages = activeThread.messages || [];
-
-  if (!messages.length) {
-    threadEl.innerHTML = '<p class="empty-message">No messages yet. Say hello.</p>';
-    return;
-  }
-
-  threadEl.innerHTML = '';
-  messages.forEach((message) => {
-    const row = document.createElement('div');
-    row.className = 'message-row' + (message.isMine ? ' mine' : '');
-
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
-
-    const text = document.createElement('p');
-    text.textContent = message.content;
-
-    const time = document.createElement('time');
-    time.textContent = formatTime(message.createdAt);
-
-    bubble.append(text, time);
-    row.appendChild(bubble);
-    threadEl.appendChild(row);
-  });
-
-  threadEl.scrollTop = threadEl.scrollHeight;
-}
-
-async function openConversation(conversationId) {
-  activeId = conversationId;
-  pendingReceiver = null;
-  activeThread = null;
-  renderConversationList();
-  threadEl.innerHTML = '<p class="empty-message">Loading messages...</p>';
-
-  const response = await getMessages(conversationId);
-  activeThread = response.data;
-  renderChat();
-  await loadConversations(false);
-}
-
-async function loadConversations(openFirst = true) {
-  if (!getToken()) {
-    showAuthRequired();
-    return;
-  }
-
-  const response = await getConversations();
-  conversations = response.data || [];
-  renderConversationList();
-
-  if (openFirst && !pendingReceiver && conversations.length) {
-    await openConversation(conversations[0].id);
-  } else if (!activeThread && !pendingReceiver) {
+    renderConversationList();
     renderChat();
-  }
-}
-
-async function setupPendingReceiverFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const receiverId = params.get('receiverId') || params.get('farmer') || params.get('to');
-
-  if (!receiverId || !getToken()) {
-    return;
-  }
-
-  try {
-    const response = await getFarmerById(receiverId);
-    pendingReceiver = response.data;
-  } catch {
-    pendingReceiver = {
-      id: receiverId,
-      fullName: 'Selected user',
-      role: 'farmer',
-      location: '',
-    };
-  }
-
-  activeId = null;
-  activeThread = null;
-  renderConversationList();
-  renderChat();
-}
-
-listEl.addEventListener('click', async (event) => {
-  const card = event.target.closest('.conversation-card');
-  if (!card || isLoading) return;
-
-  try {
-    isLoading = true;
-    if (card.dataset.pending) {
-      activeId = null;
-      activeThread = null;
-      renderConversationList();
-      renderChat();
-      return;
-    }
-
-    await openConversation(card.dataset.id);
-  } catch (error) {
-    threadEl.innerHTML = `<p class="empty-message">${error.message || 'Failed to load conversation.'}</p>`;
-  } finally {
-    isLoading = false;
-  }
-});
-
-searchEl.addEventListener('input', renderConversationList);
-
-composerEl.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  if (isLoading) return;
-
-  const text = inputEl.value.trim();
-  if (!text) return;
-
-  try {
-    isLoading = true;
-    inputEl.disabled = true;
-
-    if (pendingReceiver && !activeThread) {
-      const response = await startConversation(pendingReceiver.id, text);
-      inputEl.value = '';
-      pendingReceiver = null;
-      activeId = response.data.conversationId;
-      await loadConversations(false);
-      await openConversation(activeId);
-      return;
-    }
-
-    if (!activeId) return;
-
-    await sendMessage(activeId, text);
-    inputEl.value = '';
-    await openConversation(activeId);
-  } catch (error) {
-    alert(error.message || 'Failed to send message.');
-  } finally {
-    inputEl.disabled = false;
-    isLoading = false;
-    inputEl.focus();
-  }
-});
-
-async function init() {
-  setupSessionNav();
-
-  if (!getToken()) {
-    showAuthRequired();
-    return;
-  }
-
-  listEl.innerHTML = '<p class="empty-message">Loading conversations...</p>';
-  threadEl.innerHTML = '<p class="empty-message">Loading messages...</p>';
-
-  try {
-    await setupPendingReceiverFromUrl();
-    await loadConversations(!pendingReceiver);
   } catch (error) {
     listEl.innerHTML = '<p class="empty-message">Unable to load conversations.</p>';
     threadEl.innerHTML = `<p class="empty-message">${error.message || 'Please try again later.'}</p>`;
@@ -423,4 +231,128 @@ async function init() {
   }
 }
 
-init();
+function renderChat() {
+  const conversation = getActiveConversation();
+
+  if (!conversation) {
+    headerEl.innerHTML = '';
+    threadEl.innerHTML = '<p class="empty-message">Choose a conversation to start messaging.</p>';
+    composerEl.hidden = true;
+    return;
+  }
+
+  composerEl.hidden = false;
+  conversation.unread = 0;
+  headerEl.innerHTML = '';
+
+  const avatar = document.createElement('span');
+  avatar.className = 'chat-avatar';
+  avatar.textContent = initials(conversation.name);
+
+  const title = document.createElement('span');
+  title.className = 'chat-title';
+
+  const heading = document.createElement('h3');
+  heading.textContent = conversation.name;
+
+  const role = document.createElement('p');
+  role.textContent = conversation.role;
+
+  title.append(heading, role);
+  headerEl.append(avatar, title);
+
+  threadEl.innerHTML = '';
+  if (!conversation.messages.length) {
+    threadEl.innerHTML = '<p class="empty-message">Start the conversation with a message.</p>';
+    return;
+  }
+
+  conversation.messages.forEach((message) => {
+    const row = document.createElement('div');
+    row.className = 'message-row' + (message.from === 'me' ? ' mine' : '');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    const text = document.createElement('p');
+    text.textContent = message.text;
+
+    const time = document.createElement('time');
+    time.textContent = message.time;
+
+    bubble.append(text, time);
+    row.appendChild(bubble);
+    threadEl.appendChild(row);
+  });
+  threadEl.scrollTop = threadEl.scrollHeight;
+}
+
+function setActiveConversation(id) {
+  activeId = id;
+  renderChat();
+  renderConversationList();
+}
+
+listEl.addEventListener('click', (event) => {
+  const card = event.target.closest('.conversation-card');
+  if (!card) {
+    return;
+  }
+  setActiveConversation(card.dataset.id);
+});
+
+searchEl.addEventListener('input', renderConversationList);
+
+composerEl.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const text = inputEl.value.trim();
+  const conversation = getActiveConversation();
+
+  if (!text || !conversation) {
+    return;
+  }
+
+  inputEl.disabled = true;
+
+  try {
+    if (conversation.recipientId) {
+      const response = await apiFetch('/messages', {
+        method: 'POST',
+        headers: jsonHeaders(),
+        body: JSON.stringify({
+          receiverId: conversation.recipientId,
+          content: text,
+        }),
+      });
+      const savedMessage = response.data || {};
+      conversation.messages.push({
+        from: 'me',
+        text: savedMessage.content || text,
+        time: savedMessage.createdAt
+          ? new Date(savedMessage.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+          : new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+      });
+    } else {
+      conversation.messages.push({
+        from: 'me',
+        text,
+        time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+      });
+    }
+
+    conversation.time = 'Now';
+    inputEl.value = '';
+    renderChat();
+    renderConversationList();
+  } catch (error) {
+    alert(error.message || 'Failed to send message.');
+  } finally {
+    inputEl.disabled = false;
+    inputEl.focus();
+  }
+});
+
+setupSessionNav();
+renderConversationList();
+renderChat();
+loadConversations();

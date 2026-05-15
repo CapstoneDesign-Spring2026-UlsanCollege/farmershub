@@ -65,14 +65,19 @@ Never commit real secrets in git.
 ## Production Deployment
 
 ### Backend Deployment
-1. Deploy to a Node.js hosting service (e.g., Render, Railway, Vercel, Heroku).
-2. Set environment variables in the hosting dashboard:
+1. On Render, create a new **Web Service** from this GitHub repo, or use the included `render.yaml` blueprint.
+2. If creating the service manually, use:
+   - Root directory: `backend`
+   - Build command: `npm ci`
+   - Start command: `npm start`
+   - Health check path: `/api/health`
+3. Set environment variables in the Render dashboard:
    - `MONGO_URI`: Your MongoDB Atlas connection string
    - `JWT_SECRET`: A secure random string
    - `CLIENT_ORIGIN`: Your deployed frontend URL (e.g., https://yourusername.github.io/farmershub)
-   - `PORT`: As provided by the hosting service (or 5000)
    - `NODE_ENV`: production
-3. Ensure the hosting service supports persistent file storage or migrate uploads to cloud storage (e.g., Cloudinary, AWS S3).
+4. Do not set `PORT` on Render manually. Render provides it automatically.
+5. Ensure the hosting service supports persistent file storage or migrate uploads to cloud storage (e.g., Cloudinary, AWS S3).
 
 ### Frontend Deployment
 1. Deploy `frontend/` folder to static hosting (e.g., GitHub Pages, Vercel, Netlify).

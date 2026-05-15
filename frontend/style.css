@@ -57,9 +57,6 @@ a {
   padding: 12px;
   border-radius: 20px;
   backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(103, 189, 111, 0.18);
-  box-shadow: 0 10px 28px rgba(35, 95, 45, 0.12);
   display: grid;
   grid-template-columns: 280px 1fr auto;
   align-items: center;
@@ -75,12 +72,12 @@ a {
 }
 
 .home-logo {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   border-radius: 12px;
   object-fit: contain;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(103, 189, 111, 0.3);
+  
+  
 }
 
 .brand-overline {
@@ -470,7 +467,89 @@ a {
   }
 }
 
+/* Hero Modal Styles */
+.hero-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.hero-modal.hidden {
+  display: none;
+}
+
+.hero-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease both;
+}
+
+.hero-modal-content {
+  position: relative;
+  z-index: 101;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 24px;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 102;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--green-900);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.hero-modal-close:hover {
+  background: #fff;
+  transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 1080px) {
+  .hero-modal-content {
+    padding: 20px;
+  }
+
   .top-nav {
     grid-template-columns: 1fr;
   }
