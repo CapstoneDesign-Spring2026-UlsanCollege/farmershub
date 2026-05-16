@@ -307,3 +307,62 @@ Strong teams usually:
 - track work clearly
 - post evidence regularly
 - help each other succeed
+
+---
+
+# Team Protection and Stability Policy
+
+## Confidentiality and Team Trust
+
+Team members are expected to maintain reasonable confidentiality regarding internal project discussions, unreleased features, credentials, development structure, repository management decisions, and testing information related to FarmersHub.
+
+Sharing sensitive internal project information or intentionally damaging project trust may result in removal from the active development team.
+
+---
+
+## Main Branch Stability Rule
+
+Due to previous instability, merge conflicts, and production bugs experienced during development, the team agrees to follow a stricter protected workflow for the `main` branch.
+
+From this point onward:
+
+- Team members must develop features in separate branches.
+- Code must be tested before entering the `main` branch.
+- Only the authorized main tester/maintainer may directly merge or push changes into the `main` branch.
+- Team members must request review/testing before asking for merge approval.
+
+This policy exists to maintain project stability, reduce deployment problems, and improve code quality.
+
+---
+
+## Honest Contribution and Credibility
+
+All members must represent their contribution honestly and professionally.
+
+The following actions are not permitted:
+
+- claiming false ownership or false credibility
+- intentionally misleading contribution records
+- unauthorized harmful modification of the project
+- damaging repository structure, workflow, or deployment systems
+- misuse of project access or permissions
+
+Serious violations may result in removal from the development team.
+
+---
+
+## Respect and Team Conduct
+
+All members are expected to communicate respectfully and professionally with one another during project development.
+
+Repeated disrespect, harassment, intentional disruption, or harmful behavior toward teammates is not acceptable within the project environment.
+
+---
+
+## Project Ownership and Future Usage
+
+The original project idea, structure, and design direction of FarmersHub belong to the original project creator.
+
+Team members may contribute development work as collaborators; however, contribution alone does not automatically transfer ownership of the original project identity, structure, future usage rights, or design direction.
+
+Any future reuse, redistribution, publication, or external usage of the project outside approved academic or team purposes should receive permission from the original project owner.
