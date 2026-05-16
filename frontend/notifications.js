@@ -174,6 +174,11 @@ const typeLabels = {
   friend_request: 'Friend Request',
 };
 
+// Fix before merging to main: prevents notification filtering/rendering from crashing when the backend sends an unknown type.
+function getTypeLabel(type) {
+  return typeLabels[type] || 'Notification';
+}
+
 const listEl = document.getElementById('notificationList');
 const statusEl = document.getElementById('notificationStatus');
 const searchEl = document.getElementById('notificationSearch');
@@ -243,7 +248,7 @@ function getFilteredNotifications() {
       || item.title.toLowerCase().includes(term)
       || item.body.toLowerCase().includes(term)
       || item.sender.toLowerCase().includes(term)
-      || typeLabels[item.type].toLowerCase().includes(term);
+      || getTypeLabel(item.type).toLowerCase().includes(term);
 
     return matchesFilter && matchesSearch;
   });
@@ -283,7 +288,7 @@ function createNotificationCard(item) {
 
   const kicker = document.createElement('span');
   kicker.className = 'notification-kicker';
-  kicker.textContent = typeLabels[item.type];
+  kicker.textContent = getTypeLabel(item.type);
 
   const title = document.createElement('h3');
   title.textContent = item.title;
