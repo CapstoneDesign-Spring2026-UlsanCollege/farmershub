@@ -179,6 +179,13 @@ function getTypeLabel(type) {
   return typeLabels[type] || 'Notification';
 }
 
+// Fix before merging to main: keeps the notifications page running even if an optional UI element is missing.
+function addSafeListener(element, eventName, handler) {
+  if (element) {
+    element.addEventListener(eventName, handler);
+  }
+}
+
 const listEl = document.getElementById('notificationList');
 const statusEl = document.getElementById('notificationStatus');
 const searchEl = document.getElementById('notificationSearch');
@@ -519,18 +526,18 @@ tabBtns.forEach((button) => {
   });
 });
 
-searchEl.addEventListener('input', renderNotifications);
-listEl.addEventListener('click', handleNotificationListClick);
-sendReplyBtn.addEventListener('click', sendReply);
-cancelReplyBtn.addEventListener('click', closeReplyModal);
-closeReplyModalBtn.addEventListener('click', closeReplyModal);
-replyModal.addEventListener('click', (event) => {
+addSafeListener(searchEl, 'input', renderNotifications);
+addSafeListener(listEl, 'click', handleNotificationListClick);
+addSafeListener(sendReplyBtn, 'click', sendReply);
+addSafeListener(cancelReplyBtn, 'click', closeReplyModal);
+addSafeListener(closeReplyModalBtn, 'click', closeReplyModal);
+addSafeListener(replyModal, 'click', (event) => {
   if (event.target === replyModal) {
     closeReplyModal();
   }
 });
 
-markAllReadBtn.addEventListener('click', async () => {
+addSafeListener(markAllReadBtn, 'click', async () => {
   const success = await markAllAsRead();
   if (success) {
     notifications.forEach((item) => {
@@ -541,7 +548,7 @@ markAllReadBtn.addEventListener('click', async () => {
   }
 });
 
-refreshBtn.addEventListener('click', async () => {
+addSafeListener(refreshBtn, 'click', async () => {
   statusEl.textContent = 'Refreshing notifications...';
   const freshNotifications = await fetchNotifications();
   notifications = freshNotifications;
