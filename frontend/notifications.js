@@ -23,8 +23,13 @@ async function fetchNotifications() {
     }
 
     const result = await response.json();
-    if (result.success && result.data) {
-      return result.data.notifications.map(notification => ({
+    const notificationList = Array.isArray(result?.data?.notifications)
+      ? result.data.notifications
+      : [];
+
+    // Fix before merging to main: prevents API response shape changes from crashing the notification list.
+    if (result.success) {
+      return notificationList.map(notification => ({
         id: notification._id,
         type: notification.type,
         title: notification.title,
