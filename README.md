@@ -121,3 +121,7 @@ From `backend/`:
 - `npm run start` - production start
 - `npm run seed` - demo data seed
 - `npm run test` - test suite
+
+## Usage Notice
+
+This project is provided for approved project review and development purposes only. Unauthorized copying, misuse, redistribution, resubmission, or claiming of this work without permission is not allowed and may lead to academic, institutional, or legal action.
