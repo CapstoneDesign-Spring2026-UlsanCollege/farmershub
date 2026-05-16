@@ -36,3 +36,6 @@ build/
 # Upload/generated media
 backend/uploads/*
 !backend/uploads/.gitkeep
+
+# Private local proof files
+.private/
