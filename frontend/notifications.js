@@ -40,6 +40,7 @@ async function fetchNotifications() {
         recipientId: getNotificationRecipientId(notification),
         sender: getNotificationSender(notification),
         senderRole: getNotificationSenderRole(notification),
+        relatedUserId: notification.relatedId?._id || notification.relatedId || null,
       }));
     }
     return [];
@@ -47,6 +48,49 @@ async function fetchNotifications() {
     console.error('Error fetching notifications:', error);
     return [];
   }
+}
+
+// Fix before merging to main: load pending received requests so notification actions can accept/decline them.
+async function fetchFriendRequests() {
+  try {
+    const token = localStorage.getItem('fh_token');
+    if (!token) return [];
+
+    const response = await fetch(`${API_BASE}/friend-requests`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) return [];
+    const result = await response.json();
+    return Array.isArray(result?.data?.received) ? result.data.received : [];
+  } catch (error) {
+    console.error('Error fetching friend requests:', error);
+    return [];
+  }
+}
+
+// Fix before merging to main: call backend friendship action routes from notification buttons.
+async function respondFriendRequest(requestId, action) {
+  const token = localStorage.getItem('fh_token');
+  if (!token || !requestId) return false;
+
+  const response = await fetch(`${API_BASE}/friend-requests/${requestId}/${action}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return response.ok;
+}
+
+function getPendingFriendRequestForNotification(item) {
+  if (item.type !== 'friend_request' || !item.relatedUserId) return null;
+  return pendingFriendRequests.find((request) => request.requester === item.relatedUserId) || null;
 }
 
 async function markAsRead(notificationId) {
@@ -170,6 +214,7 @@ function getNotificationSenderRole(notification) {
 }
 
 let notifications = []; // Will be populated from API
+let pendingFriendRequests = []; // Fix before merging to main: used to accept/decline friend request notifications.
 
 const typeLabels = {
   order: 'Order',
@@ -347,6 +392,24 @@ function createNotificationCard(item) {
     actions.append(historyBtn);
   }
 
+  if (item.type === 'friend_request') {
+    const pendingRequest = getPendingFriendRequestForNotification(item);
+
+    if (pendingRequest) {
+      const acceptBtn = document.createElement('button');
+      acceptBtn.type = 'button';
+      acceptBtn.dataset.action = 'accept-friend-request';
+      acceptBtn.textContent = 'Accept';
+      actions.append(acceptBtn);
+
+      const declineBtn = document.createElement('button');
+      declineBtn.type = 'button';
+      declineBtn.dataset.action = 'decline-friend-request';
+      declineBtn.textContent = 'Decline';
+      actions.append(declineBtn);
+    }
+  }
+
   const readBtn = document.createElement('button');
   readBtn.type = 'button';
   readBtn.dataset.action = 'toggle-read';
@@ -458,6 +521,7 @@ async function showHistory(item) {
 async function pollForNewNotifications() {
   setInterval(async () => {
     const freshNotifications = await fetchNotifications();
+    const freshFriendRequests = await fetchFriendRequests();
     const hasNewNotifications = freshNotifications.length > notifications.length ||
       freshNotifications.some((newNotif, index) => {
         const oldNotif = notifications[index];
@@ -466,6 +530,7 @@ async function pollForNewNotifications() {
 
     if (hasNewNotifications) {
       notifications = freshNotifications;
+      pendingFriendRequests = freshFriendRequests;
       statusEl.textContent = 'New notifications available.';
       renderNotifications();
     }
@@ -486,6 +551,36 @@ async function handleNotificationListClick(event) {
         syncFloatingAlertState();
         renderNotifications();
       }
+    }
+    return;
+  }
+
+  const friendActionBtn = event.target.closest('button[data-action="accept-friend-request"], button[data-action="decline-friend-request"]');
+  if (friendActionBtn) {
+    const card = friendActionBtn.closest('.notification-card');
+    const item = notifications.find(n => n.id === card?.dataset.id);
+    const pendingRequest = item ? getPendingFriendRequestForNotification(item) : null;
+    const action = friendActionBtn.dataset.action === 'accept-friend-request' ? 'accept' : 'decline';
+
+    if (!pendingRequest) {
+      statusEl.textContent = 'This friend request is no longer pending.';
+      return;
+    }
+
+    friendActionBtn.disabled = true;
+    const success = await respondFriendRequest(pendingRequest.id, action);
+    if (success) {
+      pendingFriendRequests = pendingFriendRequests.filter((request) => request.id !== pendingRequest.id);
+      if (item) {
+        item.read = true;
+        await markAsRead(item.id);
+      }
+      syncFloatingAlertState();
+      statusEl.textContent = action === 'accept' ? 'Friend request accepted.' : 'Friend request declined.';
+      renderNotifications();
+    } else {
+      friendActionBtn.disabled = false;
+      statusEl.textContent = 'Failed to update friend request.';
     }
     return;
   }
@@ -556,13 +651,16 @@ addSafeListener(markAllReadBtn, 'click', async () => {
 addSafeListener(refreshBtn, 'click', async () => {
   statusEl.textContent = 'Refreshing notifications...';
   const freshNotifications = await fetchNotifications();
+  const freshFriendRequests = await fetchFriendRequests();
   notifications = freshNotifications;
+  pendingFriendRequests = freshFriendRequests;
   statusEl.textContent = 'Notifications refreshed just now.';
   renderNotifications();
 });
 
 async function initializeNotifications() {
   notifications = await fetchNotifications();
+  pendingFriendRequests = await fetchFriendRequests();
   renderNotifications();
 }
 

@@ -71,6 +71,8 @@ const userSchema = new mongoose.Schema(
       enum: ['cash', 'card', 'bank_transfer', 'mobile_pay', 'Credit / Debit Card', ''],
       default: '',
     },
+    // Fix before merging to main: store accepted friendships for both users.
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

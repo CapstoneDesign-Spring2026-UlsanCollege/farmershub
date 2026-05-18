@@ -76,9 +76,19 @@ async function sendFriendRequest(req, res, next) {
       return errorResponse(res, 'You cannot send a friend request to yourself.', 400);
     }
 
-    const recipient = await User.findOne({ _id: recipientId, isActive: true }).select('_id fullName');
+    const recipient = await User.findOne({ _id: recipientId, isActive: true }).select('_id fullName friends');
     if (!recipient) {
       return errorResponse(res, 'Recipient user not found.', 404);
+    }
+
+    // Fix before merging to main: do not create another request when users are already friends.
+    const alreadyFriends = await User.exists({
+      _id: requesterId,
+      friends: recipientId,
+    });
+
+    if (alreadyFriends) {
+      return errorResponse(res, 'You are already friends with this user.', 409);
     }
 
     let friendRequest = await FriendRequest.findOne({
@@ -149,7 +159,96 @@ async function getFriendRequests(req, res, next) {
   }
 }
 
+
+// Fix before merging to main: allow the recipient to accept a pending request and save friendship both ways.
+async function acceptFriendRequest(req, res, next) {
+  try {
+    const friendRequest = await FriendRequest.findOne({
+      _id: req.params.id,
+      recipient: req.user._id,
+      status: 'pending',
+    });
+
+    if (!friendRequest) {
+      return errorResponse(res, 'Pending friend request not found.', 404);
+    }
+
+    friendRequest.status = 'accepted';
+    await friendRequest.save();
+
+    await Promise.all([
+      User.findByIdAndUpdate(friendRequest.requester, { $addToSet: { friends: friendRequest.recipient } }),
+      User.findByIdAndUpdate(friendRequest.recipient, { $addToSet: { friends: friendRequest.requester } }),
+      createNotification(
+        friendRequest.requester,
+        'friend_request',
+        'Friend request accepted',
+        `${req.user.fullName} accepted your friend request.`,
+        req.user._id,
+        'User'
+      ),
+    ]);
+
+    return successResponse(res, 'Friend request accepted.', {
+      friendRequest: serializeFriendRequest(friendRequest),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Fix before merging to main: allow the recipient to decline a pending request.
+async function declineFriendRequest(req, res, next) {
+  try {
+    const friendRequest = await FriendRequest.findOne({
+      _id: req.params.id,
+      recipient: req.user._id,
+      status: 'pending',
+    });
+
+    if (!friendRequest) {
+      return errorResponse(res, 'Pending friend request not found.', 404);
+    }
+
+    friendRequest.status = 'declined';
+    await friendRequest.save();
+
+    return successResponse(res, 'Friend request declined.', {
+      friendRequest: serializeFriendRequest(friendRequest),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Fix before merging to main: allow the sender to cancel their own pending request.
+async function cancelFriendRequest(req, res, next) {
+  try {
+    const friendRequest = await FriendRequest.findOne({
+      _id: req.params.id,
+      requester: req.user._id,
+      status: 'pending',
+    });
+
+    if (!friendRequest) {
+      return errorResponse(res, 'Pending friend request not found.', 404);
+    }
+
+    friendRequest.status = 'cancelled';
+    await friendRequest.save();
+
+    return successResponse(res, 'Friend request cancelled.', {
+      friendRequest: serializeFriendRequest(friendRequest),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   sendFriendRequest,
   getFriendRequests,
+  acceptFriendRequest,
+  declineFriendRequest,
+  cancelFriendRequest,
 };

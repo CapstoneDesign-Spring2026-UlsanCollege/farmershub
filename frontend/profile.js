@@ -1,4 +1,4 @@
-import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover } from './js/profileService.js';
+import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover, sendFriendRequest } from './js/profileService.js';
 import { getFarmerById } from './js/farmerService.js';
 import { getFeed, createPost, deletePost } from './js/postService.js';
 import { isLoggedIn, logout } from './js/authService.js';
@@ -11,7 +11,16 @@ function getRequestedFarmerId() {
   return params.get('farmer') || params.get('farmerId') || params.get('id') || '';
 }
 
+function setPublicProfileActionsVisible(visible) {
+  ['messageProfileBtn', 'addFriendBtn'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? '' : 'none';
+  });
+}
+
 function setOwnerControlsVisible(visible) {
+  setPublicProfileActionsVisible(!visible);
+
   ['editProfileBtn', 'submitPostBtn'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.style.display = visible ? '' : 'none';
@@ -252,6 +261,37 @@ async function handleCoverUpload(event) {
   }
 }
 
+// Fix before merging to main: connect Add Friend button to the authenticated friend request API.
+async function handleAddFriend() {
+  if (!currentProfile?.userId) {
+    setStatus('Unable to find this user profile.', 'error');
+    return;
+  }
+
+  if (!isLoggedIn()) {
+    showAuthGate();
+    return;
+  }
+
+  const btn = document.getElementById('addFriendBtn');
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+    }
+    setStatus('Sending friend request...', 'info');
+    await sendFriendRequest(currentProfile.userId);
+    if (btn) btn.textContent = 'Request Sent';
+    setStatus('Friend request sent. The user will receive a notification.', 'success');
+  } catch (error) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '➕ Add Friend';
+    }
+    setStatus(error.message || 'Failed to send friend request.', 'error');
+  }
+}
+
 async function handlePostSubmit() {
   const text = document.getElementById('postInput').value.trim();
   const imageInput = document.getElementById('postImageInput');
@@ -314,6 +354,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
   document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
   document.getElementById('submitPostBtn').addEventListener('click', handlePostSubmit);
+  document.getElementById('addFriendBtn').addEventListener('click', handleAddFriend);
   document.getElementById('postImageInput').addEventListener('change', (event) => {
     const name = event.target.files[0] ? event.target.files[0].name : '';
     document.getElementById('postImageName').textContent = name;
