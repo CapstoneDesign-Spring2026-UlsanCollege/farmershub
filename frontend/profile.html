@@ -67,11 +67,48 @@
       <p class="profile-location" id="profileLocation">📍 Add your location</p>
       <div class="profile-actions">
         <button class="btn btn-edit" id="editProfileBtn">✏️ Edit Profile</button>
+        <button class="btn btn-settings" id="settingsProfileBtn" type="button">⚙️ Settings</button>
         <button class="btn btn-message" id="messageProfileBtn">Message</button>
         <button class="btn btn-secondary" id="addFriendBtn">➕ Add Friend</button>
       </div>
     </div>
   </section>
+
+  <!-- Settings Modal (owner profile only) -->
+  <div class="modal-overlay" id="settingsModal" style="display:none;">
+    <div class="modal-box settings-modal">
+      <div class="settings-modal-header">
+        <div>
+          <p class="settings-overline">Account Control</p>
+          <h2>Profile Settings</h2>
+        </div>
+        <button type="button" class="settings-x-btn" id="closeSettingsBtn" aria-label="Close settings">×</button>
+      </div>
+
+      <div class="settings-grid">
+        <section class="settings-card">
+          <h3>Account Details</h3>
+          <dl class="settings-details">
+            <div><dt>Full Name</dt><dd id="settingsName">Not set</dd></div>
+            <div><dt>Email</dt><dd id="settingsEmail">Not editable here</dd></div>
+            <div><dt>Phone</dt><dd id="settingsPhone">Not set</dd></div>
+            <div><dt>Role</dt><dd id="settingsRole">Not set</dd></div>
+            <div><dt>Location</dt><dd id="settingsLocation">Not set</dd></div>
+          </dl>
+        </section>
+
+        <section class="settings-card">
+          <h3>Profile Tools</h3>
+          <p class="settings-help">Use these controls to update your public FarmersHub profile. Email and password changes are not shown because no safe backend route is connected yet.</p>
+          <div class="settings-actions">
+            <button type="button" class="btn btn-primary" id="settingsEditProfileBtn">Edit Profile Info</button>
+            <button type="button" class="btn btn-secondary" id="settingsCloseOnlyBtn">Close</button>
+            <button type="button" class="btn btn-danger" id="settingsLogoutBtn">Log Out</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
 
   <!-- Edit Profile Modal -->
   <div class="modal-overlay" id="editModal" style="display:none;">

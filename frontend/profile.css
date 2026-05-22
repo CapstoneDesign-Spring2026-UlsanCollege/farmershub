@@ -423,6 +423,7 @@ a {
 .btn-primary,
 .btn-edit,
 .btn-message,
+.btn-settings,
 .btn-post,
 .btn-logout {
   background: var(--accent);
@@ -432,6 +433,7 @@ a {
 .btn-primary:hover,
 .btn-edit:hover,
 .btn-message:hover,
+.btn-settings:hover,
 .btn-post:hover,
 .btn-logout:hover {
   background: var(--accent-strong);
@@ -441,6 +443,117 @@ a {
   background: #f2f6f1;
   border: 1px solid var(--line);
   color: #33463d;
+}
+
+.btn-danger {
+  background: #fff0f0;
+  border: 1px solid #f1c7c7;
+  color: var(--danger);
+}
+
+.settings-modal {
+  width: min(760px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+}
+
+.settings-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.settings-modal-header h2 {
+  margin: 4px 0 0;
+}
+
+.settings-overline {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-x-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 14px;
+}
+
+.settings-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f8fbf6;
+  padding: 16px;
+}
+
+.settings-card h3 {
+  margin: 0 0 12px;
+  color: var(--accent-strong);
+}
+
+.settings-details {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.settings-details div {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-details div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.settings-details dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.settings-details dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.settings-help {
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 0;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {

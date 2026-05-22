@@ -21,7 +21,8 @@ function setPublicProfileActionsVisible(visible) {
 function setOwnerControlsVisible(visible) {
   setPublicProfileActionsVisible(!visible);
 
-  ['editProfileBtn', 'submitPostBtn'].forEach((id) => {
+  // Fix: show Settings only on the logged-in user's own profile, not public farmer profiles.
+  ['editProfileBtn', 'settingsProfileBtn', 'submitPostBtn'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.style.display = visible ? '' : 'none';
   });
@@ -99,6 +100,21 @@ function renderImage(targetId, placeholderId, url, placeholderFallback = '👤')
   }
 }
 
+function renderSettingsProfile(profile) {
+  const values = {
+    settingsName: profile.fullName || 'Not set',
+    settingsEmail: profile.email || 'Not available',
+    settingsPhone: profile.phone || 'Not set',
+    settingsRole: profile.role === 'farmer' ? 'Farmer' : 'Customer',
+    settingsLocation: profile.location || profile.address || 'Not set',
+  };
+
+  Object.entries(values).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  });
+}
+
 function renderProfile(profile) {
   currentProfile = profile;
 
@@ -119,6 +135,18 @@ function renderProfile(profile) {
   avatarSmall.innerHTML = profile.avatarUrl
     ? `<img src="${profile.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
     : '👤';
+
+  renderSettingsProfile(profile);
+}
+
+function openSettingsModal() {
+  if (!currentProfile || isViewingPublicFarmer) return;
+  renderSettingsProfile(currentProfile);
+  document.getElementById('settingsModal').style.display = 'flex';
+}
+
+function closeSettingsModal() {
+  document.getElementById('settingsModal').style.display = 'none';
 }
 
 function openEditModal() {
@@ -367,6 +395,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('editProfileBtn').addEventListener('click', openEditModal);
+  document.getElementById('settingsProfileBtn').addEventListener('click', openSettingsModal);
+  document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+  document.getElementById('settingsCloseOnlyBtn').addEventListener('click', closeSettingsModal);
+  document.getElementById('settingsEditProfileBtn').addEventListener('click', () => {
+    closeSettingsModal();
+    openEditModal();
+  });
+  document.getElementById('settingsLogoutBtn').addEventListener('click', () => {
+    logout('index.html');
+  });
   document.getElementById('cancelEditBtn').addEventListener('click', () => {
     document.getElementById('editModal').style.display = 'none';
   });
