@@ -69,8 +69,16 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
       }
-      const link = card.querySelector('.mini-link');
-      link.href = `profile.html?id=${encodeURIComponent(farmer.id)}`;
+      const profileLink = card.querySelector('.mini-link:not(.message-link)');
+      profileLink.href = `profile.html?id=${encodeURIComponent(farmer.id)}`;
+
+      const messageLink = card.querySelector('.message-link');
+      const params = new URLSearchParams({
+        recipientId: farmer.id,
+        recipientName: farmer.fullName || 'FarmersHub member',
+        recipientRole: 'farmer',
+      });
+      messageLink.href = `messages.html?${params.toString()}`;
       farmerGrid.appendChild(card);
     });
   }

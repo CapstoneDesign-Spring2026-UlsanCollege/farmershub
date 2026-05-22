@@ -1,7 +1,7 @@
 import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover, sendFriendRequest } from './js/profileService.js';
 import { getFarmerById } from './js/farmerService.js';
 import { getFeed, createPost, deletePost } from './js/postService.js';
-import { isLoggedIn, logout } from './js/authService.js';
+import { getCurrentUser, isLoggedIn, logout } from './js/authService.js';
 
 let currentProfile = null;
 let isViewingPublicFarmer = false;
@@ -9,6 +9,11 @@ let isViewingPublicFarmer = false;
 function getRequestedFarmerId() {
   const params = new URLSearchParams(window.location.search);
   return params.get('farmer') || params.get('farmerId') || params.get('id') || '';
+}
+
+function getCurrentUserId() {
+  const user = getCurrentUser();
+  return String(user?.id || user?._id || '');
 }
 
 function setPublicProfileActionsVisible(visible) {
@@ -136,8 +141,9 @@ function openEditModal() {
 
 async function loadProfileData() {
   const requestedFarmerId = getRequestedFarmerId();
+  const isOwnRequestedProfile = requestedFarmerId && requestedFarmerId === getCurrentUserId();
 
-  if (requestedFarmerId) {
+  if (requestedFarmerId && !isOwnRequestedProfile) {
     isViewingPublicFarmer = true;
     setOwnerControlsVisible(false);
     const response = await getFarmerById(requestedFarmerId);
@@ -292,6 +298,26 @@ async function handleAddFriend() {
   }
 }
 
+function handleMessageProfile() {
+  if (!currentProfile?.userId) {
+    setStatus('Unable to find this user profile.', 'error');
+    return;
+  }
+
+  if (!isLoggedIn()) {
+    showAuthGate();
+    return;
+  }
+
+  const params = new URLSearchParams({
+    recipientId: currentProfile.userId,
+    recipientName: currentProfile.fullName || 'FarmersHub member',
+    recipientRole: currentProfile.role || 'Direct message',
+  });
+
+  window.location.href = `messages.html?${params.toString()}`;
+}
+
 async function handlePostSubmit() {
   const text = document.getElementById('postInput').value.trim();
   const imageInput = document.getElementById('postImageInput');
@@ -355,6 +381,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
   document.getElementById('submitPostBtn').addEventListener('click', handlePostSubmit);
   document.getElementById('addFriendBtn').addEventListener('click', handleAddFriend);
+  document.getElementById('messageProfileBtn').addEventListener('click', handleMessageProfile);
   document.getElementById('postImageInput').addEventListener('change', (event) => {
     const name = event.target.files[0] ? event.target.files[0].name : '';
     document.getElementById('postImageName').textContent = name;
