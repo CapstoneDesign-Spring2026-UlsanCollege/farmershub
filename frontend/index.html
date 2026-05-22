@@ -27,10 +27,23 @@
     <input type="text" placeholder="Search farmers, crops, organic picks, and local updates">
   </form>
 
-  <nav class="user-nav">
-    <a href="profile.html" class="nav-chip">Profile</a>
-    <a href="messages.html" class="nav-chip">Messages</a>
-    <a href="notifications.html" class="nav-chip">Alerts</a>
+  <nav class="user-nav" aria-label="Main navigation">
+    <a href="index.html" class="nav-icon-link active" aria-label="Home" title="Home">
+      <span class="nav-icon" aria-hidden="true">⌂</span>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="profile.html" class="nav-icon-link" aria-label="Profile" title="Profile">
+      <span class="nav-icon" aria-hidden="true">👤</span>
+      <span class="nav-label">Profile</span>
+    </a>
+    <a href="messages.html" class="nav-icon-link" aria-label="Messages" title="Messages">
+      <span class="nav-icon" aria-hidden="true">✉</span>
+      <span class="nav-label">Messages</span>
+    </a>
+    <a href="notifications.html" class="nav-icon-link" aria-label="Notifications" title="Notifications">
+      <span class="nav-icon" aria-hidden="true">🔔</span>
+      <span class="nav-label">Alerts</span>
+    </a>
     <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
     <button class="login-btn" id="navLogoutBtn" style="display:none;" onclick="(function(){['fh_token','fh_user','fh_loggedIn','fh_role','currentUser'].forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k);});window.location.reload();})()">Logout</button>
   </nav>
@@ -128,8 +141,10 @@
     <h4></h4>
     <p class="location"></p>
     <p class="specialty"></p>
-    <a href="profile.html" class="mini-link">View profile</a>
-    <a href="messages.html" class="mini-link message-link">Message</a>
+    <div class="card-actions">
+      <a href="profile.html" class="mini-link profile-link">View profile</a>
+      <a href="messages.html" class="mini-link message-link">Message</a>
+    </div>
   </article>
 </template>
 

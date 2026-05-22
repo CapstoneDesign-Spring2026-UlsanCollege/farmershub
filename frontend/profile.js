@@ -261,6 +261,26 @@ async function handleCoverUpload(event) {
   }
 }
 
+function handleMessageProfile() {
+  if (!currentProfile?.userId) {
+    setStatus('Unable to find this user profile.', 'error');
+    return;
+  }
+
+  if (!isLoggedIn()) {
+    showAuthGate();
+    return;
+  }
+
+  const params = new URLSearchParams({
+    recipientId: currentProfile.userId,
+    recipientName: currentProfile.fullName || 'FarmersHub member',
+    recipientRole: currentProfile.role || 'Direct message',
+  });
+
+  window.location.href = `messages.html?${params.toString()}`;
+}
+
 // Fix before merging to main: connect Add Friend button to the authenticated friend request API.
 async function handleAddFriend() {
   if (!currentProfile?.userId) {
@@ -354,6 +374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
   document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
   document.getElementById('submitPostBtn').addEventListener('click', handlePostSubmit);
+  document.getElementById('messageProfileBtn').addEventListener('click', handleMessageProfile);
   document.getElementById('addFriendBtn').addEventListener('click', handleAddFriend);
   document.getElementById('postImageInput').addEventListener('change', (event) => {
     const name = event.target.files[0] ? event.target.files[0].name : '';
