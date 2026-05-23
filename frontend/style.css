@@ -902,3 +902,439 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Approved home visual redesign */
+:root {
+  --earth-bg: #f5efe2;
+  --earth-card: #fffaf0;
+  --earth-line: rgba(88, 65, 40, 0.13);
+  --forest: #14351f;
+  --forest-2: #245333;
+  --soil: #6e4a2e;
+  --harvest: #d99b35;
+  --cream: #fff8e9;
+  --muted-earth: #746855;
+  --shadow-soft: 0 16px 38px rgba(37, 45, 28, 0.11);
+  --shadow-hover: 0 20px 46px rgba(37, 45, 28, 0.17);
+}
+
+body {
+  color: #17251b;
+  background:
+    radial-gradient(circle at 8% 4%, rgba(217, 155, 53, 0.16), transparent 28%),
+    linear-gradient(180deg, #fbf6ea 0%, #eef3e3 52%, #f7efe1 100%);
+}
+
+#fallingCanvas {
+  opacity: 0.06;
+}
+
+.top-nav {
+  width: min(1380px, calc(100% - 28px));
+  border: 1px solid var(--earth-line);
+  background: rgba(255, 250, 240, 0.94);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 30px rgba(37, 45, 28, 0.08);
+}
+
+.brand-overline {
+  color: var(--soil);
+}
+
+.global-search {
+  background: #fff7e8;
+  border: 1px solid rgba(20, 53, 31, 0.12);
+}
+
+.global-search input,
+.global-sort {
+  color: var(--forest);
+}
+
+.nav-icon-link.active,
+.nav-icon-link:hover,
+.login-btn {
+  background: var(--forest);
+  color: #fff;
+}
+
+.home-shell {
+  width: min(1380px, calc(100% - 28px));
+  grid-template-columns: 255px minmax(0, 1fr) 285px;
+  gap: 18px;
+}
+
+.sidebar-card,
+.feed-section,
+.card-shell {
+  border: 1px solid var(--earth-line);
+  background: rgba(255, 250, 240, 0.94);
+  box-shadow: var(--shadow-soft);
+}
+
+.sidebar-card {
+  border-radius: 22px;
+  padding: 16px;
+}
+
+.card-kicker {
+  display: inline-flex;
+  margin-bottom: 7px;
+  color: var(--soil);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-card h3,
+.section-heading h3 {
+  color: var(--forest);
+}
+
+.workspace-card a,
+.quick-card a {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  color: var(--forest-2);
+  background: rgba(255, 255, 255, 0.46);
+  border: 1px solid transparent;
+}
+
+.workspace-card a:hover,
+.quick-card a:hover {
+  color: var(--forest);
+  background: #fff;
+  border-color: rgba(217, 155, 53, 0.28);
+  transform: translateX(2px);
+}
+
+.service-card {
+  border-style: solid;
+  background: rgba(255, 250, 240, 0.94);
+}
+
+.compact-heading {
+  margin-bottom: 10px;
+}
+
+.compact-heading h3 {
+  font-size: 15px;
+}
+
+.service-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.service-tile {
+  position: relative;
+  min-height: 104px;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 0 !important;
+  color: #fff !important;
+  background: #17351f;
+  border: 1px solid rgba(255,255,255,.18);
+}
+
+.service-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.05);
+  transition: transform .35s ease;
+}
+
+.service-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12, 30, 18, 0.08), rgba(12, 30, 18, 0.76));
+}
+
+.service-tile span {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.service-tile:hover img {
+  transform: scale(1.06);
+}
+
+.support-card {
+  overflow: hidden;
+  background: linear-gradient(160deg, #17351f, #2c5b36);
+  color: #fff;
+}
+
+.support-card img,
+.trust-card img {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.support-card h3,
+.support-card p,
+.support-card a {
+  color: #fff;
+}
+
+.support-card a {
+  background: var(--harvest);
+  color: #182817;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.harvest-hero {
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+  padding: 0;
+  overflow: hidden;
+  border-radius: 28px;
+  color: #fff;
+  background: linear-gradient(135deg, #12351f, #2e5734);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 24px 54px rgba(21, 43, 25, 0.22);
+}
+
+.hero-content {
+  padding: clamp(24px, 4vw, 42px);
+  align-self: center;
+}
+
+.eyebrow {
+  color: #f7d891;
+}
+
+.harvest-hero h2 {
+  max-width: 13ch;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(30px, 4vw, 54px);
+  letter-spacing: -0.04em;
+}
+
+.harvest-hero .hero-copy {
+  color: rgba(255, 250, 235, 0.82);
+  font-size: 15px;
+}
+
+.hero-visual {
+  min-height: 340px;
+  position: relative;
+}
+
+.hero-visual img {
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-metrics {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  background: rgba(255, 250, 240, 0.97);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hero-metrics article {
+  border: 0;
+  border-right: 1px solid var(--earth-line);
+  border-radius: 0;
+  background: transparent;
+  padding: 16px 18px;
+}
+
+.hero-metrics article:last-child {
+  border-right: 0;
+}
+
+.hero-metrics span {
+  font-size: 18px;
+}
+
+.hero-metrics h3 {
+  color: var(--forest);
+  font-size: 25px;
+}
+
+.hero-metrics p {
+  color: var(--muted-earth);
+  font-weight: 800;
+}
+
+.cta-primary {
+  background: var(--harvest);
+  color: #182817;
+  box-shadow: 0 12px 24px rgba(217, 155, 53, 0.28);
+}
+
+.cta-ghost {
+  border-color: rgba(255,255,255,.35);
+  color: #fff;
+  background: rgba(255,255,255,.12);
+}
+
+.feed-section {
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.farmer-grid,
+.product-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.farmer-card,
+.product-card {
+  overflow: hidden;
+  padding: 0;
+  background: #fffaf0;
+}
+
+.avatar-ring {
+  width: 100%;
+  height: 160px;
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  background-image: url("assets/images/home/farmer-fallback.svg");
+  background-size: cover;
+  background-position: center;
+}
+
+.farmer-card h4,
+.farmer-card p,
+.farmer-card .card-actions,
+.product-card h4,
+.product-card p,
+.product-card a {
+  margin-left: 14px;
+  margin-right: 14px;
+}
+
+.farmer-card h4,
+.product-card h4 {
+  margin-top: 13px;
+  color: var(--forest);
+}
+
+.card-actions {
+  margin-bottom: 14px;
+}
+
+.product-preview {
+  height: 158px;
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.product-card:nth-child(3n+1) .product-preview { background-image: url("assets/images/home/product-tomatoes.svg"); }
+.product-card:nth-child(3n+2) .product-preview { background-image: url("assets/images/home/product-onions.svg"); }
+.product-card:nth-child(3n+3) .product-preview { background-image: url("assets/images/home/product-compost.svg"); }
+
+.product-preview img {
+  border-radius: 0 !important;
+}
+
+.price {
+  color: var(--soil);
+}
+
+.mini-link {
+  color: var(--forest);
+  background: #fff5df;
+  border-color: rgba(217, 155, 53, 0.28);
+}
+
+.message-link {
+  background: var(--forest);
+  color: #fff;
+}
+
+.nearby-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.nearby-card {
+  background: linear-gradient(160deg, #fffaf0, #f4ead7);
+}
+
+.live-feed {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.post-card {
+  background: #fffaf0;
+}
+
+.post-avatar {
+  background-image: url("assets/images/home/farmer-fallback.svg");
+  background-size: cover;
+  background-position: center;
+  border-color: rgba(217, 155, 53, 0.45);
+}
+
+.today-card p,
+.trust-card p {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--earth-line);
+}
+
+.today-card p:last-child,
+.trust-card p:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 1180px) {
+  .home-shell {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
+  .right-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .home-shell {
+    grid-template-columns: 1fr;
+  }
+  .left-sidebar {
+    order: 2;
+  }
+  .social-feed {
+    order: 1;
+  }
+  .harvest-hero {
+    grid-template-columns: 1fr;
+  }
+  .hero-metrics,
+  .farmer-grid,
+  .product-grid,
+  .nearby-grid,
+  .live-feed {
+    grid-template-columns: 1fr;
+  }
+  .service-tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

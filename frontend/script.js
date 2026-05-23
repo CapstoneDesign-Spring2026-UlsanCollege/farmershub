@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     }
 
     farmerGrid.innerHTML = '';
-    farmers.forEach((farmer) => {
+    farmers.forEach((farmer, index) => {
       const card = farmerTpl.content.firstElementChild.cloneNode(true);
       card.querySelector('h4').textContent = farmer.fullName;
       card.querySelector('.location').textContent = farmer.location || farmer.address || 'Location coming soon';
@@ -107,6 +107,10 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       const avatar = card.querySelector('.avatar-ring');
       if (farmer.avatarUrl) {
         avatar.style.backgroundImage = `url('${farmer.avatarUrl}')`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+      } else {
+        avatar.style.backgroundImage = "url('assets/images/home/farmer-fallback.svg')";
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
       }
@@ -138,14 +142,21 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     }
 
     productGrid.innerHTML = '';
-    products.forEach((product) => {
+    products.forEach((product, index) => {
       const card = productTpl.content.firstElementChild.cloneNode(true);
       card.querySelector('h4').textContent = product.name;
-      card.querySelector('.price').textContent = `$${Number(product.price || 0).toFixed(2)}`;
+      card.querySelector('.price').textContent = `₩${Number(product.price || 0).toLocaleString()}`;
       card.querySelector('.meta').textContent = `${product.category} • ${product.seller?.name || 'Farmer'}`;
       const preview = card.querySelector('.product-preview');
       if (product.imageUrl) {
-        preview.innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
+        preview.innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
+      } else {
+        const fallbacks = [
+          'assets/images/home/product-tomatoes.svg',
+          'assets/images/home/product-onions.svg',
+          'assets/images/home/product-compost.svg'
+        ];
+        preview.innerHTML = `<img src="${fallbacks[index % fallbacks.length]}" alt="${product.name || 'Farm product'}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       }
       productGrid.appendChild(card);
     });

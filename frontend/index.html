@@ -74,64 +74,102 @@
 
 <main class="home-shell">
   <aside class="home-sidebar left-sidebar">
-    <section class="sidebar-card role-card" data-role-panel="farmer">
-      <h3>Farmer Workspace</h3>
-      <a href="profile.html">🌾 Farm Profile</a>
-      <a href="login/sell_crops.html">➕ Sell Crops</a>
-      <a href="product.html">📦 My Listings</a>
-      <a href="messages.html">✉ Buyer Messages</a>
-      <a href="notifications.html">🔔 Farm Alerts</a>
+    <section class="sidebar-card role-card workspace-card" data-role-panel="farmer">
+      <span class="card-kicker">Farmer Workspace</span>
+      <h3>Manage your farm</h3>
+      <a href="profile.html">🌾 <span>Farm Profile</span></a>
+      <a href="login/sell_crops.html">➕ <span>Sell Crops</span></a>
+      <a href="product.html">📦 <span>My Listings</span></a>
+      <a href="messages.html">✉ <span>Buyer Messages</span></a>
+      <a href="notifications.html">🔔 <span>Farm Alerts</span></a>
     </section>
 
-    <section class="sidebar-card role-card" data-role-panel="customer">
-      <h3>Customer Market</h3>
-      <a href="product.html">🧺 Browse Products</a>
-      <a href="#featuredFarmers">🌱 Discover Farmers</a>
-      <a href="messages.html">✉ Messages</a>
-      <a href="notifications.html">🔔 Alerts</a>
-      <a href="profile.html">👤 My Profile</a>
+    <section class="sidebar-card role-card workspace-card" data-role-panel="customer">
+      <span class="card-kicker">Customer Market</span>
+      <h3>Buy fresh locally</h3>
+      <a href="product.html">🧺 <span>Browse Products</span></a>
+      <a href="#featuredFarmers">🌱 <span>Discover Farmers</span></a>
+      <a href="messages.html">✉ <span>Messages</span></a>
+      <a href="notifications.html">🔔 <span>Alerts</span></a>
+      <a href="profile.html">👤 <span>My Profile</span></a>
     </section>
 
-    <section class="sidebar-card role-card" data-role-panel="visitor">
-      <h3>Welcome</h3>
-      <a href="product.html">🧺 Browse Products</a>
-      <a href="#featuredFarmers">🌱 Discover Farmers</a>
-      <a href="login/login.html">🔐 Login</a>
-      <a href="login/createAccount.html">✨ Create Account</a>
+    <section class="sidebar-card role-card workspace-card" data-role-panel="visitor">
+      <span class="card-kicker">Welcome</span>
+      <h3>Start your local harvest journey</h3>
+      <a href="product.html">🧺 <span>Browse Products</span></a>
+      <a href="#featuredFarmers">🌱 <span>Discover Farmers</span></a>
+      <a href="login/login.html">🔐 <span>Login</span></a>
+      <a href="login/createAccount.html">✨ <span>Create Account</span></a>
     </section>
 
     <section class="sidebar-card service-card">
-      <h3>Agri-Service Providers</h3>
-      <a href="#">🚜 Farm Equipment</a>
-      <a href="#">🌿 Organic Fertilizer</a>
-      <a href="#">🚚 Vehicle & Delivery Help</a>
-      <a href="#">🏦 Loan & Growth Help</a>
+      <div class="section-heading compact-heading">
+        <h3>Agri-Service Providers</h3>
+        <a href="#">Future hub</a>
+      </div>
+      <div class="service-tile-grid">
+        <a class="service-tile" href="#">
+          <img src="assets/images/home/service-equipment.svg" alt="Farm equipment support" loading="lazy">
+          <span>Farm Equipment</span>
+        </a>
+        <a class="service-tile" href="#">
+          <img src="assets/images/home/service-fertilizer.svg" alt="Organic fertilizer support" loading="lazy">
+          <span>Organic Fertilizer</span>
+        </a>
+        <a class="service-tile" href="#">
+          <img src="assets/images/home/service-delivery.svg" alt="Vehicle and delivery support" loading="lazy">
+          <span>Vehicle & Delivery Help</span>
+        </a>
+        <a class="service-tile" href="#">
+          <img src="assets/images/home/service-loan.svg" alt="Loan and growth support" loading="lazy">
+          <span>Loan & Growth Help</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="sidebar-card support-card">
+      <img src="assets/images/home/support-basket.svg" alt="Basket of seasonal produce" loading="lazy">
+      <h3>List your crops. Reach local buyers.</h3>
+      <p>Simple. Trusted. Local.</p>
+      <a href="login/sell_crops.html">Start Selling Today</a>
     </section>
   </aside>
 
   <section class="page-feed social-feed">
-  <section class="hero-card reveal">
-    <div>
-      <p class="eyebrow">Fresh, Local, Real Farmers</p>
-      <h2>Discover harvests and stories from nearby farms in one endless feed.</h2>
-      <p class="hero-copy">FarmersHub blends marketplace discovery with social browsing so buyers and farmers connect naturally as they scroll.</p>
+  <section class="hero-card reveal harvest-hero">
+    <div class="hero-content">
+      <p class="eyebrow">Local Harvests. Real Connections.</p>
+      <h2>Fresh from local farms, delivered to you.</h2>
+      <p class="hero-copy">FarmersHub connects real farmers with real buyers. Discover quality produce, agri services, and trusted support all in one place.</p>
       <div class="hero-actions">
         <a href="product.html" class="cta-primary">Explore Products</a>
         <a href="login/sell_crops.html" class="cta-ghost">Start Selling</a>
       </div>
     </div>
+    <div class="hero-visual">
+      <img src="assets/images/home/hero-delivery.svg" alt="Fresh local produce delivery" fetchpriority="high">
+    </div>
     <div class="hero-metrics">
       <article>
+        <span>👨‍🌾</span>
         <h3>1.8K+</h3>
-        <p>Active growers</p>
+        <p>Active Farmers</p>
       </article>
       <article>
+        <span>🌿</span>
         <h3>340+</h3>
-        <p>Fresh listings today</p>
+        <p>Fresh Listings Today</p>
       </article>
       <article>
+        <span>🛡️</span>
         <h3>99%</h3>
-        <p>Verified farm sources</p>
+        <p>Verified Sources</p>
+      </article>
+      <article>
+        <span>🤝</span>
+        <h3>5K+</h3>
+        <p>Happy Buyers</p>
       </article>
     </div>
   </section>
@@ -181,15 +219,28 @@
   </section>
 
   <aside class="home-sidebar right-sidebar">
-    <section class="sidebar-card">
-      <h3>Today on FarmersHub</h3>
-      <p>Find fresh produce, follow farm updates, and connect directly with growers.</p>
+    <section class="sidebar-card today-card">
+      <span class="card-kicker">Today on FarmersHub</span>
+      <h3>Fresh activity</h3>
+      <p>New arrivals: organic turmeric, green chillies, fresh milk.</p>
+      <p>Monsoon crop care tips from agri experts.</p>
+      <p>Buyers nearby are looking for tomatoes and onions.</p>
     </section>
-    <section class="sidebar-card">
+
+    <section class="sidebar-card quick-card">
       <h3>Quick Actions</h3>
-      <a href="product.html">Browse Products</a>
-      <a href="login/sell_crops.html">Start Selling</a>
-      <a href="profile.html">Update Profile</a>
+      <a href="product.html">🧺 Browse All Products</a>
+      <a href="login/sell_crops.html">➕ Start Selling</a>
+      <a href="profile.html">👤 Update Farm Profile</a>
+      <a href="#liveFeedSection">📣 View Farmer Updates</a>
+    </section>
+
+    <section class="sidebar-card trust-card">
+      <h3>Why buy on FarmersHub?</h3>
+      <p>✅ Verified growers</p>
+      <p>📸 Uploaded farm photos appear first</p>
+      <p>⚡ Fast direct messaging</p>
+      <img src="assets/images/home/support-basket.svg" alt="Seasonal produce basket" loading="lazy">
     </section>
   </aside>
 </main>
