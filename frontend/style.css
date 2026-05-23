@@ -120,6 +120,18 @@ a {
   font-size: 15px;
 }
 
+.global-sort {
+  border: 1px solid rgba(61, 154, 69, 0.2);
+  background: #fff;
+  color: var(--green-800);
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  outline: none;
+}
+
 .user-nav {
   display: flex;
   align-items: center;

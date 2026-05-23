@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
 
 (function () {
   let feedCache = [];
+  let allFarmers = [];
+  let allProducts = [];
+  let allPosts = [];
 
   const farmerGrid = document.getElementById('featuredFarmers');
   const productGrid = document.getElementById('trendingProducts');
@@ -38,6 +41,8 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
   const liveFeed = document.getElementById('liveFeed');
   const infiniteSections = document.getElementById('infiniteSections');
   const sentinel = document.getElementById('feedSentinel');
+  const searchInput = document.getElementById('globalSearchInput');
+  const sortSelect = document.getElementById('globalSortSelect');
 
   const farmerTpl = document.getElementById('farmerCardTemplate');
   const productTpl = document.getElementById('productCardTemplate');
@@ -49,6 +54,42 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       const tilt = i % 2 === 0 ? '135deg' : '160deg';
       node.style.background = 'linear-gradient(' + tilt + ', ' + a + ', ' + b + ')';
     });
+  }
+
+  function textMatches(value, query) {
+    return String(value || '').toLowerCase().includes(query);
+  }
+
+  function farmerMatches(farmer, query) {
+    return [
+      farmer.fullName,
+      farmer.location,
+      farmer.address,
+      farmer.bio,
+      farmer.farmType,
+      farmer.farmName,
+    ].some((value) => textMatches(value, query));
+  }
+
+  function productMatches(product, query) {
+    return [
+      product.name,
+      product.category,
+      product.seller?.name,
+      product.description,
+    ].some((value) => textMatches(value, query));
+  }
+
+  function postMatches(post, query) {
+    return [
+      post.author?.name,
+      post.text,
+      post.caption,
+    ].some((value) => textMatches(value, query));
+  }
+
+  function sortByName(items, getName) {
+    return [...items].sort((a, b) => getName(a).localeCompare(getName(b)));
   }
 
   function renderFarmers(farmers) {
@@ -191,6 +232,44 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     });
   }
 
+  function applySearchAndSort() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const sortMode = sortSelect?.value || 'recent';
+
+    let farmers = query ? allFarmers.filter((farmer) => farmerMatches(farmer, query)) : [...allFarmers];
+    let products = query ? allProducts.filter((product) => productMatches(product, query)) : [...allProducts];
+    let posts = query ? allPosts.filter((post) => postMatches(post, query)) : [...allPosts];
+
+    if (sortMode === 'name') {
+      farmers = sortByName(farmers, (farmer) => farmer.fullName || '');
+      products = sortByName(products, (product) => product.name || '');
+      posts = sortByName(posts, (post) => post.author?.name || post.text || '');
+    }
+
+    if (sortMode === 'farmers') {
+      products = query ? products : products.slice(0, 6);
+      posts = query ? posts : posts.slice(0, 4);
+    }
+
+    if (sortMode === 'products') {
+      farmers = query ? farmers : farmers.slice(0, 6);
+      posts = query ? posts : posts.slice(0, 4);
+    }
+
+    renderFarmers(farmers.slice(0, 12));
+    renderProducts(products.slice(0, 12));
+    renderFeed(posts.slice(0, 8));
+    renderNearby(products, farmers, posts);
+    renderCategories(products);
+
+    feedCache = posts;
+    infiniteSections.innerHTML = '';
+    page = 0;
+    sentinel.textContent = query
+      ? `Showing results for "${searchInput.value.trim()}".`
+      : (feedCache.length ? 'Keep scrolling to discover more farmers and products.' : 'No live posts yet.');
+  }
+
   paintGradients(
     Array.from(document.querySelectorAll('.avatar-ring')),
     'rgba(46, 125, 50, 0.25)',
@@ -273,32 +352,29 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     const products = productsResult.status === 'fulfilled' ? (productsResult.value.data || []) : [];
     const posts = postsResult.status === 'fulfilled' ? (postsResult.value.data || []) : [];
 
+    allFarmers = farmers;
+    allProducts = products;
+    allPosts = posts;
+
     if (farmersResult.status === 'rejected') {
-      farmerGrid.innerHTML = '<article class="farmer-card card-shell"><h4>Unable to load farmers</h4><p class="location">Start backend and ensure /api/farmers is available.</p><p class="specialty"></p></article>';
-    } else {
-      renderFarmers(farmers.slice(0, 6));
+      allFarmers = [];
     }
 
     if (productsResult.status === 'rejected') {
-      productGrid.innerHTML = '<article class="product-card card-shell"><h4>Unable to load products</h4><p class="price"></p><p class="meta">Start backend and ensure /api/products is available.</p></article>';
-    } else {
-      renderProducts(products.slice(0, 6));
+      allProducts = [];
     }
 
     if (postsResult.status === 'rejected') {
-      liveFeed.innerHTML = '<article class="post-card card-shell"><div class="post-head"><div><h4>Unable to load updates</h4><p>Backend unavailable</p></div></div><p class="post-copy">Live feed data appears when /api/posts is reachable.</p><div class="post-meta"></div></article>';
-      feedCache = [];
-    } else {
-      feedCache = posts;
-      renderFeed(feedCache.slice(0, 4));
+      allPosts = [];
     }
 
-    renderNearby(products, farmers, posts);
-    renderCategories(products);
-    sentinel.textContent = feedCache.length ? 'Keep scrolling to discover more farmers and products.' : 'No live posts yet.';
+    applySearchAndSort();
   }
 
   loadLiveData();
+
+  searchInput?.addEventListener('input', applySearchAndSort);
+  sortSelect?.addEventListener('change', applySearchAndSort);
 
   const canvas = document.getElementById('fallingCanvas');
   const ctx = canvas.getContext('2d');

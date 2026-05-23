@@ -24,7 +24,13 @@
 
   <form class="global-search" action="#" method="get">
     <span class="search-icon">⌕</span>
-    <input type="text" placeholder="Search farmers, crops, organic picks, and local updates">
+    <input type="text" id="globalSearchInput" placeholder="Search farmers, crops, organic picks, and local updates">
+    <select id="globalSortSelect" class="global-sort" aria-label="Sort search results">
+      <option value="recent">Recent</option>
+      <option value="name">Name A-Z</option>
+      <option value="farmers">Farmers First</option>
+      <option value="products">Products First</option>
+    </select>
   </form>
 
   <nav class="user-nav" aria-label="Main navigation">
