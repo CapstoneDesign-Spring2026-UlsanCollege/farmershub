@@ -1214,7 +1214,7 @@ body {
   margin: 0;
   border-radius: 0;
   border: 0;
-  background-image: url("assets/images/home/farmer-fallback.svg");
+  background-image: url("assets/images/home/farmer-fallback-1.webp");
   background-size: cover;
   background-position: center;
 }
@@ -1248,9 +1248,9 @@ body {
   background-position: center;
 }
 
-.product-card:nth-child(3n+1) .product-preview { background-image: url("assets/images/home/product-tomatoes.svg"); }
-.product-card:nth-child(3n+2) .product-preview { background-image: url("assets/images/home/product-onions.svg"); }
-.product-card:nth-child(3n+3) .product-preview { background-image: url("assets/images/home/product-compost.svg"); }
+.product-card:nth-child(3n+1) .product-preview { background-image: url("assets/images/home/product-tomatoes.webp"); }
+.product-card:nth-child(3n+2) .product-preview { background-image: url("assets/images/home/product-onions.webp"); }
+.product-card:nth-child(3n+3) .product-preview { background-image: url("assets/images/home/product-compost.webp"); }
 
 .product-preview img {
   border-radius: 0 !important;
@@ -1288,7 +1288,7 @@ body {
 }
 
 .post-avatar {
-  background-image: url("assets/images/home/farmer-fallback.svg");
+  background-image: url("assets/images/home/farmer-fallback-1.webp");
   background-size: cover;
   background-position: center;
   border-color: rgba(217, 155, 53, 0.45);

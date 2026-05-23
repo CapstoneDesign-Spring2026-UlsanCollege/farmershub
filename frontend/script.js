@@ -110,7 +110,12 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
       } else {
-        avatar.style.backgroundImage = "url('assets/images/home/farmer-fallback.svg')";
+        const farmerFallbacks = [
+          'assets/images/home/farmer-fallback-1.webp',
+          'assets/images/home/farmer-fallback-2.webp',
+          'assets/images/home/farmer-fallback-3.webp'
+        ];
+        avatar.style.backgroundImage = `url('${farmerFallbacks[index % farmerFallbacks.length]}')`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
       }
@@ -152,9 +157,9 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
         preview.innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       } else {
         const fallbacks = [
-          'assets/images/home/product-tomatoes.svg',
-          'assets/images/home/product-onions.svg',
-          'assets/images/home/product-compost.svg'
+          'assets/images/home/product-tomatoes.webp',
+          'assets/images/home/product-onions.webp',
+          'assets/images/home/product-compost.webp'
         ];
         preview.innerHTML = `<img src="${fallbacks[index % fallbacks.length]}" alt="${product.name || 'Farm product'}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       }
