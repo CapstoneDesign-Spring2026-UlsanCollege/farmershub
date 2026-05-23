@@ -60,6 +60,8 @@
   var token = localStorage.getItem('fh_token');
   var user = null;
   try { user = JSON.parse(localStorage.getItem('fh_user')); } catch(e) {}
+  var role = token ? (localStorage.getItem('fh_role') || (user && user.role) || 'customer') : 'visitor';
+  document.body.dataset.userRole = role;
   if (token) {
     var loginBtn = document.getElementById('navLoginBtn');
     var logoutBtn = document.getElementById('navLogoutBtn');
@@ -72,18 +74,38 @@
 
 <main class="home-shell">
   <aside class="home-sidebar left-sidebar">
-    <section class="sidebar-card">
-      <h3>FarmersHub</h3>
-      <a href="profile.html">👤 My Profile</a>
-      <a href="messages.html">✉ Messages</a>
-      <a href="notifications.html">🔔 Notifications</a>
-      <a href="product.html">🧺 Marketplace</a>
+    <section class="sidebar-card role-card" data-role-panel="farmer">
+      <h3>Farmer Workspace</h3>
+      <a href="profile.html">🌾 Farm Profile</a>
+      <a href="login/sell_crops.html">➕ Sell Crops</a>
+      <a href="product.html">📦 My Listings</a>
+      <a href="messages.html">✉ Buyer Messages</a>
+      <a href="notifications.html">🔔 Farm Alerts</a>
     </section>
-    <section class="sidebar-card">
-      <h3>Explore</h3>
-      <a href="#featuredFarmers">🌱 Farmers</a>
-      <a href="product.html">🥕 Products</a>
-      <a href="#liveFeedSection">🗞 Updates</a>
+
+    <section class="sidebar-card role-card" data-role-panel="customer">
+      <h3>Customer Market</h3>
+      <a href="product.html">🧺 Browse Products</a>
+      <a href="#featuredFarmers">🌱 Discover Farmers</a>
+      <a href="messages.html">✉ Messages</a>
+      <a href="notifications.html">🔔 Alerts</a>
+      <a href="profile.html">👤 My Profile</a>
+    </section>
+
+    <section class="sidebar-card role-card" data-role-panel="visitor">
+      <h3>Welcome</h3>
+      <a href="product.html">🧺 Browse Products</a>
+      <a href="#featuredFarmers">🌱 Discover Farmers</a>
+      <a href="login/login.html">🔐 Login</a>
+      <a href="login/createAccount.html">✨ Create Account</a>
+    </section>
+
+    <section class="sidebar-card service-card">
+      <h3>Agri-Service Providers</h3>
+      <a href="#">🚜 Farm Equipment</a>
+      <a href="#">🌿 Organic Fertilizer</a>
+      <a href="#">🚚 Vehicle & Delivery Help</a>
+      <a href="#">🏦 Loan & Growth Help</a>
     </section>
   </aside>
 
