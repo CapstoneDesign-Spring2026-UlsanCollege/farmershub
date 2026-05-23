@@ -70,7 +70,24 @@
 })();
 </script>
 
-<main class="page-feed">
+<main class="home-shell">
+  <aside class="home-sidebar left-sidebar">
+    <section class="sidebar-card">
+      <h3>FarmersHub</h3>
+      <a href="profile.html">👤 My Profile</a>
+      <a href="messages.html">✉ Messages</a>
+      <a href="notifications.html">🔔 Notifications</a>
+      <a href="product.html">🧺 Marketplace</a>
+    </section>
+    <section class="sidebar-card">
+      <h3>Explore</h3>
+      <a href="#featuredFarmers">🌱 Farmers</a>
+      <a href="product.html">🥕 Products</a>
+      <a href="#liveFeedSection">🗞 Updates</a>
+    </section>
+  </aside>
+
+  <section class="page-feed social-feed">
   <section class="hero-card reveal">
     <div>
       <p class="eyebrow">Fresh, Local, Real Farmers</p>
@@ -139,6 +156,20 @@
 
   <div id="infiniteSections"></div>
   <div id="feedSentinel" class="feed-sentinel">Loading more from the community...</div>
+  </section>
+
+  <aside class="home-sidebar right-sidebar">
+    <section class="sidebar-card">
+      <h3>Today on FarmersHub</h3>
+      <p>Find fresh produce, follow farm updates, and connect directly with growers.</p>
+    </section>
+    <section class="sidebar-card">
+      <h3>Quick Actions</h3>
+      <a href="product.html">Browse Products</a>
+      <a href="login/sell_crops.html">Start Selling</a>
+      <a href="profile.html">Update Profile</a>
+    </section>
+  </aside>
 </main>
 
 <template id="farmerCardTemplate">
