@@ -25,7 +25,7 @@
   - index.html
   - product.html
   - profile.html
-  - farmers-profile.html
+  - customer.html
   - login/
     - login.html
     - createAccount.html
