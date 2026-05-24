@@ -69,14 +69,18 @@ async function createPost(req, res) {
 
 async function getPosts(req, res) {
     try {
-        const { farmerId, authorId, limit = 20 } = req.query;
+        const { farmerId, authorId, page = 1, limit = 20 } = req.query;
         const query = {};
+        const pageNumber = Math.max(Number(page) || 1, 1);
+        const pageSize = Math.min(Math.max(Number(limit) || 20, 1), 100);
+        const skip = (pageNumber - 1) * pageSize;
         const ownerId = farmerId || authorId;
         if (ownerId) query['author.userId'] = ownerId;
 
         const posts = await Post.find(query)
             .sort({ createdAt: -1 })
-            .limit(Math.min(Number(limit) || 20, 100));
+            .skip(skip)
+            .limit(pageSize);
 
         return res.json({
             success: true,

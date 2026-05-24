@@ -55,4 +55,8 @@ const profileSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
+profileSchema.index({ userId: 1, role: 1 });
+profileSchema.index({ role: 1, location: 1 });
+profileSchema.index({ role: 1, farmLocation: 1 });
+
 module.exports = mongoose.model('Profile', profileSchema);
