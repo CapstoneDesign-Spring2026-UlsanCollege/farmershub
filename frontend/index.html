@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/customer-home.css">
 </head>
 
 <body>
@@ -259,12 +260,18 @@
 </template>
 
 <template id="productCardTemplate">
-  <article class="product-card card-shell">
+  <article class="product-card card-shell customer-product-card">
     <div class="product-preview"></div>
     <h4></h4>
     <p class="price"></p>
     <p class="meta"></p>
-    <a href="product.html" class="mini-link">View listing</a>
+    <div class="customer-product-actions">
+      <a href="product.html" class="mini-link product-detail-link">View listing</a>
+      <a href="product.html" class="mini-link product-order-link">Order</a>
+      <a href="messages.html" class="mini-link product-message-link">Message</a>
+      <a href="profile.html" class="mini-link product-farmer-link">View Farmer</a>
+      <button type="button" class="mini-link product-favorite-btn">♡ Save</button>
+    </div>
   </article>
 </template>
 

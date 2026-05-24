@@ -92,6 +92,79 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     return [...items].sort((a, b) => getName(a).localeCompare(getName(b)));
   }
 
+  function getProductId(product) {
+    return product.id || product._id || product.productId || product.slug || product.name || '';
+  }
+
+  function getProductImage(product) {
+    if (product.imageUrl) return product.imageUrl;
+    if (product.image) return product.image;
+    if (product.photoUrl) return product.photoUrl;
+    if (Array.isArray(product.images) && product.images.length) {
+      const first = product.images[0];
+      return typeof first === 'string' ? first : (first.url || first.path || first.secureUrl || '');
+    }
+    if (Array.isArray(product.media) && product.media.length) {
+      const first = product.media[0];
+      return typeof first === 'string' ? first : (first.url || first.path || first.secureUrl || '');
+    }
+    return '';
+  }
+
+  function getSellerId(product) {
+    return product.seller?.id || product.seller?._id || product.sellerId || product.farmerId || product.userId || '';
+  }
+
+  function getSellerName(product) {
+    return product.seller?.name || product.seller?.fullName || product.farmerName || 'Farmer';
+  }
+
+  function buildProductUrl(product, extra = {}) {
+    const params = new URLSearchParams(extra);
+    const productId = getProductId(product);
+    if (productId) {
+      params.set('productId', productId);
+      params.set('id', productId);
+    }
+    return `product.html${params.toString() ? `?${params.toString()}` : ''}`;
+  }
+
+  function getFavoriteProductIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('fh_favorite_products') || '[]');
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function setFavoriteProductIds(ids) {
+    localStorage.setItem('fh_favorite_products', JSON.stringify(Array.from(new Set(ids.map(String)))));
+  }
+
+  function isFavoriteProduct(product) {
+    const productId = String(getProductId(product));
+    return productId && getFavoriteProductIds().includes(productId);
+  }
+
+  function updateFavoriteButton(button, product) {
+    if (!button) return;
+    button.textContent = isFavoriteProduct(product) ? '♥ Saved' : '♡ Save';
+    button.setAttribute('aria-pressed', isFavoriteProduct(product) ? 'true' : 'false');
+  }
+
+  function toggleFavoriteProduct(product, button) {
+    const productId = String(getProductId(product));
+    if (!productId) return;
+    const favorites = getFavoriteProductIds();
+    const next = favorites.includes(productId)
+      ? favorites.filter((id) => id !== productId)
+      : [...favorites, productId];
+    setFavoriteProductIds(next);
+    updateFavoriteButton(button, product);
+  }
+
+
   function renderFarmers(farmers) {
     if (!farmers.length) {
       farmerGrid.innerHTML = '<article class="farmer-card card-shell"><h4>No farmers yet</h4><p class="location">Grower profiles will appear here once added.</p><p class="specialty"></p></article>';
@@ -124,7 +197,7 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       const farmerId = farmer.id || farmer._id || farmer.userId;
 
       if (profileLink && farmerId) {
-        profileLink.href = `profile.html?id=${encodeURIComponent(farmerId)}`;
+        profileLink.href = `profile.html?farmer=${encodeURIComponent(farmerId)}`;
       }
 
       if (messageLink && farmerId) {
@@ -149,20 +222,63 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     productGrid.innerHTML = '';
     products.forEach((product, index) => {
       const card = productTpl.content.firstElementChild.cloneNode(true);
-      card.querySelector('h4').textContent = product.name;
-      card.querySelector('.price').textContent = `₩${Number(product.price || 0).toLocaleString()}`;
-      card.querySelector('.meta').textContent = `${product.category} • ${product.seller?.name || 'Farmer'}`;
+      const productId = getProductId(product);
+      const sellerId = getSellerId(product);
+      const sellerName = getSellerName(product);
+      const productName = product.name || 'Fresh product';
+
+      card.dataset.productId = productId || '';
+      card.querySelector('h4').textContent = productName;
+      card.querySelector('.price').textContent = `₩${Number(product.price || product.sellingPrice || 0).toLocaleString()}`;
+      card.querySelector('.meta').textContent = `${product.category || 'General'} • ${sellerName}`;
+
       const preview = card.querySelector('.product-preview');
-      if (product.imageUrl) {
-        preview.innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
+      const uploadedImage = getProductImage(product);
+      if (uploadedImage) {
+        preview.innerHTML = `<img src="${uploadedImage}" alt="${productName}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       } else {
         const fallbacks = [
           'assets/images/home/product-tomatoes.webp',
           'assets/images/home/product-onions.webp',
           'assets/images/home/product-compost.webp'
         ];
-        preview.innerHTML = `<img src="${fallbacks[index % fallbacks.length]}" alt="${product.name || 'Farm product'}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
+        preview.innerHTML = `<img src="${fallbacks[index % fallbacks.length]}" alt="${productName}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       }
+
+      const detailLink = card.querySelector('.product-detail-link');
+      const orderLink = card.querySelector('.product-order-link');
+      const messageLink = card.querySelector('.product-message-link');
+      const farmerLink = card.querySelector('.product-farmer-link');
+      const favoriteBtn = card.querySelector('.product-favorite-btn');
+
+      if (detailLink) detailLink.href = buildProductUrl(product);
+      if (orderLink) orderLink.href = buildProductUrl(product, { intent: 'order' });
+
+      if (messageLink && sellerId) {
+        const messageParams = new URLSearchParams({
+          recipientId: sellerId,
+          recipientName: sellerName,
+          recipientRole: 'farmer',
+        });
+        if (productId) messageParams.set('productId', productId);
+        messageLink.href = `messages.html?${messageParams.toString()}`;
+      } else if (messageLink) {
+        messageLink.href = 'messages.html';
+      }
+
+      if (farmerLink && sellerId) {
+        farmerLink.href = `profile.html?farmer=${encodeURIComponent(sellerId)}`;
+      } else if (farmerLink) {
+        farmerLink.href = 'profile.html';
+      }
+
+      updateFavoriteButton(favoriteBtn, product);
+      favoriteBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleFavoriteProduct(product, favoriteBtn);
+      });
+
       productGrid.appendChild(card);
     });
   }
@@ -223,6 +339,10 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       chip.type = 'button';
       chip.className = 'category-chip';
       chip.textContent = category;
+      chip.addEventListener('click', () => {
+        const params = new URLSearchParams({ category });
+        window.location.href = `product.html?${params.toString()}`;
+      });
       categoryWrap.appendChild(chip);
     });
   }

@@ -8,7 +8,8 @@ import { isLoggedIn, logout } from './js/authService.js';
 import './assets/js/notification-float.js';
 
 let allProducts = [];
-let activeCategory = '';
+const pageParams = new URLSearchParams(window.location.search);
+let activeCategory = pageParams.get('category') || '';
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const grid        = document.getElementById('productsGrid');
@@ -50,6 +51,7 @@ async function loadProducts() {
     loadingMsg.style.display = 'none';
     buildCategoryFilters();
     renderGrid();
+    openRequestedProduct();
 }
 
 // ── Category filter chips ─────────────────────────────────────────────────────
@@ -87,7 +89,7 @@ function renderGrid() {
     const query = (searchInput.value || '').trim().toLowerCase();
 
     const filtered = allProducts.filter(p => {
-        const matchCat = !activeCategory || p.category === activeCategory;
+        const matchCat = !activeCategory || String(p.category || '').toLowerCase() === String(activeCategory).toLowerCase();
         const matchQ   = !query ||
             (p.name || '').toLowerCase().includes(query) ||
             (p.description || '').toLowerCase().includes(query) ||
@@ -106,6 +108,17 @@ function renderGrid() {
     filtered.forEach(product => {
         grid.appendChild(makeProductCard(product));
     });
+}
+
+function getProductId(p) {
+    return p.id || p._id || p.productId || p.slug || p.name || '';
+}
+
+function openRequestedProduct() {
+    const requestedId = pageParams.get('productId') || pageParams.get('id');
+    if (!requestedId) return;
+    const requested = allProducts.find(p => String(getProductId(p)) === String(requestedId));
+    if (requested) openDetail(requested);
 }
 
 function makeProductCard(p) {
@@ -151,7 +164,7 @@ function openDetail(p) {
 
     const sellerName = escHtml(p.seller?.name || 'Seller');
     const sellerLabel = p.seller?.id
-        ? `<a href="profile.html?id=${encodeURIComponent(p.seller.id)}">${sellerName}</a>`
+        ? `<a href="profile.html?farmer=${encodeURIComponent(p.seller.id)}">${sellerName}</a>`
         : sellerName;
 
     detailBody.innerHTML = `
@@ -172,6 +185,10 @@ function openDetail(p) {
             <p><strong>${sellerLabel}</strong></p>
             <p>${escHtml(p.seller?.location || p.seller?.email || '—')}</p>
             <p>${escHtml(p.seller?.phone || '')}</p>
+        </div>
+        <div class="detail-actions">
+            ${p.seller?.id ? `<a class="mp-action-btn" href="messages.html?recipientId=${encodeURIComponent(p.seller.id)}&recipientName=${encodeURIComponent(p.seller?.name || 'Seller')}&recipientRole=farmer&productId=${encodeURIComponent(getProductId(p))}">Message Seller</a>` : `<a class="mp-action-btn" href="messages.html">Message Seller</a>`}
+            ${p.seller?.id ? `<a class="mp-action-btn mp-action-btn-secondary" href="profile.html?farmer=${encodeURIComponent(p.seller.id)}">View Farmer</a>` : ''}
         </div>
     `;
 
