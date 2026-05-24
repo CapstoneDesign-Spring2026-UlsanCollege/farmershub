@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FarmersHub Customer Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="customer.css">
+</head>
+<body>
+  <div class="buyer-app">
+    <aside class="buyer-sidebar">
+      <a class="buyer-brand" href="customer.html">
+        <img src="logo.png" alt="FarmersHub logo">
+        <span>FarmersHub</span>
+      </a>
+
+      <nav class="buyer-menu" aria-label="Customer menu">
+        <a class="active" href="customer.html">🏠 <span>Home</span></a>
+        <a href="product.html">🧺 <span>Marketplace</span></a>
+        <a href="#customerServices">🛠️ <span>Services</span></a>
+        <a href="#customerFeed">🌱 <span>Social Feed</span></a>
+        <a href="product.html?view=orders">📦 <span>Orders</span></a>
+        <a href="messages.html">✉️ <span>Messages</span></a>
+        <a href="#customerFavorites">♡ <span>Favorites</span></a>
+        <a href="profile.html">👤 <span>Profile</span></a>
+        <a href="settings.html">⚙️ <span>Settings</span></a>
+        <a href="#customerHelp">❔ <span>Help Center</span></a>
+      </nav>
+    </aside>
+
+    <main class="buyer-main">
+      <header class="buyer-topbar">
+        <div>
+          <p class="buyer-kicker">Welcome back</p>
+          <h1 id="customerGreeting">Find fresh food near you</h1>
+        </div>
+        <form class="buyer-search" id="customerSearchForm">
+          <span>⌕</span>
+          <input id="customerSearchInput" type="search" placeholder="Search vegetables, farmers, eggs, dairy, meat...">
+        </form>
+        <div class="buyer-actions">
+          <a href="notifications.html" title="Notifications">🔔</a>
+          <a href="messages.html" title="Messages">✉️</a>
+          <a href="profile.html" class="buyer-avatar" id="customerAvatar">👤</a>
+        </div>
+      </header>
+
+      <section class="buyer-hero">
+        <div class="buyer-hero-copy">
+          <p>Fresh Market • Local Farmers</p>
+          <h2>Fresh from Local, Better for You</h2>
+          <span>Order vegetables, fruits, dairy, eggs, meat and organic picks directly from trusted local farmers.</span>
+          <div class="buyer-hero-buttons">
+            <a href="product.html" class="primary-btn">Shop Now</a>
+            <a href="#recommendedProducts" class="ghost-btn">Today Deals</a>
+          </div>
+        </div>
+        <div class="buyer-hero-card">
+          <img src="assets/images/home/support-basket.webp" alt="Basket of fresh local produce">
+        </div>
+      </section>
+
+      <section class="feature-grid" aria-label="Customer benefits">
+        <article><strong>🥬 Fresh & Local</strong><span>Direct farm produce</span></article>
+        <article><strong>🛡️ Secure Payments</strong><span>Safe checkout options</span></article>
+        <article><strong>🚚 Fast Delivery</strong><span>Nearby farmer support</span></article>
+        <article><strong>🤝 Support Local</strong><span>Grow community farms</span></article>
+      </section>
+
+      <section class="buyer-section">
+        <div class="section-title">
+          <div>
+            <p>Explore</p>
+            <h2>Shop by Category</h2>
+          </div>
+          <a href="product.html">Browse all</a>
+        </div>
+        <div class="category-strip" id="customerCategories"></div>
+      </section>
+
+      <section class="buyer-section" id="recommendedProducts">
+        <div class="section-title">
+          <div>
+            <p>Picked for you</p>
+            <h2>Recommended Products</h2>
+          </div>
+          <a href="product.html">View all</a>
+        </div>
+        <div class="product-showcase" id="customerProducts"></div>
+      </section>
+
+      <section class="buyer-section">
+        <div class="section-title">
+          <div>
+            <p>Nearby</p>
+            <h2>Farmers & Providers</h2>
+          </div>
+          <a href="farmers-profile.html">See all</a>
+        </div>
+        <div class="provider-grid" id="customerProviders"></div>
+      </section>
+
+      <section class="buyer-section" id="customerServices">
+        <div class="section-title">
+          <div>
+            <p>Helpful support</p>
+            <h2>Services You Might Need</h2>
+          </div>
+          <a href="product.html?category=services">View services</a>
+        </div>
+        <div class="service-grid">
+          <a href="product.html?category=equipment"><img src="assets/images/home/service-equipment.webp" alt="Farm equipment"><span>Equipment</span></a>
+          <a href="product.html?category=fertilizer"><img src="assets/images/home/service-fertilizer.webp" alt="Organic fertilizer"><span>Fertilizer</span></a>
+          <a href="product.html?category=delivery"><img src="assets/images/home/service-delivery.webp" alt="Delivery support"><span>Transport</span></a>
+          <a href="product.html?category=loan"><img src="assets/images/home/service-loan.webp" alt="Growth support"><span>Consultation</span></a>
+        </div>
+      </section>
+
+      <section class="buyer-section" id="customerFeed">
+        <div class="section-title">
+          <div>
+            <p>Community</p>
+            <h2>Social Feed</h2>
+          </div>
+          <a href="index.html#liveFeedSection">Open feed</a>
+        </div>
+        <div class="community-card">
+          <strong>🌾 Farmer updates appear here</strong>
+          <span>See harvest posts, farm stories, and local product announcements from the FarmersHub community.</span>
+        </div>
+      </section>
+
+      <section class="buyer-section" id="customerFavorites">
+        <div class="section-title">
+          <div>
+            <p>Saved</p>
+            <h2>Your Favorites</h2>
+          </div>
+          <button id="clearFavoritesBtn" type="button">Clear saved</button>
+        </div>
+        <div class="favorites-note" id="favoritesNote">Saved products will appear after you tap Save on product cards.</div>
+      </section>
+
+      <section class="buyer-section" id="customerHelp">
+        <div class="community-card">
+          <strong>Need help?</strong>
+          <span>Use Messages to contact farmers directly, or open product details to view seller information.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="buyer-bottom-nav" aria-label="Customer quick navigation">
+    <a class="active" href="customer.html">🏠<span>Home</span></a>
+    <a href="product.html">🧺<span>Shop</span></a>
+    <a href="messages.html">✉️<span>Messages</span></a>
+    <a href="profile.html">👤<span>Profile</span></a>
+  </nav>
+
+  <template id="customerProductTemplate">
+    <article class="customer-product-card">
+      <div class="product-image"></div>
+      <div class="product-body">
+        <p class="product-category"></p>
+        <h3></h3>
+        <span class="product-farmer"></span>
+        <strong class="product-price"></strong>
+        <div class="product-buttons">
+          <a class="view-product" href="product.html">View</a>
+          <a class="order-product" href="product.html">Order</a>
+          <a class="message-farmer" href="messages.html">Message</a>
+          <button class="save-product" type="button">♡ Save</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="customerProviderTemplate">
+    <article class="provider-card">
+      <div class="provider-avatar"></div>
+      <div>
+        <h3></h3>
+        <p></p>
+        <span></span>
+      </div>
+      <div class="provider-buttons">
+        <a class="provider-profile" href="profile.html">View</a>
+        <a class="provider-message" href="messages.html">Message</a>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="customer.js"></script>
+</body>
+</html>

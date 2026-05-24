@@ -215,7 +215,7 @@ async function handleLogin(email, password) {
 
   showMessage("Login successful! Redirecting...", "success");
   setTimeout(() => {
-    window.location.href = "../index.html";
+    window.location.href = user.role === "customer" ? "../customer.html" : "../index.html";
   }, 1000);
 }
 
