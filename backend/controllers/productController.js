@@ -101,8 +101,11 @@ async function createProduct(req, res) {
 
 async function getProducts(req, res) {
     try {
-        const { category, search, farmerId, minPrice, maxPrice, limit = 20 } = req.query;
+        const { category, search, farmerId, minPrice, maxPrice, page = 1, limit = 20 } = req.query;
         const query = {};
+        const pageNumber = Math.max(Number(page) || 1, 1);
+        const pageSize = Math.min(Math.max(Number(limit) || 20, 1), 100);
+        const skip = (pageNumber - 1) * pageSize;
 
         if (category) query.category = String(category).toLowerCase();
         if (farmerId) query['seller.userId'] = farmerId;
@@ -115,7 +118,8 @@ async function getProducts(req, res) {
 
         const products = await Product.find(query)
             .sort({ createdAt: -1 })
-            .limit(Math.min(Number(limit) || 20, 100));
+            .skip(skip)
+            .limit(pageSize);
 
         return res.json({
             success: true,

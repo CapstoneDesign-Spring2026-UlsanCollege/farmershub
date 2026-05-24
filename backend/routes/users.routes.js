@@ -20,7 +20,15 @@ const { successResponse } = require('../utils/apiResponse');
 // GET /api/users/farmers  — list all farmer accounts
 router.get('/farmers', async (req, res, next) => {
   try {
-    const farmers = await User.find({ role: 'farmer', isActive: true }, '-password').sort({ createdAt: -1 });
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+    const skip = (page - 1) * limit;
+
+    const farmers = await User.find({ role: 'farmer', isActive: true }, '-password')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     return successResponse(res, 'Farmers list', farmers);
   } catch (err) { next(err); }
 });
@@ -28,7 +36,15 @@ router.get('/farmers', async (req, res, next) => {
 // GET /api/users/customers  — list all buyer accounts (legacy name for compatibility)
 router.get('/customers', async (req, res, next) => {
   try {
-    const customers = await User.find({ role: 'customer', isActive: true }, '-password').sort({ createdAt: -1 });
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+    const skip = (page - 1) * limit;
+
+    const customers = await User.find({ role: 'customer', isActive: true }, '-password')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     return successResponse(res, 'Customers list', customers);
   } catch (err) { next(err); }
 });

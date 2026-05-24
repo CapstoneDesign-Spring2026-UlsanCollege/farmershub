@@ -77,7 +77,14 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ── Serve uploaded files statically ───────────────────────────────────────────
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, 'uploads'), {
+    maxAge: isProduction ? '7d' : 0,
+    etag: true,
+    lastModified: true,
+  })
+);
 
 // ── Serve frontend locally from the backend in development ───────────────────
 const frontendDir = path.resolve(__dirname, '..', 'frontend');
