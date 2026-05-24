@@ -237,12 +237,33 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       if (uploadedImage) {
         preview.innerHTML = `<img src="${uploadedImage}" alt="${productName}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       } else {
+        const categoryKey = String(product.category || productName).toLowerCase();
+        const fallbackByCategory = {
+          vegetable: 'assets/images/home/product-tomatoes.webp',
+          vegetables: 'assets/images/home/product-tomatoes.webp',
+          tomato: 'assets/images/home/product-tomatoes.webp',
+          tomatoes: 'assets/images/home/product-tomatoes.webp',
+          onion: 'assets/images/home/product-onions.webp',
+          onions: 'assets/images/home/product-onions.webp',
+          organic: 'assets/images/home/product-compost.webp',
+          compost: 'assets/images/home/product-compost.webp',
+          eggs: 'assets/images/home/support-basket.webp',
+          egg: 'assets/images/home/support-basket.webp',
+          dairy: 'assets/images/home/hero-delivery.webp',
+          milk: 'assets/images/home/hero-delivery.webp',
+          meat: 'assets/images/home/service-delivery.webp',
+          fruit: 'assets/images/home/support-basket.webp',
+          fruits: 'assets/images/home/support-basket.webp',
+        };
         const fallbacks = [
           'assets/images/home/product-tomatoes.webp',
           'assets/images/home/product-onions.webp',
-          'assets/images/home/product-compost.webp'
+          'assets/images/home/support-basket.webp',
+          'assets/images/home/hero-delivery.webp'
         ];
-        preview.innerHTML = `<img src="${fallbacks[index % fallbacks.length]}" alt="${productName}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
+        const categoryFallback = Object.entries(fallbackByCategory).find(([key]) => categoryKey.includes(key))?.[1];
+        const fallbackImage = categoryFallback || fallbacks[index % fallbacks.length];
+        preview.innerHTML = `<img src="${fallbackImage}" alt="${productName}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">`;
       }
 
       const detailLink = card.querySelector('.product-detail-link');
@@ -327,12 +348,9 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
 
   function renderCategories(products) {
     categoryWrap.innerHTML = '';
-    const categories = Array.from(new Set((products || []).map(product => (product.category || '').trim()).filter(Boolean))).slice(0, 10);
-
-    if (!categories.length) {
-      categoryWrap.innerHTML = '<button type="button" class="category-chip">No categories yet</button>';
-      return;
-    }
+    const serverCategories = Array.from(new Set((products || []).map(product => (product.category || '').trim()).filter(Boolean)));
+    const marketCategories = ['Vegetables', 'Fruits', 'Eggs', 'Dairy', 'Meat', 'Organic Picks'];
+    const categories = Array.from(new Set([...marketCategories, ...serverCategories])).slice(0, 10);
 
     categories.forEach((category) => {
       const chip = document.createElement('button');
