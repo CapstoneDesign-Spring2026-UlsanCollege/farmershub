@@ -42,6 +42,8 @@
           <input id="customerSearchInput" type="search" placeholder="Search vegetables, farmers, eggs, dairy, meat...">
         </form>
         <div class="buyer-actions">
+          <a href="product.html?view=cart" title="Cart" class="action-badge">🛒<span id="cartCount">0</span></a>
+          <a href="#customerFavorites" title="Favorites" class="action-badge">♡<span id="favoriteCount">0</span></a>
           <a href="notifications.html" title="Notifications">🔔</a>
           <a href="messages.html" title="Messages">✉️</a>
           <a href="profile.html" class="buyer-avatar" id="customerAvatar">👤</a>
@@ -98,7 +100,7 @@
             <p>Nearby</p>
             <h2>Farmers & Providers</h2>
           </div>
-          <a href="farmers-profile.html">See all</a>
+          <button type="button" id="toggleProvidersBtn">See all</button>
         </div>
         <div class="provider-grid" id="customerProviders"></div>
       </section>

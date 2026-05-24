@@ -46,9 +46,13 @@ const searchForm = document.getElementById('customerSearchForm');
 const searchInput = document.getElementById('customerSearchInput');
 const favoritesNote = document.getElementById('favoritesNote');
 const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
+const toggleProvidersBtn = document.getElementById('toggleProvidersBtn');
+const favoriteCount = document.getElementById('favoriteCount');
+const cartCount = document.getElementById('cartCount');
 
 let allProducts = [];
 let allFarmers = [];
+let showAllProviders = false;
 
 function getStoredUser() {
   try {
@@ -120,6 +124,7 @@ function favoriteIds() {
 function saveFavoriteIds(ids) {
   localStorage.setItem('fh_favorite_products', JSON.stringify(Array.from(new Set(ids.map(String)))));
   updateFavoritesNote();
+  updateCartCount();
 }
 
 function isFavorite(product) {
@@ -144,10 +149,49 @@ function toggleFavorite(product, button) {
 
 function updateFavoritesNote() {
   const count = favoriteIds().length;
+  if (favoriteCount) favoriteCount.textContent = String(count);
   if (!favoritesNote) return;
   favoritesNote.textContent = count
     ? `${count} product${count === 1 ? '' : 's'} saved. Open product cards to continue shopping.`
     : 'Saved products will appear after you tap Save on product cards.';
+}
+
+function updateCartCount() {
+  if (!cartCount) return;
+  try {
+    const cart = JSON.parse(localStorage.getItem('fh_cart') || '[]');
+    cartCount.textContent = String(Array.isArray(cart) ? cart.length : 0);
+  } catch {
+    cartCount.textContent = '0';
+  }
+}
+
+function getCartItems() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('fh_cart') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function addProductToCart(product) {
+  const productId = String(getProductId(product));
+  if (!productId) return;
+  const cart = getCartItems();
+  const exists = cart.some((item) => String(item.id) === productId);
+  const next = exists ? cart : [...cart, {
+    id: productId,
+    name: product.name || 'Fresh product',
+    price: product.price || product.sellingPrice || 0,
+    unit: product.unit || 'unit',
+    sellerId: getSellerId(product),
+    sellerName: getSellerName(product),
+    imageUrl: getProductImage(product),
+    addedAt: new Date().toISOString(),
+  }];
+  localStorage.setItem('fh_cart', JSON.stringify(next));
+  updateCartCount();
 }
 
 function renderCategories() {
@@ -187,7 +231,9 @@ function renderProducts(products) {
     card.querySelector('.product-price').textContent = `₩${price} / ${product.unit || 'unit'}`;
 
     card.querySelector('.view-product').href = productUrl(product);
-    card.querySelector('.order-product').href = productUrl(product, { intent: 'order' });
+    const orderLink = card.querySelector('.order-product');
+    orderLink.href = productUrl(product, { intent: 'order' });
+    orderLink.addEventListener('click', () => addProductToCart(product));
 
     const message = card.querySelector('.message-farmer');
     if (sellerId) {
@@ -210,7 +256,12 @@ function renderProducts(products) {
 
 function renderProviders(farmers) {
   providerGrid.innerHTML = '';
-  const visible = farmers.slice(0, 6);
+  const visible = showAllProviders ? farmers : farmers.slice(0, 3);
+
+  if (toggleProvidersBtn) {
+    toggleProvidersBtn.style.display = farmers.length > 3 ? 'inline-flex' : 'none';
+    toggleProvidersBtn.textContent = showAllProviders ? 'Show less' : 'See all';
+  }
 
   if (!visible.length) {
     providerGrid.innerHTML = '<div class="community-card"><strong>No nearby farmers yet</strong><span>Farmer/provider profiles will appear here when available.</span></div>';
@@ -274,6 +325,7 @@ async function loadCustomerHome() {
   setupUser();
   renderCategories();
   updateFavoritesNote();
+  updateCartCount();
 
   productGrid.innerHTML = '<div class="community-card"><strong>Loading products...</strong><span>Fetching fresh listings from FarmersHub.</span></div>';
   providerGrid.innerHTML = '<div class="community-card"><strong>Loading farmers...</strong><span>Finding local farmers and providers.</span></div>';
@@ -302,6 +354,11 @@ searchInput?.addEventListener('input', () => {
 clearFavoritesBtn?.addEventListener('click', () => {
   saveFavoriteIds([]);
   renderProducts(filterProducts(searchInput?.value || ''));
+});
+
+toggleProvidersBtn?.addEventListener('click', () => {
+  showAllProviders = !showAllProviders;
+  renderProviders(allFarmers);
 });
 
 loadCustomerHome();
