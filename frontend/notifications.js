@@ -1,6 +1,9 @@
 import { API_BASE } from './assets/js/config/api.config.js';
 
 const ALERT_READ_SYNC_KEY = 'fh_alerts_read_sync';
+const NOTIFICATION_SOUND_KEY = 'fh_notification_sound';
+const DEFAULT_NOTIFICATION_SOUND = 'hens';
+const NOTIFICATION_SOUND_MAX_MS = 3500;
 
 // API functions for notifications
 async function fetchNotifications() {
@@ -244,6 +247,10 @@ const orderCountEl = document.getElementById('orderCount');
 const messageCountEl = document.getElementById('messageCount');
 const markAllReadBtn = document.getElementById('markAllReadBtn');
 const refreshBtn = document.getElementById('refreshNotificationsBtn');
+const soundSelectEl = document.getElementById('notificationSoundSelect');
+const previewSoundBtn = document.getElementById('previewNotificationSoundBtn');
+const hensSoundEl = document.getElementById('notificationSoundHens');
+const catSoundEl = document.getElementById('notificationSoundCat');
 const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
 const loginBtn = document.getElementById('navLoginBtn');
 const logoutBtn = document.getElementById('navLogoutBtn');
@@ -256,6 +263,66 @@ const closeReplyModalBtn = document.getElementById('closeReplyModal');
 
 let activeFilter = 'all';
 let currentReplyTargetId = null;
+let knownNotificationIds = new Set();
+let notificationSoundStopTimer = null;
+
+function getNotificationId(item) {
+  return item?.id || item?._id || null;
+}
+
+function getCurrentNotificationSound() {
+  const savedSound = localStorage.getItem(NOTIFICATION_SOUND_KEY);
+  return ['hens', 'cat', 'silent'].includes(savedSound) ? savedSound : DEFAULT_NOTIFICATION_SOUND;
+}
+
+function getSoundElement(soundName = getCurrentNotificationSound()) {
+  if (soundName === 'cat') return catSoundEl;
+  if (soundName === 'hens') return hensSoundEl;
+  return null;
+}
+
+async function playNotificationSound(soundName) {
+  const audio = getSoundElement(soundName);
+  if (!audio) return;
+
+  try {
+    window.clearTimeout(notificationSoundStopTimer);
+    audio.pause();
+    audio.currentTime = 0;
+    await audio.play();
+    notificationSoundStopTimer = window.setTimeout(() => {
+      audio.pause();
+      audio.currentTime = 0;
+    }, NOTIFICATION_SOUND_MAX_MS);
+  } catch (error) {
+    console.info('Notification sound needs a user interaction first.', error);
+  }
+}
+
+function getNewUnreadNotifications(freshNotifications) {
+  return freshNotifications.filter((item) => {
+    const id = getNotificationId(item);
+    return id && !knownNotificationIds.has(id) && !item.read;
+  });
+}
+
+function rememberNotificationIds(items) {
+  knownNotificationIds = new Set(items.map(getNotificationId).filter(Boolean));
+}
+
+function setupNotificationSoundControls() {
+  if (soundSelectEl) {
+    soundSelectEl.value = getCurrentNotificationSound();
+    soundSelectEl.addEventListener('change', () => {
+      localStorage.setItem(NOTIFICATION_SOUND_KEY, soundSelectEl.value);
+      playNotificationSound(soundSelectEl.value);
+    });
+  }
+
+  addSafeListener(previewSoundBtn, 'click', () => {
+    playNotificationSound(soundSelectEl?.value || getCurrentNotificationSound());
+  });
+}
 
 function setupSessionNav() {
   const token = localStorage.getItem('fh_token');
@@ -522,6 +589,7 @@ async function pollForNewNotifications() {
   setInterval(async () => {
     const freshNotifications = await fetchNotifications();
     const freshFriendRequests = await fetchFriendRequests();
+    const newUnreadNotifications = getNewUnreadNotifications(freshNotifications);
     const hasNewNotifications = freshNotifications.length > notifications.length ||
       freshNotifications.some((newNotif, index) => {
         const oldNotif = notifications[index];
@@ -531,8 +599,12 @@ async function pollForNewNotifications() {
     if (hasNewNotifications) {
       notifications = freshNotifications;
       pendingFriendRequests = freshFriendRequests;
+      rememberNotificationIds(notifications);
       statusEl.textContent = 'New notifications available.';
       renderNotifications();
+      if (newUnreadNotifications.length) {
+        playNotificationSound();
+      }
     }
   }, 30000); // Poll every 30 seconds
 }
@@ -652,18 +724,25 @@ addSafeListener(refreshBtn, 'click', async () => {
   statusEl.textContent = 'Refreshing notifications...';
   const freshNotifications = await fetchNotifications();
   const freshFriendRequests = await fetchFriendRequests();
+  const newUnreadNotifications = getNewUnreadNotifications(freshNotifications);
   notifications = freshNotifications;
   pendingFriendRequests = freshFriendRequests;
+  rememberNotificationIds(notifications);
   statusEl.textContent = 'Notifications refreshed just now.';
   renderNotifications();
+  if (newUnreadNotifications.length) {
+    playNotificationSound();
+  }
 });
 
 async function initializeNotifications() {
   notifications = await fetchNotifications();
   pendingFriendRequests = await fetchFriendRequests();
+  rememberNotificationIds(notifications);
   renderNotifications();
 }
 
 setupSessionNav();
+setupNotificationSoundControls();
 initializeNotifications();
 pollForNewNotifications();
