@@ -4,16 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FarmersHub - Sell Your Crops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="sell_crops.css">
 </head>
 <body>
 
-<header class="sell-header">
-  <img src="../assets/images/logorefined.png" alt="FarmersHub Logo" class="sell-logo">
-  <h1>FarmersHub - Sell Your Crops</h1>
-  <div class="header-nav">
-    <a href="dashboard.html" class="nav-link">Dashboard</a>
-  </div>
+<header class="top-nav">
+  <a href="../index.html" class="brand">
+    <img src="../assets/images/logorefined.png" alt="FarmersHub Logo" class="home-logo">
+    <div>
+      <p class="brand-overline">Farmer Dashboard</p>
+      <h1>Sell Crops</h1>
+    </div>
+  </a>
+  <nav class="user-nav" aria-label="Seller navigation">
+    <a class="nav-icon-link" href="../index.html" title="Home">🏠</a>
+    <a class="nav-icon-link" href="dashboard.html" title="Dashboard">📊</a>
+    <a class="nav-icon-link" href="../product.html" title="Marketplace">🛒</a>
+  </nav>
 </header>
 
 <canvas id="fallingCanvas"></canvas>
@@ -166,20 +177,39 @@
 </script>
 
 
-<main class="sell-main">
+<main class="page-feed">
+  <section class="hero-card">
+    <div>
+      <p class="eyebrow">Seller tools</p>
+      <h2>Manage your farm listings with ease</h2>
+      <p class="hero-copy">Add new crop listings, manage inventory, and keep your produce visible to buyers in one clean dashboard.</p>
+      <div class="hero-actions">
+        <button class="cta-primary" id="addProductBtn" type="button">Add new listing</button>
+      </div>
+    </div>
+    <div class="hero-metrics">
+      <article>
+        <p class="eyebrow">Active products</p>
+        <h3 id="productCount">0 products listed</h3>
+      </article>
+      <article>
+        <p class="eyebrow">Marketplace ready</p>
+        <p class="hero-copy">Your new listings appear immediately to local shoppers once published.</p>
+      </article>
+    </div>
+  </section>
+
   <!-- Products List Section -->
   <section class="products-section">
     <div class="section-header">
       <h2>My Products</h2>
-      <button class="add-product-btn" id="addProductBtn" title="Add New Product">
-        <span class="plus-icon">+</span>
-      </button>
     </div>
     
     <div class="products-grid" id="productsGrid">
       <!-- Products will be added here dynamically -->
       <div class="empty-state" id="emptyState">
-        <p>No products added yet. Tap the <strong>+</strong> button to add your first crop!</p>
+        <p>No products added yet. Tap the button below to add your first crop.</p>
+        <button type="button" class="cta-primary" id="emptyAddBtn">List your first crop</button>
       </div>
     </div>
   </section>
@@ -301,10 +331,11 @@
         <div class="form-group full-width">
           <label for="productImage">Product Image *</label>
           <div class="image-upload">
-            <input type="file" id="productImage" name="productImage" accept="image/*" required>
+            <input type="file" id="productImage" name="productImage" accept="image/*">
             <div class="image-preview" id="imagePreview">
               <span>No image selected</span>
             </div>
+            <div class="image-note">Upload a new image only if you want to replace the current photo.</div>
           </div>
         </div>
       </div>
