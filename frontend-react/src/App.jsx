@@ -1,45 +1,9 @@
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
+import { API_BASE, getFarmers, getProducts } from './services/api'
 
-const ASSET = '/assets/images/home/'
-
-const farmers = [
-  {
-    name: 'Green Valley Farms',
-    location: 'Ulsan Local Market',
-    specialty: 'Organic vegetables, tomatoes, leafy greens',
-  },
-  {
-    name: 'Harvest Moon Growers',
-    location: 'Busan Fresh Zone',
-    specialty: 'Seasonal fruits and greenhouse crops',
-  },
-  {
-    name: 'Sunny Field Providers',
-    location: 'Daegu Farm Route',
-    specialty: 'Eggs, dairy, herbs and farm baskets',
-  },
-]
-
-const products = [
-  {
-    name: 'Fresh Tomatoes',
-    category: 'Vegetables',
-    price: '₩8,500',
-    image: `${ASSET}product-tomatoes.webp`,
-  },
-  {
-    name: 'Organic Onions',
-    category: 'Vegetables',
-    price: '₩6,000',
-    image: `${ASSET}product-onions.webp`,
-  },
-  {
-    name: 'Natural Compost',
-    category: 'Organic Support',
-    price: '₩12,000',
-    image: `${ASSET}product-compost.webp`,
-  },
-]
+const BASE = import.meta.env.BASE_URL || '/'
+const ASSET = `${BASE}assets/images/home/`
 
 const services = [
   {
@@ -62,12 +26,104 @@ const services = [
 
 const categories = ['Vegetables', 'Fruits', 'Eggs', 'Dairy', 'Meat', 'Organic', 'Seeds', 'Delivery']
 
+function formatPrice(product) {
+  const value = product.price ?? product.sellingPrice
+
+  if (value === undefined || value === null || Number.isNaN(Number(value))) {
+    return 'Price on request'
+  }
+
+  return new Intl.NumberFormat('ko-KR', {
+    style: 'currency',
+    currency: 'KRW',
+    maximumFractionDigits: 0,
+  }).format(Number(value))
+}
+
+function getProductImage(product, index) {
+  if (product.imageUrl) return product.imageUrl
+
+  const fallbackImages = [
+    `${ASSET}product-tomatoes.webp`,
+    `${ASSET}product-onions.webp`,
+    `${ASSET}product-compost.webp`,
+  ]
+
+  return fallbackImages[index % fallbackImages.length]
+}
+
+function getFarmerName(farmer) {
+  return farmer.farmName || farmer.fullName || farmer.name || 'Unnamed Farmer'
+}
+
+function getFarmerSpecialty(farmer) {
+  return farmer.farmType || farmer.productsLabel || farmer.specialty || farmer.bio || 'Fresh local farm products'
+}
+
+function getProfileUrl(farmer) {
+  const id = farmer.id || farmer.userId || farmer._id || ''
+  return id ? `../frontend/profile.html?farmer=${encodeURIComponent(id)}` : '../frontend/profile.html'
+}
+
+function getProductUrl(product) {
+  const id = product.id || product._id || ''
+  return id ? `../frontend/product.html?id=${encodeURIComponent(id)}` : '../frontend/product.html'
+}
+
 function App() {
+  const [farmers, setFarmers] = useState([])
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [apiError, setApiError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadHomeData() {
+      setLoading(true)
+      setApiError('')
+
+      try {
+        const [farmersResponse, productsResponse] = await Promise.all([
+          getFarmers(),
+          getProducts(),
+        ])
+
+        if (cancelled) return
+
+        const liveFarmers = Array.isArray(farmersResponse?.data) ? farmersResponse.data : []
+        const liveProducts = Array.isArray(productsResponse?.data) ? productsResponse.data : []
+
+        setFarmers(liveFarmers.slice(0, 6))
+        setProducts(liveProducts.slice(0, 6))
+      } catch (error) {
+        if (cancelled) return
+        console.error('Failed to load FarmersHub live data:', error)
+        setApiError(error.message || 'Could not connect to FarmersHub backend.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    loadHomeData()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const stats = useMemo(() => {
+    return {
+      farmers: farmers.length,
+      products: products.length,
+    }
+  }, [farmers.length, products.length])
+
   return (
     <>
       <header className="top-nav">
-        <a href="#" className="brand">
-          <img src="/logo.png" alt="FarmersHub Logo" className="home-logo" />
+        <a href={BASE} className="brand">
+          <img src={`${BASE}logo.png`} alt="FarmersHub Logo" className="home-logo" />
           <div>
             <p className="brand-overline">Green Marketplace</p>
             <h1>FarmersHub</h1>
@@ -86,11 +142,11 @@ function App() {
         </form>
 
         <nav className="user-nav" aria-label="Main navigation">
-          <a href="#" className="nav-icon-link active"><span>⌂</span><span>Home</span></a>
-          <a href="#" className="nav-icon-link"><span>👤</span><span>Profile</span></a>
-          <a href="#" className="nav-icon-link"><span>✉</span><span>Messages</span></a>
-          <a href="#" className="nav-icon-link"><span>🔔</span><span>Alerts</span></a>
-          <a href="#" className="login-btn">Login</a>
+          <a href={BASE} className="nav-icon-link active"><span>⌂</span><span>Home</span></a>
+          <a href="../frontend/profile.html" className="nav-icon-link"><span>👤</span><span>Profile</span></a>
+          <a href="../frontend/messages.html" className="nav-icon-link"><span>✉</span><span>Messages</span></a>
+          <a href="../frontend/notifications.html" className="nav-icon-link"><span>🔔</span><span>Alerts</span></a>
+          <a href="../frontend/login/login.html" className="login-btn">Login</a>
         </nav>
       </header>
 
@@ -99,21 +155,21 @@ function App() {
           <section className="sidebar-card workspace-card">
             <span className="card-kicker">Customer Market</span>
             <h3>Buy fresh locally</h3>
-            <a href="#">🧺 <span>Browse Products</span></a>
+            <a href="#trendingProducts">🧺 <span>Browse Products</span></a>
             <a href="#featuredFarmers">🌱 <span>Discover Farmers</span></a>
-            <a href="#">✉ <span>Messages</span></a>
-            <a href="#">🔔 <span>Alerts</span></a>
-            <a href="#">👤 <span>My Profile</span></a>
+            <a href="../frontend/messages.html">✉ <span>Messages</span></a>
+            <a href="../frontend/notifications.html">🔔 <span>Alerts</span></a>
+            <a href="../frontend/profile.html">👤 <span>My Profile</span></a>
           </section>
 
           <section className="sidebar-card service-card">
             <div className="section-heading compact-heading">
               <h3>Agri-Service Providers</h3>
-              <a href="#">Future hub</a>
+              <a href="#services">Future hub</a>
             </div>
-            <div className="service-tile-grid">
+            <div className="service-tile-grid" id="services">
               {services.map((service) => (
-                <a className="service-tile" href="#" key={service.title}>
+                <a className="service-tile" href="#services" key={service.title}>
                   <img src={service.image} alt={service.title} />
                   <span>{service.title}</span>
                 </a>
@@ -125,7 +181,7 @@ function App() {
             <img src={`${ASSET}support-basket.webp`} alt="Basket of seasonal produce" />
             <h3>List your crops. Reach local buyers.</h3>
             <p>Simple. Trusted. Local.</p>
-            <a href="#">Start Selling Today</a>
+            <a href="../frontend/sell_crops.html">Start Selling Today</a>
           </section>
         </aside>
 
@@ -138,9 +194,16 @@ function App() {
                 Browse vegetables, fruits, eggs, dairy, meat, and organic farm products with direct farmer profiles,
                 messages, and quick ordering.
               </p>
+              <p className="api-status">
+                {loading
+                  ? 'Loading live FarmersHub data...'
+                  : apiError
+                    ? `Backend issue: ${apiError}`
+                    : `Connected to live backend: ${API_BASE}`}
+              </p>
               <div className="hero-actions">
-                <a href="#" className="cta-primary">Shop Now</a>
-                <a href="#trendingProducts" className="cta-ghost">See Today Deals</a>
+                <a href="#trendingProducts" className="cta-primary">Shop Now</a>
+                <a href="#featuredFarmers" className="cta-ghost">Meet Farmers</a>
               </div>
             </div>
 
@@ -149,63 +212,81 @@ function App() {
             </div>
 
             <div className="hero-metrics">
-              <article><span>👨‍🌾</span><h3>1.8K+</h3><p>Active Farmers</p></article>
-              <article><span>🌿</span><h3>340+</h3><p>Fresh Listings Today</p></article>
-              <article><span>🛡️</span><h3>99%</h3><p>Verified Sources</p></article>
-              <article><span>🤝</span><h3>5K+</h3><p>Happy Buyers</p></article>
+              <article><span>👨‍🌾</span><h3>{stats.farmers}</h3><p>Live Farmers</p></article>
+              <article><span>🌿</span><h3>{stats.products}</h3><p>Fresh Listings</p></article>
+              <article><span>🛡️</span><h3>{apiError ? 'Check' : 'Live'}</h3><p>Render API</p></article>
+              <article><span>🤝</span><h3>{apiError ? 'Retry' : 'DB'}</h3><p>MongoDB Data</p></article>
             </div>
           </section>
 
           <section className="feed-section reveal" id="featuredFarmers">
             <div className="section-heading">
               <h3>Nearby Farmers & Providers</h3>
-              <a href="#">See all</a>
+              <a href="../frontend/farmer.html">See all</a>
             </div>
-            <div className="farmer-grid">
-              {farmers.map((farmer) => (
-                <article className="farmer-card card-shell" key={farmer.name}>
-                  <div className="avatar-ring" aria-label={`${farmer.name} profile placeholder`}>
-                    <span>👤</span>
-                  </div>
-                  <h4>{farmer.name}</h4>
-                  <p className="location">{farmer.location}</p>
-                  <p className="specialty">{farmer.specialty}</p>
-                  <div className="card-actions">
-                    <a href="#" className="mini-link">View profile</a>
-                    <a href="#" className="mini-link message-link">Message</a>
-                  </div>
-                </article>
-              ))}
-            </div>
+
+            {loading ? (
+              <p className="empty-state">Loading farmers from database...</p>
+            ) : farmers.length ? (
+              <div className="farmer-grid">
+                {farmers.map((farmer) => (
+                  <article className="farmer-card card-shell" key={farmer.id || farmer.email || getFarmerName(farmer)}>
+                    <div className="avatar-ring" aria-label={`${getFarmerName(farmer)} profile`}>
+                      {farmer.avatarUrl ? (
+                        <img src={farmer.avatarUrl} alt={`${getFarmerName(farmer)} avatar`} />
+                      ) : (
+                        <span>👤</span>
+                      )}
+                    </div>
+                    <h4>{getFarmerName(farmer)}</h4>
+                    <p className="location">{farmer.location || farmer.address || 'Location not added yet'}</p>
+                    <p className="specialty">{getFarmerSpecialty(farmer)}</p>
+                    <div className="card-actions">
+                      <a href={getProfileUrl(farmer)} className="mini-link">View profile</a>
+                      <a href="../frontend/messages.html" className="mini-link message-link">Message</a>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="empty-state">No farmers found in the database yet.</p>
+            )}
           </section>
 
           <section className="feed-section reveal" id="trendingProducts">
             <div className="section-heading">
               <h3>Recommended For You</h3>
-              <a href="#">View all</a>
+              <a href="../frontend/product.html">View all</a>
             </div>
-            <div className="product-grid">
-              {products.map((product) => (
-                <article className="product-card card-shell" key={product.name}>
-                  <div className="product-preview">
-                    <img src={product.image} alt={product.name} />
-                  </div>
-                  <h4>{product.name}</h4>
-                  <p className="price">{product.price}</p>
-                  <p className="meta">{product.category} • Farmer</p>
-                  <div className="card-actions">
-                    <a href="#" className="mini-link">View</a>
-                    <button className="mini-link save-button" type="button">♡ Save</button>
-                  </div>
-                </article>
-              ))}
-            </div>
+
+            {loading ? (
+              <p className="empty-state">Loading products from database...</p>
+            ) : products.length ? (
+              <div className="product-grid">
+                {products.map((product, index) => (
+                  <article className="product-card card-shell" key={product.id || product.name}>
+                    <div className="product-preview">
+                      <img src={getProductImage(product, index)} alt={product.name || 'Farm product'} />
+                    </div>
+                    <h4>{product.name || 'Fresh Product'}</h4>
+                    <p className="price">{formatPrice(product)}</p>
+                    <p className="meta">{product.category || 'Farm product'} • {product.seller?.name || 'Farmer'}</p>
+                    <div className="card-actions">
+                      <a href={getProductUrl(product)} className="mini-link">View</a>
+                      <button className="mini-link save-button" type="button">♡ Save</button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="empty-state">No products found in the database yet.</p>
+            )}
           </section>
 
           <section className="feed-section reveal">
             <div className="section-heading">
               <h3>Shop by Category</h3>
-              <a href="#">Browse catalog</a>
+              <a href="../frontend/product.html">Browse catalog</a>
             </div>
             <div className="category-wrap">
               {categories.map((category) => (
@@ -217,7 +298,7 @@ function App() {
           <section className="feed-section reveal">
             <div className="section-heading">
               <h3>Community Feed</h3>
-              <a href="#">Live feed</a>
+              <a href="../frontend/dashboard.html">Live feed</a>
             </div>
             <div className="live-feed">
               <article className="post-card card-shell">
@@ -225,8 +306,8 @@ function App() {
                   <div className="post-avatar"></div>
                   <div><h4>FarmersHub Update</h4><p>Fresh market notice</p></div>
                 </div>
-                <p className="post-copy">New seasonal listings are being prepared for the React marketplace preview.</p>
-                <p className="post-meta">🌿 12 fresh updates • 4 nearby farmers</p>
+                <p className="post-copy">React homepage now reads live farmers and products from the FarmersHub Render API.</p>
+                <p className="post-meta">🌿 Connected to live marketplace data</p>
               </article>
               <article className="post-card card-shell">
                 <div className="post-head">
@@ -244,17 +325,17 @@ function App() {
           <section className="sidebar-card today-card">
             <span className="card-kicker">Today on FarmersHub</span>
             <h3>Fresh activity</h3>
-            <p>New arrivals: organic turmeric, green chillies, fresh milk.</p>
-            <p>Monsoon crop care tips from agri experts.</p>
+            <p>{products[0]?.name ? `${products[0].name} is available from the live marketplace.` : 'Live product data will appear here.'}</p>
+            <p>{farmers[0] ? `${getFarmerName(farmers[0])} is active in FarmersHub.` : 'Live farmer data will appear here.'}</p>
             <p>Buyers nearby are looking for tomatoes and onions.</p>
           </section>
 
           <section className="sidebar-card quick-card">
             <h3>Quick Actions</h3>
-            <a href="#">🧺 Browse All Products</a>
-            <a href="#">➕ Start Selling</a>
-            <a href="#">👤 Update Farm Profile</a>
-            <a href="#">📣 View Farmer Updates</a>
+            <a href="../frontend/product.html">🧺 Browse All Products</a>
+            <a href="../frontend/sell_crops.html">➕ Start Selling</a>
+            <a href="../frontend/profile.html">👤 Update Farm Profile</a>
+            <a href="../frontend/dashboard.html">📣 View Farmer Updates</a>
           </section>
 
           <section className="sidebar-card trust-card">
