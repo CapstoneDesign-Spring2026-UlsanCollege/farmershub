@@ -1,4 +1,4 @@
-import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover, sendFriendRequest } from './js/profileService.js';
+import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, removeAvatar, uploadCover, sendFriendRequest } from './js/profileService.js';
 import { getFarmerById } from './js/farmerService.js';
 import { getFeed, createPost, deletePost } from './js/postService.js';
 import { isLoggedIn, logout } from './js/authService.js';
@@ -88,15 +88,21 @@ function renderImage(targetId, placeholderId, url, placeholderFallback = '👤')
   const img = document.getElementById(targetId);
   const placeholder = document.getElementById(placeholderId);
 
-  if (url) {
-    img.src = url;
-    img.style.display = 'block';
-    placeholder.style.display = 'none';
-  } else {
+  function showPlaceholder() {
     img.removeAttribute('src');
     img.style.display = 'none';
     placeholder.style.display = 'flex';
     placeholder.textContent = placeholderFallback;
+  }
+
+  if (url) {
+    img.onerror = showPlaceholder;
+    img.src = url;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    img.onerror = null;
+    showPlaceholder();
   }
 }
 
@@ -132,9 +138,15 @@ function renderProfile(profile) {
   renderImage('avatarImg', 'avatarPlaceholder', profile.avatarUrl);
 
   const avatarSmall = document.getElementById('postAvatarSmall');
-  avatarSmall.innerHTML = profile.avatarUrl
-    ? `<img src="${profile.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
-    : '👤';
+  if (profile.avatarUrl) {
+    avatarSmall.innerHTML = `<img src="${profile.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    const smallImg = avatarSmall.querySelector('img');
+    smallImg.onerror = () => {
+      avatarSmall.textContent = '👤';
+    };
+  } else {
+    avatarSmall.textContent = '👤';
+  }
 
   renderSettingsProfile(profile);
 }
@@ -266,6 +278,25 @@ async function handleAvatarUpload(event) {
     event.target.value = '';
   } catch (error) {
     setStatus(error.message || 'Failed to upload avatar.', 'error');
+  }
+}
+
+async function handleRemoveAvatar() {
+  if (!currentProfile?.avatarUrl) {
+    setStatus('No profile picture to remove.', 'info');
+    return;
+  }
+
+  const confirmed = window.confirm('Remove your profile picture?');
+  if (!confirmed) return;
+
+  try {
+    setStatus('Removing profile picture...', 'info');
+    const response = await removeAvatar();
+    renderProfile(response.data);
+    setStatus('Profile picture removed successfully.', 'success');
+  } catch (error) {
+    setStatus(error.message || 'Failed to remove profile picture.', 'error');
   }
 }
 
@@ -408,6 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cancelEditBtn').addEventListener('click', () => {
     document.getElementById('editModal').style.display = 'none';
   });
+  document.getElementById('removeAvatarBtn').addEventListener('click', handleRemoveAvatar);
   document.getElementById('editForm').addEventListener('submit', handleProfileSave);
   document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
   document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
