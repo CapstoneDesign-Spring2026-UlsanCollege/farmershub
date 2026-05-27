@@ -25,6 +25,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend-react/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend-react
+        run: npm ci
+
+      - name: Build React app
+        working-directory: frontend-react
+        run: npm run build
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -33,7 +48,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend
+          path: frontend-react/dist
 
       - name: Deploy to GitHub Pages
         id: deployment
