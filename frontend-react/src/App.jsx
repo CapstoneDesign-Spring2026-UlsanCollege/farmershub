@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
-import { API_BASE, getFarmers, getProducts } from './services/api'
+import { API_BASE, getFarmers, getNotifications, getProducts } from './services/api'
 
 const BASE = import.meta.env.BASE_URL || '/'
 const ASSET = `${BASE}assets/images/home/`
@@ -25,6 +25,33 @@ const services = [
 ]
 
 const categories = ['Vegetables', 'Fruits', 'Eggs', 'Dairy', 'Meat', 'Organic', 'Seeds', 'Delivery']
+
+const NOTIFICATION_SOUND_KEY = 'fh_notification_sound'
+const DEFAULT_NOTIFICATION_SOUND = 'hens'
+const NOTIFICATION_SOUND_MAX_MS = 3500
+
+const notificationSounds = [
+  { value: 'hens', label: 'Hens' },
+  { value: 'cat', label: 'Cat Meow' },
+  { value: 'silent', label: 'Silent' },
+]
+
+function getSavedNotificationSound() {
+  if (typeof window === 'undefined') return DEFAULT_NOTIFICATION_SOUND
+
+  const savedSound = localStorage.getItem(NOTIFICATION_SOUND_KEY)
+  return ['hens', 'cat', 'silent'].includes(savedSound) ? savedSound : DEFAULT_NOTIFICATION_SOUND
+}
+
+function getNotificationId(notification) {
+  return notification?._id || notification?.id || null
+}
+
+function getUnreadNotifications(response) {
+  const list = Array.isArray(response?.data?.notifications) ? response.data.notifications : []
+  return list.filter((item) => !item.read)
+}
+
 
 function formatPrice(product) {
   const value = product.price ?? product.sellingPrice
@@ -75,6 +102,82 @@ function App() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [apiError, setApiError] = useState('')
+  const [notificationSound, setNotificationSound] = useState(getSavedNotificationSound)
+  const [soundStatus, setSoundStatus] = useState('')
+  const [knownNotificationIds, setKnownNotificationIds] = useState(() => new Set())
+
+  useEffect(() => {
+    localStorage.setItem(NOTIFICATION_SOUND_KEY, notificationSound)
+  }, [notificationSound])
+
+  async function playNotificationSound(soundName = notificationSound) {
+    if (soundName === 'silent') {
+      setSoundStatus('Notification sound is silent.')
+      return
+    }
+
+    const soundFile = soundName === 'cat' ? 'notification-cat-meow.mp3' : 'notification-hens.mp3'
+    const audio = new Audio(`${BASE}assets/audio/${soundFile}`)
+
+    try {
+      audio.currentTime = 0
+      await audio.play()
+
+      window.setTimeout(() => {
+        audio.pause()
+        audio.currentTime = 0
+      }, NOTIFICATION_SOUND_MAX_MS)
+
+      setSoundStatus('Sound preview played.')
+    } catch (error) {
+      console.info('Notification sound needs user interaction first.', error)
+      setSoundStatus('Click preview once to allow notification sound in this browser.')
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function initializeNotificationMemory() {
+      try {
+        const response = await getNotifications()
+        if (cancelled) return
+
+        const unread = getUnreadNotifications(response)
+        setKnownNotificationIds(new Set(unread.map(getNotificationId).filter(Boolean)))
+      } catch (error) {
+        console.info('Notification memory could not initialize yet.', error)
+      }
+    }
+
+    initializeNotificationMemory()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setInterval(async () => {
+      try {
+        const response = await getNotifications()
+        const unread = getUnreadNotifications(response)
+        const unreadIds = unread.map(getNotificationId).filter(Boolean)
+        const newUnread = unreadIds.filter((id) => !knownNotificationIds.has(id))
+
+        if (newUnread.length) {
+          setKnownNotificationIds(new Set(unreadIds))
+          playNotificationSound()
+        } else if (unreadIds.length !== knownNotificationIds.size) {
+          setKnownNotificationIds(new Set(unreadIds))
+        }
+      } catch (error) {
+        console.info('Notification polling skipped.', error)
+      }
+    }, 30000)
+
+    return () => window.clearInterval(timer)
+  }, [knownNotificationIds, notificationSound])
 
   useEffect(() => {
     let cancelled = false
@@ -336,6 +439,26 @@ function App() {
             <a href="../frontend/sell_crops.html">➕ Start Selling</a>
             <a href="../frontend/profile.html">👤 Update Farm Profile</a>
             <a href="../frontend/dashboard.html">📣 View Farmer Updates</a>
+          </section>
+
+          <section className="sidebar-card sound-card">
+            <h3>Notification Sound</h3>
+            <p>Choose the alert sound used when new unread notifications arrive.</p>
+            <label className="sound-select-label" htmlFor="notificationSoundSelect">Sound</label>
+            <select
+              id="notificationSoundSelect"
+              className="sound-select"
+              value={notificationSound}
+              onChange={(event) => setNotificationSound(event.target.value)}
+            >
+              {notificationSounds.map((sound) => (
+                <option value={sound.value} key={sound.value}>{sound.label}</option>
+              ))}
+            </select>
+            <button className="sound-preview-btn" type="button" onClick={() => playNotificationSound()}>
+              Preview Sound
+            </button>
+            {soundStatus ? <p className="sound-status">{soundStatus}</p> : null}
           </section>
 
           <section className="sidebar-card trust-card">

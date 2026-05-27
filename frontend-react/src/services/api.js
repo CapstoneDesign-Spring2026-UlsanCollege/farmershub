@@ -58,3 +58,18 @@ export async function getProducts(params = {}) {
   const qs = new URLSearchParams(params).toString()
   return apiFetch(`/products${qs ? `?${qs}` : ''}`)
 }
+
+export async function getNotifications() {
+  const token = getToken()
+
+  if (!token) {
+    return { success: true, data: { notifications: [] } }
+  }
+
+  return apiFetch('/notifications', {
+    headers: {
+      ...authHeaders(),
+      'Content-Type': 'application/json',
+    },
+  })
+}
