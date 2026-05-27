@@ -43,6 +43,15 @@
       <h2>Notifications</h2>
     </div>
     <div class="notification-actions">
+      <label class="notification-sound-picker">
+        <span>Sound</span>
+        <select id="notificationSoundSelect" aria-label="Notification sound">
+          <option value="hens">Hens</option>
+          <option value="cat">Cat</option>
+          <option value="silent">Silent</option>
+        </select>
+      </label>
+      <button type="button" class="notification-btn" id="previewNotificationSoundBtn">Preview</button>
       <button type="button" class="notification-btn" id="refreshNotificationsBtn">Refresh</button>
       <button type="button" class="notification-btn primary" id="markAllReadBtn">Mark all read</button>
     </div>
@@ -94,6 +103,8 @@
   </div>
 </div>
 
+<audio id="notificationSoundHens" src="assets/audio/notification-hens.mp3" preload="auto"></audio>
+<audio id="notificationSoundCat" src="assets/audio/notification-cat-meow.mp3" preload="auto"></audio>
 <script type="module" src="notifications.js"></script>
 </body>
 </html>

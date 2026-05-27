@@ -26,6 +26,34 @@
   gap: 8px;
 }
 
+.notification-actions {
+  align-items: center;
+}
+
+.notification-sound-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 41px;
+  border: 1px solid rgba(61, 154, 69, 0.24);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--green-800);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.notification-sound-picker select {
+  border: 0;
+  color: var(--green-900);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
 .notification-btn,
 .tab-btn {
   border: 1px solid rgba(61, 154, 69, 0.24);
