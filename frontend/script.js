@@ -126,6 +126,20 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     return document.body.dataset.userRole === 'farmer';
   }
 
+  function setSearchMode(query) {
+    const hasQuery = Boolean(query);
+    const activeHero = isFarmerDashboardActive() ? farmerHero : heroCard;
+    const inactiveHero = isFarmerDashboardActive() ? heroCard : farmerHero;
+
+    if (activeHero) {
+      activeHero.style.display = hasQuery ? 'none' : '';
+    }
+
+    if (inactiveHero) {
+      inactiveHero.style.display = '';
+    }
+  }
+
   function getProductId(product) {
     return product.id || product._id || product.productId || product.slug || product.name || '';
   }
@@ -543,6 +557,8 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
   function applySearchAndSort() {
     const query = (searchInput?.value || '').trim().toLowerCase();
     const sortMode = sortSelect?.value || 'recent';
+
+    setSearchMode(query);
 
     let farmers = query ? allFarmers.filter((farmer) => farmerMatches(farmer, query)) : [...allFarmers];
     let products = query ? allProducts.filter((product) => productMatches(product, query)) : [...allProducts];
