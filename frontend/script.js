@@ -51,12 +51,33 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
   const postTpl = document.getElementById('postTemplate');
   const searchStatus = document.createElement('section');
   const heroCard = document.querySelector('.harvest-hero');
+  const farmerHero = document.querySelector('.fd-hero');
+  const farmerSearchPanel = document.createElement('section');
+  const farmerSearchResults = document.createElement('div');
 
   searchStatus.className = 'feed-section search-results-summary';
   searchStatus.hidden = true;
   if (heroCard?.parentNode) {
     heroCard.insertAdjacentElement('afterend', searchStatus);
   }
+
+  farmerSearchPanel.className = 'fd-panel fd-search-results';
+  farmerSearchPanel.hidden = true;
+  farmerSearchPanel.innerHTML =
+    '<div class="fd-heading">' +
+    '<h3></h3>' +
+    '<button type="button" class="clear-search-btn">Clear</button>' +
+    '</div>';
+  farmerSearchResults.className = 'fd-search-grid';
+  farmerSearchPanel.appendChild(farmerSearchResults);
+  if (farmerHero?.parentNode) {
+    farmerHero.insertAdjacentElement('afterend', farmerSearchPanel);
+  }
+  farmerSearchPanel.querySelector('.clear-search-btn')?.addEventListener('click', () => {
+    searchInput.value = '';
+    applySearchAndSort();
+    searchInput.focus();
+  });
 
   function paintGradients(nodes, a, b) {
     nodes.forEach((node, i) => {
@@ -99,6 +120,10 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
 
   function sortByName(items, getName) {
     return [...items].sort((a, b) => getName(a).localeCompare(getName(b)));
+  }
+
+  function isFarmerDashboardActive() {
+    return document.body.dataset.userRole === 'farmer';
   }
 
   function getProductId(product) {
@@ -442,6 +467,79 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     searchStatus.append(heading, countRow);
   }
 
+  function createFarmerSearchItem(kind, title, body, href) {
+    const item = document.createElement('a');
+    item.className = 'fd-search-item';
+    item.href = href || '#';
+
+    const label = document.createElement('span');
+    label.textContent = kind;
+
+    const heading = document.createElement('h4');
+    heading.textContent = title || 'Untitled result';
+
+    const copy = document.createElement('p');
+    copy.textContent = body || 'No extra details available.';
+
+    item.append(label, heading, copy);
+    return item;
+  }
+
+  function renderFarmerSearchResults(query, farmers, products, posts) {
+    if (!farmerSearchPanel.parentNode) {
+      return;
+    }
+
+    if (!query || !isFarmerDashboardActive()) {
+      farmerSearchPanel.hidden = true;
+      farmerSearchResults.innerHTML = '';
+      return;
+    }
+
+    farmerSearchPanel.hidden = false;
+    farmerSearchPanel.querySelector('h3').textContent = `Search results for "${searchInput.value.trim()}"`;
+    farmerSearchResults.innerHTML = '';
+
+    const fragment = document.createDocumentFragment();
+
+    products.slice(0, 6).forEach((product) => {
+      fragment.appendChild(createFarmerSearchItem(
+        'Product',
+        product.name || 'Fresh product',
+        `${product.category || 'General'} - ${getSellerName(product)} - ₩${Number(product.price || product.sellingPrice || 0).toLocaleString()}`,
+        buildProductUrl(product)
+      ));
+    });
+
+    farmers.slice(0, 4).forEach((farmer) => {
+      const farmerId = farmer.id || farmer._id || farmer.userId || '';
+      fragment.appendChild(createFarmerSearchItem(
+        'Farmer',
+        farmer.fullName || farmer.farmName || 'Farmer',
+        farmer.location || farmer.address || farmer.bio || farmer.farmType || 'Local grower',
+        farmerId ? `profile.html?farmer=${encodeURIComponent(farmerId)}` : 'profile.html'
+      ));
+    });
+
+    posts.slice(0, 4).forEach((post) => {
+      fragment.appendChild(createFarmerSearchItem(
+        'Update',
+        post.author?.name || 'Community update',
+        (post.text || post.caption || 'Fresh update from the community.').slice(0, 120),
+        '#liveFeedSection'
+      ));
+    });
+
+    if (!fragment.childNodes.length) {
+      const empty = document.createElement('div');
+      empty.className = 'fd-search-empty';
+      empty.textContent = 'No matches found. Try another product, farmer, or update.';
+      fragment.appendChild(empty);
+    }
+
+    farmerSearchResults.appendChild(fragment);
+  }
+
   function applySearchAndSort() {
     const query = (searchInput?.value || '').trim().toLowerCase();
     const sortMode = sortSelect?.value || 'recent';
@@ -471,6 +569,7 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       products: products.length,
       posts: posts.length,
     });
+    renderFarmerSearchResults(query, farmers, products, posts);
 
     renderFarmers(farmers.slice(0, 12));
     renderProducts(products.slice(0, 12));
