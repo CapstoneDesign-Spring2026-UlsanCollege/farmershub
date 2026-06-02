@@ -72,6 +72,70 @@ body[data-user-role="farmer"] .top-nav {
   min-width: 0;
 }
 
+.fd-search-results {
+  padding: 16px;
+}
+
+.fd-search-results[hidden] {
+  display: none;
+}
+
+.fd-search-results .clear-search-btn {
+  border-color: var(--fd-border);
+  background: var(--fd-green-light);
+  color: var(--fd-green-dark);
+}
+
+.fd-search-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fd-search-item {
+  display: block;
+  min-height: 126px;
+  padding: 14px;
+  border: 1px solid var(--fd-border);
+  border-radius: 14px;
+  background: var(--fd-card-soft);
+  color: var(--fd-text);
+  text-decoration: none;
+}
+
+.fd-search-item span {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #fff2d8;
+  color: var(--fd-warning);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.fd-search-item h4 {
+  margin: 10px 0 6px;
+  font-size: 1rem;
+  color: var(--fd-green-dark);
+}
+
+.fd-search-item p,
+.fd-search-empty {
+  margin: 0;
+  color: var(--fd-muted);
+  line-height: 1.45;
+}
+
+.fd-search-empty {
+  grid-column: 1 / -1;
+  padding: 18px;
+  border: 1px dashed var(--fd-border);
+  border-radius: 14px;
+  background: var(--fd-card-soft);
+}
+
 .fd-nav {
   padding: 12px;
 }
@@ -611,6 +675,7 @@ body[data-user-role="farmer"] .top-nav {
 @media (max-width: 600px) {
   .fd-kpis,
   .fd-products,
+  .fd-search-grid,
   .fd-provider-grid {
     grid-template-columns: 1fr;
   }
