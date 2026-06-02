@@ -36,24 +36,54 @@
   </form>
 
   <nav class="user-nav" aria-label="Main navigation">
-    <a href="index.html" class="nav-icon-link active" aria-label="Home" title="Home">
-      <span class="nav-icon" aria-hidden="true">⌂</span>
-      <span class="nav-label">Home</span>
-    </a>
-    <a href="profile.html" class="nav-icon-link" aria-label="Profile" title="Profile">
-      <span class="nav-icon" aria-hidden="true">👤</span>
-      <span class="nav-label">Profile</span>
-    </a>
-    <a href="messages.html" class="nav-icon-link" aria-label="Messages" title="Messages">
-      <span class="nav-icon" aria-hidden="true">✉</span>
-      <span class="nav-label">Messages</span>
-    </a>
-    <a href="notifications.html" class="nav-icon-link" aria-label="Notifications" title="Notifications">
-      <span class="nav-icon" aria-hidden="true">🔔</span>
-      <span class="nav-label">Alerts</span>
-    </a>
-    <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
-    <button class="login-btn" id="navLogoutBtn" style="display:none;" onclick="(function(){['fh_token','fh_user','fh_loggedIn','fh_role','currentUser'].forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k);});window.location.reload();})()">Logout</button>
+    <div class="standard-nav-actions">
+      <a href="index.html" class="nav-icon-link active" aria-label="Home" title="Home">
+        <span class="nav-icon" aria-hidden="true">⌂</span>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="profile.html" class="nav-icon-link" aria-label="Profile" title="Profile">
+        <span class="nav-icon" aria-hidden="true">👤</span>
+        <span class="nav-label">Profile</span>
+      </a>
+      <a href="messages.html" class="nav-icon-link" aria-label="Messages" title="Messages">
+        <span class="nav-icon" aria-hidden="true">✉</span>
+        <span class="nav-label">Messages</span>
+      </a>
+      <a href="notifications.html" class="nav-icon-link" aria-label="Notifications" title="Notifications">
+        <span class="nav-icon" aria-hidden="true">🔔</span>
+        <span class="nav-label">Alerts</span>
+      </a>
+      <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
+      <button class="login-btn" id="navLogoutBtn" style="display:none;" onclick="(function(){['fh_token','fh_user','fh_loggedIn','fh_role','currentUser'].forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k);});window.location.href='login/login.html';})()">Logout</button>
+    </div>
+
+    <div class="fd-header-actions" aria-label="Farmer dashboard actions">
+      <a href="messages.html" class="fd-header-icon" aria-label="Messages">
+        <span class="fd-header-symbol">✉</span>
+        <small>Messages</small>
+      </a>
+      <a href="notifications.html" class="fd-header-icon" aria-label="Alerts">
+        <span class="fd-header-symbol">♧</span>
+        <small>Alerts</small>
+      </a>
+      <a href="profile.html" class="fd-header-icon" aria-label="Saved">
+        <span class="fd-header-symbol">♡</span>
+        <small>Saved</small>
+      </a>
+      <a href="#fdRecentOrders" class="fd-header-icon" aria-label="Orders">
+        <span class="fd-header-symbol">🛒</span>
+        <small>Orders</small>
+      </a>
+      <a href="login/sell_crops.html" class="fd-header-add">＋ Add Product</a>
+      <a href="profile.html" class="fd-header-profile" aria-label="Open farmer profile">
+        <span class="fd-header-avatar" id="farmerHeaderAvatar"></span>
+        <span class="fd-header-identity">
+          <strong id="farmerHeaderName">Farmer</strong>
+          <small id="farmerHeaderFarm">My Farm</small>
+        </span>
+        <span class="fd-header-chevron">⌄</span>
+      </a>
+    </div>
   </nav>
 </header>
 

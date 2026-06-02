@@ -619,3 +619,186 @@ body[data-user-role="farmer"] .top-nav {
     padding: 24px 19px;
   }
 }
+
+/* Approved farmer dashboard header */
+.fd-header-actions {
+  display: none;
+}
+
+.standard-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body[data-user-role="farmer"] .top-nav {
+  grid-template-columns: 255px minmax(260px, 1fr) auto;
+  gap: 22px;
+  min-height: 76px;
+  padding: 10px 16px;
+  border-radius: 0;
+  margin-top: 0;
+}
+
+body[data-user-role="farmer"] .brand-overline {
+  color: var(--fd-muted);
+  font-size: 10px;
+}
+
+body[data-user-role="farmer"] .brand h1 {
+  color: var(--fd-green-dark);
+  font-size: 22px;
+}
+
+body[data-user-role="farmer"] .home-logo {
+  width: 52px;
+  height: 52px;
+}
+
+body[data-user-role="farmer"] .global-search {
+  height: 46px;
+  max-width: 500px;
+  border-radius: 10px;
+  background: #f7faf5;
+  border: 1px solid var(--fd-border);
+}
+
+body[data-user-role="farmer"] .global-sort {
+  display: none;
+}
+
+body[data-user-role="farmer"] .standard-nav-actions {
+  display: none;
+}
+
+body[data-user-role="farmer"] .fd-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.fd-header-icon {
+  position: relative;
+  min-width: 45px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--fd-muted);
+  text-decoration: none;
+  transition: color .18s ease;
+}
+
+.fd-header-icon:hover {
+  color: var(--fd-green);
+}
+
+.fd-header-symbol {
+  color: var(--fd-green-dark);
+  font-size: 21px;
+  line-height: 1;
+}
+
+.fd-header-icon small {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.fd-header-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 43px;
+  padding: 0 18px;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--fd-green);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .18s ease;
+}
+
+.fd-header-add:hover {
+  background: var(--fd-green-dark);
+}
+
+.fd-header-profile {
+  min-width: 170px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-left: 13px;
+  border-left: 1px solid var(--fd-border);
+  color: var(--fd-text);
+  text-decoration: none;
+}
+
+.fd-header-avatar {
+  width: 41px;
+  height: 41px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background:
+    url("../images/home/farmer-fallback-1.webp") center/cover no-repeat,
+    var(--fd-green-light);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--fd-border);
+}
+
+.fd-header-identity {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.fd-header-identity strong {
+  overflow: hidden;
+  color: var(--fd-text);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fd-header-identity small {
+  overflow: hidden;
+  color: var(--fd-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fd-header-chevron {
+  color: var(--fd-muted);
+  font-size: 16px;
+}
+
+@media (max-width: 1100px) {
+  body[data-user-role="farmer"] .top-nav {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-user-role="farmer"] .global-search {
+    max-width: none;
+  }
+
+  body[data-user-role="farmer"] .fd-header-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 660px) {
+  body[data-user-role="farmer"] .fd-header-actions {
+    gap: 9px;
+  }
+
+  .fd-header-profile {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 0 0;
+    border-top: 1px solid var(--fd-border);
+    border-left: 0;
+  }
+}

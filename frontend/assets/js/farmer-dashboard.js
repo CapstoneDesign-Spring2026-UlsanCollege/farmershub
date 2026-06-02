@@ -1,5 +1,6 @@
 import { getProducts } from './services/productService.js';
 import { getFarmers } from './services/farmerService.js';
+import { getProfile } from './services/profileService.js';
 
 function getStoredUser() {
   try {
@@ -96,6 +97,22 @@ function setText(id, value) {
 function renderGreeting(user) {
   const farmName = user?.farmName || user?.fullName || 'Your Farm';
   setText('farmerDashboardGreeting', `${farmName} 🌱`);
+}
+
+function renderFarmerIdentity(profile, storedUser) {
+  const farmer = profile || storedUser || {};
+  const fullName = farmer.fullName || storedUser?.fullName || 'Farmer';
+  const farmName = farmer.farmName || storedUser?.farmName || fullName || 'My Farm';
+  const avatarUrl = farmer.avatarUrl || storedUser?.avatarUrl || '';
+
+  setText('farmerDashboardGreeting', `${farmName} 🌱`);
+  setText('farmerHeaderName', fullName);
+  setText('farmerHeaderFarm', farmName);
+
+  const avatar = document.getElementById('farmerHeaderAvatar');
+  if (avatar && avatarUrl) {
+    avatar.style.backgroundImage = `url('${avatarUrl}')`;
+  }
 }
 
 function renderYourProducts(products) {
@@ -234,10 +251,17 @@ async function initialiseFarmerDashboard() {
     return;
   }
 
-  const [productsResult, farmersResult] = await Promise.allSettled([
+  const [profileResult, productsResult, farmersResult] = await Promise.allSettled([
+    getProfile(),
     getProducts({ farmerId, limit: 12 }),
     getFarmers({ limit: 12 })
   ]);
+
+  if (profileResult.status === 'fulfilled') {
+    renderFarmerIdentity(profileResult.value.data || {}, user);
+  } else {
+    renderFarmerIdentity(null, user);
+  }
 
   if (productsResult.status === 'fulfilled') {
     renderYourProducts(productsResult.value.data || []);
