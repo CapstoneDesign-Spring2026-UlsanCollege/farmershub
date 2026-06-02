@@ -1,6 +1,7 @@
 import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover, sendFriendRequest } from './js/profileService.js';
 import { getFarmerById } from './js/farmerService.js';
 import { getFeed, createPost, deletePost } from './js/postService.js';
+import { getProducts } from './js/productService.js';
 import { isLoggedIn, logout } from './js/authService.js';
 
 let currentProfile = null;
@@ -137,6 +138,155 @@ function renderProfile(profile) {
     : '👤';
 
   renderSettingsProfile(profile);
+}
+
+function getStoredUserId() {
+  try {
+    const user = JSON.parse(localStorage.getItem('fh_user') || 'null');
+    return user?.id || user?._id || user?.userId || '';
+  } catch {
+    return '';
+  }
+}
+
+function getProductId(product) {
+  return product?.id || product?._id || product?.productId || '';
+}
+
+function getProductImage(product) {
+  if (product?.imageUrl) return product.imageUrl;
+  if (product?.image) return product.image;
+  if (product?.photoUrl) return product.photoUrl;
+
+  if (Array.isArray(product?.images) && product.images.length) {
+    const first = product.images[0];
+    return typeof first === 'string'
+      ? first
+      : (first.url || first.path || first.secureUrl || '');
+  }
+
+  if (Array.isArray(product?.media) && product.media.length) {
+    const first = product.media[0];
+    return typeof first === 'string'
+      ? first
+      : (first.url || first.path || first.secureUrl || '');
+  }
+
+  return '';
+}
+
+function getProductFallback(product, index) {
+  const key = String(product?.category || product?.name || '').toLowerCase();
+
+  if (key.includes('tomato') || key.includes('vegetable')) {
+    return 'assets/images/home/product-tomatoes.webp';
+  }
+  if (key.includes('onion')) {
+    return 'assets/images/home/product-onions.webp';
+  }
+  if (key.includes('organic') || key.includes('compost')) {
+    return 'assets/images/home/product-compost.webp';
+  }
+
+  const fallbacks = [
+    'assets/images/home/product-tomatoes.webp',
+    'assets/images/home/product-onions.webp',
+    'assets/images/home/support-basket.webp'
+  ];
+
+  return fallbacks[index % fallbacks.length];
+}
+
+function formatWon(value) {
+  return `₩${Number(value || 0).toLocaleString()}`;
+}
+
+function getStockValue(product) {
+  const value = [
+    product?.stock,
+    product?.quantity,
+    product?.availableQuantity,
+    product?.availableStock
+  ].find((item) => item !== undefined && item !== null && item !== '');
+
+  return value === undefined ? null : Number(value);
+}
+
+function getProductUnit(product) {
+  return product?.unit || product?.weightUnit || '';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function renderProfileProducts(products) {
+  const grid = document.getElementById('profileProductGrid');
+  if (!grid) return;
+
+  const count = document.getElementById('profileFeaturedProductCount');
+  if (count) count.textContent = String(products.length);
+
+  if (!products.length) {
+    grid.innerHTML = `
+      <div class="profile-empty-products">
+        <h4>No products listed yet</h4>
+        <p>This farmer has not added products to the store yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = products.slice(0, 6).map((product, index) => {
+    const productId = getProductId(product);
+    const name = escapeHtml(product.name || 'Farm product');
+    const price = formatWon(product.price || product.sellingPrice || 0);
+    const image = escapeHtml(getProductImage(product) || getProductFallback(product, index));
+    const stock = getStockValue(product);
+    const unit = escapeHtml(getProductUnit(product));
+    const amount = stock === null || Number.isNaN(stock)
+      ? ''
+      : `${stock}${unit ? ` ${unit}` : ''}`;
+    const listingUrl = productId
+      ? `product.html?productId=${encodeURIComponent(productId)}&id=${encodeURIComponent(productId)}`
+      : 'product.html';
+    const manageUrl = productId
+      ? `login/sell_crops.html?productId=${encodeURIComponent(productId)}`
+      : 'login/sell_crops.html';
+
+    return `
+      <article class="store-product-card">
+        <a class="store-product-image" href="${listingUrl}">
+          <img src="${image}" alt="${name}" loading="lazy">
+        </a>
+        <div class="store-product-content">
+          <h4>${name}</h4>
+          ${amount ? `<p class="store-product-amount">${amount}</p>` : ''}
+          <div class="store-product-bottom">
+            <strong>${price}</strong>
+            <a class="store-product-view" href="${listingUrl}">View</a>
+            ${isViewingPublicFarmer ? '' : `<a class="store-product-manage" href="${manageUrl}">Manage</a>`}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+async function loadProfileProducts() {
+  const farmerId = currentProfile?.userId || currentProfile?.id || currentProfile?._id || getStoredUserId();
+  if (!farmerId) {
+    renderProfileProducts([]);
+    return;
+  }
+
+  const response = await getProducts({ farmerId, limit: 12 });
+  renderProfileProducts(response.data || []);
 }
 
 function openSettingsModal() {
@@ -423,6 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setStatus('Loading profile...', 'info');
     await loadProfileData();
     await loadPosts();
+    await loadProfileProducts();
     setStatus('Profile loaded.', 'success');
   } catch (error) {
     if ((error.message || '').toLowerCase().includes('invalid') || (error.message || '').toLowerCase().includes('authentication')) {
