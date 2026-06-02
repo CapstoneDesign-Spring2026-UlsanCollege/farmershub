@@ -9,7 +9,6 @@ const {
   getProfileById,
   updateCurrentProfile,
   uploadAvatar,
-  removeAvatar,
   uploadCover,
 } = require('../controllers/profileController');
 const { protect, authorize } = require('../middleware/authMiddleware');
@@ -62,9 +61,6 @@ router.put('/profile', updateCurrentProfile);
 
 // POST /api/users/avatar    — upload profile picture
 router.post('/avatar', withUploadFolder('profiles'), uploader.single('avatar'), uploadAvatar);
-
-// DELETE /api/users/avatar  — remove profile picture
-router.delete('/avatar', removeAvatar);
 
 // POST /api/users/cover     — upload profile cover image
 router.post('/cover', withUploadFolder('profiles'), uploader.single('cover'), uploadCover);

@@ -13,6 +13,8 @@ let currentEditingProductId = null;
 
 // DOM Elements
 const addProductBtn = document.getElementById('addProductBtn');
+const emptyAddBtn = document.getElementById('emptyAddBtn');
+const productCount = document.getElementById('productCount');
 const productModal = document.getElementById('productModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const cancelBtn = document.getElementById('cancelBtn');
@@ -56,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupEventListeners() {
   // Modal controls
   addProductBtn.addEventListener('click', openAddProductModal);
+  if (emptyAddBtn) {
+    emptyAddBtn.addEventListener('click', openAddProductModal);
+  }
   closeModalBtn.addEventListener('click', closeProductModal);
   cancelBtn.addEventListener('click', closeProductModal);
   closeDetailsBtn.addEventListener('click', closeDetailsModal);
@@ -84,6 +89,8 @@ function openAddProductModal() {
   productForm.reset();
   imagePreview.innerHTML = '<span>No image selected</span>';
   modalTitle.textContent = 'Add New Product';
+  const submitBtn = productForm.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.textContent = 'List Product';
   productModal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
@@ -211,6 +218,7 @@ async function handleFormSubmit(e) {
 // Render Products
 function renderProducts() {
   productsGrid.innerHTML = '';
+  productCount.textContent = `${products.length} product${products.length === 1 ? '' : 's'} listed`;
 
   if (products.length === 0) {
     emptyState.style.display = 'block';
@@ -228,16 +236,20 @@ function renderProducts() {
 function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card';
-  const imageUrl = product.imageUrl || '';
+  const imageUrl = product.imageUrl || 'https://via.placeholder.com/600x450?text=No+Image';
+  const finalPrice = Number((product.sellingPrice || 0) * (1 - (product.discount || 0) / 100)).toFixed(2);
+  const daysUntilExpiry = Math.ceil((new Date(product.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+  const expiryLabel = daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry < 7 ? `Expires in ${daysUntilExpiry}d` : 'Fresh';
 
   card.innerHTML = `
     <img src="${imageUrl}" alt="${product.name}" class="product-card-image">
     <div class="product-card-body">
       <div class="product-card-title">${product.name}</div>
       <div class="product-card-category">${capitalizeCategory(product.category)}</div>
-      <div class="product-card-price">$${Number(product.price || 0).toFixed(2)}</div>
-      <div class="product-card-stock">Stock: ${product.stock} ${product.unit}</div>
-      <div class="product-card-description">${product.description}</div>
+      <div class="product-card-price">$${finalPrice}</div>
+      <div class="product-card-stock">Stock: ${product.stock || 0} ${product.unit || 'pcs'}</div>
+      <div class="product-card-meta">${expiryLabel} · Discount ${Number(product.discount || 0).toFixed(0)}%</div>
+      <div class="product-card-description">${product.description || 'No description provided.'}</div>
     </div>
   `;
 
@@ -382,6 +394,8 @@ function editProduct() {
   imagePreview.innerHTML = `<img src="${product.imageUrl}" alt="Product Image">`;
 
   modalTitle.textContent = 'Edit Product';
+  const submitBtn = productForm.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.textContent = 'Update Product';
   closeDetailsModal();
   productModal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';

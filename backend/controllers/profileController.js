@@ -155,26 +155,6 @@ async function uploadAvatar(req, res) {
     }
 }
 
-
-async function removeAvatar(req, res) {
-    try {
-        const profile = await ensureProfile(req.user);
-        profile.avatarPath = '';
-        await profile.save();
-
-        const userDoc = await User.findById(req.user._id || req.user.id);
-        if (userDoc) {
-            userDoc.avatar = { url: '', publicId: '' };
-            await userDoc.save();
-        }
-
-        const data = await buildProfileResponse(profile, req.user, req);
-        return res.json({ success: true, message: 'Avatar removed successfully.', data });
-    } catch (error) {
-        return res.status(400).json({ success: false, message: 'Failed to remove avatar.' });
-    }
-}
-
 async function uploadCover(req, res) {
     try {
         if (!req.file) {
@@ -204,6 +184,5 @@ module.exports = {
     updateCurrentProfile,
     updateFarmerProfile,
     uploadAvatar,
-    removeAvatar,
     uploadCover,
 };

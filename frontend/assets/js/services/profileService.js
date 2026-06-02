@@ -52,13 +52,6 @@ async function uploadAvatar(file) {
   });
 }
 
-async function removeAvatar() {
-  return apiFetch('/users/avatar', {
-    method: 'DELETE',
-    headers: jsonHeaders(),
-  });
-}
-
 async function uploadCover(file) {
   const form = new FormData();
   form.append('cover', file);
@@ -83,7 +76,6 @@ export {
   updateProfile,
   updateFarmerProfile,
   uploadAvatar,
-  removeAvatar,
   uploadCover,
   sendFriendRequest,
 };
