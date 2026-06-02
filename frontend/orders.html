@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/orders.css">
+</head>
+<body>
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html"><img src="logo.png" alt="FarmersHub Logo"><span>Farmer Workspace</span><strong>FarmersHub</strong></a>
+    <div class="workspace-search">Order tracking status</div>
+    <nav class="workspace-actions"><a class="workspace-icon-link" href="notifications.html">Alerts</a><a class="workspace-icon-link" href="messages.html">Messages</a></nav>
+  </header>
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
+        <p class="workspace-nav-title">Farmer Workspace</p>
+        <a href="index.html">Dashboard</a><a href="products-management.html">Products</a><a href="orders.html" class="active">Orders</a><a href="inventory.html">Inventory</a><a href="messages.html">Messages</a><a href="customers.html">Customers</a><a href="analytics.html">Analytics</a><a href="social-feed.html">Social Feed</a><a href="payments.html">Payments</a><a href="settings.html">Settings</a><a href="help-center.html">Help Center</a>
+      </nav>
+    </aside>
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero">
+        <div class="workspace-hero-copy"><p>Orders</p><h1>Order tracking</h1><p>Full order lifecycle records are not connected yet. Existing product order requests currently create notifications rather than durable Order rows.</p></div>
+        <div class="workspace-hero-image"><img src="assets/images/home/service-delivery.webp" alt="Delivery support"></div>
+      </section>
+      <section class="workspace-panel workspace-state">
+        <h2>No order history backend confirmed</h2>
+        <p>FarmersHub currently has product request notifications, messages and product listings. A complete Order model, order status history and fulfillment workflow were not found in the tracked backend routes during this frontend batch.</p>
+        <div class="workspace-card-actions"><a class="workspace-primary" href="notifications.html">View Order Request Alerts</a><a class="workspace-secondary" href="messages.html">Open Messages</a></div>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/orders.js"></script>
+</body>
+</html>

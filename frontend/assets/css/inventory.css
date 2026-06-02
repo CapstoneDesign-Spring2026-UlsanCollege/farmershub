@@ -1,0 +1,10 @@
+.inventory-stock {
+  color: var(--fw-green-dark);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.inventory-note {
+  grid-column: 1 / -1;
+  border-left: 5px solid var(--fw-green);
+}

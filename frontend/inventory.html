@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/inventory.css">
+</head>
+<body>
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html"><img src="logo.png" alt="FarmersHub Logo"><span>Farmer Workspace</span><strong>FarmersHub</strong></a>
+    <div class="workspace-search">Current listing stock from real products</div>
+    <nav class="workspace-actions"><a class="workspace-primary" href="login/sell_crops.html">Add Product</a></nav>
+  </header>
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar"><nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation"><p class="workspace-nav-title">Farmer Workspace</p><a href="index.html">Dashboard</a><a href="products-management.html">Products</a><a href="orders.html">Orders</a><a href="inventory.html" class="active">Inventory</a><a href="messages.html">Messages</a><a href="customers.html">Customers</a><a href="analytics.html">Analytics</a><a href="social-feed.html">Social Feed</a><a href="payments.html">Payments</a><a href="settings.html">Settings</a><a href="help-center.html">Help Center</a></nav></aside>
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero"><div class="workspace-hero-copy"><p>Inventory</p><h1>Listing stock</h1><p>Current stock is based on your product listings. Full inventory history and automatic order-based stock changes will appear after inventory tracking is connected.</p></div><div class="workspace-hero-image"><img src="assets/images/home/support-basket.webp" alt="Farm inventory"></div></section>
+      <section class="workspace-panel workspace-toolbar"><div><h2 id="inventorySummaryTitle">Loading inventory</h2><p id="inventorySummaryText">Reading stock values from your product listings.</p></div><a class="workspace-primary" href="login/sell_crops.html">Add Product</a></section>
+      <section class="workspace-grid" id="inventoryGrid" aria-live="polite"></section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/inventory.js"></script>
+</body>
+</html>

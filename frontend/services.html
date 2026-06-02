@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/services.css">
+</head>
+<body>
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html"><img src="logo.png" alt="FarmersHub Logo"><span>Farmer Workspace</span><strong>FarmersHub</strong></a>
+    <div class="workspace-search" id="servicesTopLabel">Equipment provider workspace</div>
+    <nav class="workspace-actions"><a class="workspace-icon-link" href="help-center.html">Help Center</a></nav>
+  </header>
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
+        <p class="workspace-nav-title">Farmer Workspace</p>
+        <a href="index.html">Dashboard</a><a href="products-management.html">Products</a><a href="orders.html">Orders</a><a href="inventory.html">Inventory</a><a href="messages.html">Messages</a><a href="customers.html">Customers</a><a href="analytics.html">Analytics</a><a href="social-feed.html">Social Feed</a><a href="payments.html">Payments</a><a href="settings.html">Settings</a><a href="help-center.html">Help Center</a>
+      </nav>
+      <section class="workspace-panel services-category-nav">
+        <p class="workspace-nav-title">Equipment Providers</p>
+        <a href="services.html">View all</a>
+        <a href="services.html?category=tractor">Tractor</a>
+        <a href="services.html?category=tiller">Tiller</a>
+        <a href="services.html?category=irrigation_pump">Irrigation Pump</a>
+        <a href="services.html?category=delivery_truck">Delivery Truck</a>
+        <a href="services.html?category=fertilizer">Fertilizer</a>
+        <a href="services.html?category=cold_storage">Cold Storage</a>
+        <a href="services.html?action=request">Post a Request</a>
+      </section>
+    </aside>
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero">
+        <div class="workspace-hero-copy"><p>Services</p><h1 id="servicesTitle">Equipment providers</h1><p id="servicesIntro">Select an equipment category. Provider listings and persistent requests will appear after a real services backend is connected.</p></div>
+        <div class="workspace-hero-image"><img src="assets/images/home/service-equipment.webp" alt="Farm equipment"></div>
+      </section>
+      <section class="workspace-panel workspace-state services-state">
+        <h2 id="servicesStateTitle">No provider backend connected</h2>
+        <p id="servicesStateText">FarmersHub does not currently have tracked provider listings, booking availability, distance, ratings, prices or saved equipment requests in the backend source inspected for this batch.</p>
+      </section>
+      <section class="workspace-panel workspace-card" id="requestArea">
+        <h2>Request area</h2>
+        <p>Use this area to prepare request details later. Submitting a request is disabled until a real EquipmentRequest backend exists, so this page will not show a fake success state.</p>
+        <form class="workspace-form">
+          <input type="text" id="requestCategory" aria-label="Selected category" readonly>
+          <textarea placeholder="Request details will be saved after the backend is implemented" disabled></textarea>
+          <div class="workspace-card-actions"><button class="workspace-secondary" type="button" disabled>Request Backend Not Connected</button></div>
+        </form>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/services.js"></script>
+</body>
+</html>
