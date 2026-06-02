@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/customer-home.css">
+  <link rel="stylesheet" href="assets/css/farmer-dashboard.css">
 </head>
 
 <body>
@@ -73,7 +74,254 @@
 })();
 </script>
 
-<main class="home-shell">
+
+<main class="farmer-dashboard" aria-label="Farmer dashboard">
+  <aside class="fd-sidebar">
+    <nav class="fd-panel fd-nav" aria-label="Farmer workspace navigation">
+      <p class="fd-nav-heading">Farmer Workspace</p>
+      <a href="index.html" class="active"><span>⌂</span> Dashboard</a>
+      <a href="#fdYourProducts"><span>🌿</span> Products</a>
+      <a href="#fdRecentOrders"><span>📦</span> Orders <span class="fd-badge">0</span></a>
+      <a href="#fdInventory"><span>🧺</span> Inventory</a>
+      <a href="messages.html"><span>✉</span> Messages</a>
+      <a href="#fdCustomers"><span>👥</span> Customers</a>
+      <a href="#fdEarnings"><span>📈</span> Analytics</a>
+      <a href="#fdRecentPosts"><span>📣</span> Social Feed</a>
+      <a href="#fdPayments"><span>₩</span> Payments</a>
+      <a href="profile.html"><span>⚙</span> Settings</a>
+      <a href="#fdHelpCenter"><span>?</span> Help Center</a>
+    </nav>
+
+    <section class="fd-panel fd-provider-panel" id="fdEquipmentProviders">
+      <div class="fd-heading">
+        <h3>Equipment Providers</h3>
+        <a class="fd-link" href="#fdProviderRequest">View all</a>
+      </div>
+      <div class="fd-provider-grid">
+        <a href="#fdProviderRequest" class="fd-provider-tile">
+          <img src="assets/images/home/service-equipment.webp" alt="Rent a tractor" loading="lazy">
+          <span>Tractor</span>
+        </a>
+        <a href="#fdProviderRequest" class="fd-provider-tile">
+          <img src="assets/images/home/service-equipment.webp" alt="Rent farm tilling equipment" loading="lazy">
+          <span>Tiller</span>
+        </a>
+        <a href="#fdProviderRequest" class="fd-provider-tile">
+          <img src="assets/images/home/service-fertilizer.webp" alt="Find irrigation support" loading="lazy">
+          <span>Irrigation Pump</span>
+        </a>
+        <a href="#fdProviderRequest" class="fd-provider-tile">
+          <img src="assets/images/home/service-delivery.webp" alt="Book delivery vehicle support" loading="lazy">
+          <span>Delivery Truck</span>
+        </a>
+        <a href="#fdProviderRequest" class="fd-provider-tile">
+          <img src="assets/images/home/service-fertilizer.webp" alt="Find fertilizer suppliers" loading="lazy">
+          <span>Fertilizer</span>
+        </a>
+        <a href="#fdProviderRequest" class="fd-provider-tile">
+          <img src="assets/images/home/service-loan.webp" alt="Find cold storage support" loading="lazy">
+          <span>Cold Storage</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="fd-panel fd-request-box" id="fdProviderRequest">
+      <h3>Need equipment?</h3>
+      <p>Post a request and connect with nearby agricultural service providers.</p>
+      <a href="#" class="fd-button">Post a Request</a>
+    </section>
+  </aside>
+
+  <section class="fd-main">
+    <section class="fd-panel fd-hero">
+      <div class="fd-hero-copy">
+        <p>Welcome back,</p>
+        <h2 id="farmerDashboardGreeting">Your Farm 🌱</h2>
+        <p class="fd-hero-text">Manage products, respond to buyers, track orders, and grow your business today.</p>
+        <div class="fd-hero-actions">
+          <a href="login/sell_crops.html" class="fd-button">＋ Add Product</a>
+          <a href="profile.html" class="fd-button-secondary">View Store</a>
+        </div>
+      </div>
+      <div class="fd-hero-image">
+        <img src="assets/images/home/hero-delivery.webp" alt="Fresh produce from your farm">
+      </div>
+    </section>
+
+    <section class="fd-kpis" aria-label="Farm business overview">
+      <article class="fd-panel fd-kpi">
+        <p class="fd-kpi-label">Total Revenue</p>
+        <strong id="fdRevenue">₩0</strong>
+        <span class="fd-positive">Sales summary</span>
+      </article>
+      <article class="fd-panel fd-kpi">
+        <p class="fd-kpi-label">Pending Orders</p>
+        <strong id="fdPendingOrders">0</strong>
+        <a class="fd-link" href="#fdRecentOrders">View orders →</a>
+      </article>
+      <article class="fd-panel fd-kpi">
+        <p class="fd-kpi-label">Total Products</p>
+        <strong id="fdProductCount">0</strong>
+        <a class="fd-link" href="#fdYourProducts">Manage products →</a>
+      </article>
+      <article class="fd-panel fd-kpi">
+        <p class="fd-kpi-label">Farmer Friends</p>
+        <strong id="fdFriendCount">0</strong>
+        <a class="fd-link" href="#fdFarmerFriends">Connect →</a>
+      </article>
+      <article class="fd-panel fd-kpi">
+        <p class="fd-kpi-label">Low Stock Alerts</p>
+        <strong id="fdLowStockCount">0</strong>
+        <a class="fd-link" href="#fdInventory">View inventory →</a>
+      </article>
+    </section>
+
+    <section class="fd-split">
+      <article class="fd-panel fd-card-section" id="fdRecentOrders">
+        <div class="fd-heading">
+          <h3>Recent Orders</h3>
+          <a class="fd-link" href="notifications.html">View all →</a>
+        </div>
+        <div class="fd-orders" id="farmerRecentOrders">
+          <div class="fd-order">
+            <div>
+              <h4>Orders will appear here</h4>
+              <p>We will connect this panel to real buyer order data.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="fd-panel fd-card-section" id="fdYourProducts">
+        <div class="fd-heading">
+          <h3>Your Products</h3>
+          <a class="fd-link" href="login/sell_crops.html">Manage all →</a>
+        </div>
+        <div class="fd-products" id="farmerProductGrid">
+          <article class="fd-product">
+            <div class="fd-product-body">
+              <h4>Loading your products...</h4>
+              <p class="stock">Your backend listings and uploaded images will appear here.</p>
+            </div>
+          </article>
+        </div>
+        <div style="margin-top:14px;">
+          <a href="login/sell_crops.html" class="fd-button-secondary">＋ Add New Product</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="fd-lower">
+      <article class="fd-panel fd-card-section">
+        <div class="fd-heading">
+          <h3>Recent Messages</h3>
+          <a class="fd-link" href="messages.html">View all →</a>
+        </div>
+        <div class="fd-list">
+          <div class="fd-list-item">
+            <h4>Your buyer conversations</h4>
+            <p>Open Messages to respond to customers and order questions.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="fd-panel fd-card-section" id="fdEarnings">
+        <div class="fd-heading">
+          <h3>Earnings Overview</h3>
+          <span class="fd-link">This week</span>
+        </div>
+        <strong style="font-size:25px;" id="fdEarningsTotal">₩0</strong>
+        <div class="fd-chart-placeholder" aria-label="Earnings chart placeholder">
+          <span class="fd-chart-bar" style="height:30%;"></span>
+          <span class="fd-chart-bar" style="height:48%;"></span>
+          <span class="fd-chart-bar" style="height:39%;"></span>
+          <span class="fd-chart-bar" style="height:65%;"></span>
+          <span class="fd-chart-bar" style="height:54%;"></span>
+          <span class="fd-chart-bar" style="height:76%;"></span>
+          <span class="fd-chart-bar" style="height:88%;"></span>
+        </div>
+      </article>
+
+      <article class="fd-panel fd-card-section" id="fdRecentPosts">
+        <div class="fd-heading">
+          <h3>Recent Posts</h3>
+          <a class="fd-link" href="#liveFeedSection">View all →</a>
+        </div>
+        <div class="fd-list" id="farmerPostSummary">
+          <div class="fd-list-item">
+            <h4>Farm updates</h4>
+            <p>Your latest community posts will appear here once connected.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </section>
+
+  <aside class="fd-rightbar">
+    <section class="fd-panel">
+      <div class="fd-heading">
+        <h3>Store Overview</h3>
+        <a class="fd-link" href="profile.html">View store →</a>
+      </div>
+      <div class="fd-stat-row"><span>Store Rating</span><strong>Not rated</strong></div>
+      <div class="fd-stat-row"><span>Total Products</span><strong id="fdStoreProducts">0</strong></div>
+      <div class="fd-stat-row"><span>Response Time</span><strong>Review soon</strong></div>
+    </section>
+
+    <section class="fd-panel">
+      <div class="fd-heading">
+        <h3>Notifications</h3>
+        <a class="fd-link" href="notifications.html">View all →</a>
+      </div>
+      <div class="fd-note">
+        <h4>Farm alerts</h4>
+        <p>Order and inventory alerts will be checked after the dashboard UI is applied.</p>
+      </div>
+    </section>
+
+    <section class="fd-panel">
+      <div class="fd-heading">
+        <h3>Tasks for You</h3>
+      </div>
+      <div class="fd-task">
+        <h4>Review your current products</h4>
+        <p>Confirm pricing, image, and stock details.</p>
+      </div>
+      <div class="fd-task">
+        <h4>Reply to buyers</h4>
+        <p>Open unread messages and verify messaging works.</p>
+      </div>
+    </section>
+
+    <section class="fd-panel" id="fdFarmerFriends">
+      <div class="fd-heading">
+        <h3>Farmer Friends</h3>
+        <a class="fd-link" href="#fdFarmerFriends">View all →</a>
+      </div>
+      <div id="farmerFriendsGrid">
+        <div class="fd-person">
+          <div class="fd-person-avatar"></div>
+          <div class="fd-person-info">
+            <h4>Loading farmers...</h4>
+            <p>Local farmer connections will appear here.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fd-panel" id="fdCustomers">
+      <div class="fd-heading">
+        <h3>Top Customers</h3>
+      </div>
+      <div class="fd-note">
+        <h4>Customer insights</h4>
+        <p>This will populate when order data is inspected.</p>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<main class="home-shell market-home">
   <aside class="home-sidebar left-sidebar">
     <section class="sidebar-card role-card workspace-card" data-role-panel="farmer">
       <span class="card-kicker">Farmer Workspace</span>
@@ -296,6 +544,7 @@
     <div class="post-meta"></div>
   </article>
 </template>
+<script type="module" src="assets/js/farmer-dashboard.js"></script>
 <script type="module" src="assets/js/main.js"></script>
 </body>
 </html>
