@@ -7,11 +7,13 @@ import {
   deleteProduct as removeProduct,
 } from '../js/productService.js';
 
-/* ─── State ──────────────────────────────────────────────────────────── */
+const LOCAL_LISTINGS_KEY = 'fh_sell_crops_local_listings';
+const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/600x450?text=No+Image';
+
 let products = [];
 let currentEditingProductId = null;
+let currentUser = null;
 
-// DOM Elements
 const addProductBtn = document.getElementById('addProductBtn');
 const emptyAddBtn = document.getElementById('emptyAddBtn');
 const productCount = document.getElementById('productCount');
@@ -31,62 +33,55 @@ const productImageInput = document.getElementById('productImage');
 const imagePreview = document.getElementById('imagePreview');
 const modalTitle = document.getElementById('modalTitle');
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-  const currentUser = getCurrentUser();
+document.addEventListener('DOMContentLoaded', function () {
+  currentUser = getCurrentUser();
   if (!currentUser || currentUser.role !== 'farmer') {
     alert('Please log in as a farmer to manage products.');
     window.location.href = 'login.html';
     return;
   }
 
-  // Pre-fill seller info from logged-in user
-  const sellerNameEl = document.getElementById('sellerName');
-  const sellerEmailEl = document.getElementById('sellerEmail');
-  const sellerPhoneEl = document.getElementById('sellerPhone');
-  const sellerLocationEl = document.getElementById('sellerLocation');
-  if (sellerNameEl && currentUser.fullName) sellerNameEl.value = currentUser.fullName;
-  if (sellerEmailEl && currentUser.email) sellerEmailEl.value = currentUser.email;
-  if (sellerPhoneEl && currentUser.phone) sellerPhoneEl.value = currentUser.phone;
-  if (sellerLocationEl && currentUser.address) sellerLocationEl.value = currentUser.address;
-
+  fillSellerInfo(currentUser);
   setupEventListeners();
   loadProductsFromAPI();
 });
 
-// Event Listeners
+function fillSellerInfo(user) {
+  const sellerNameEl = document.getElementById('sellerName');
+  const sellerEmailEl = document.getElementById('sellerEmail');
+  const sellerPhoneEl = document.getElementById('sellerPhone');
+  const sellerLocationEl = document.getElementById('sellerLocation');
+  if (sellerNameEl && user.fullName) sellerNameEl.value = user.fullName;
+  if (sellerEmailEl && user.email) sellerEmailEl.value = user.email;
+  if (sellerPhoneEl && user.phone) sellerPhoneEl.value = user.phone;
+  if (sellerLocationEl && user.address) sellerLocationEl.value = user.address;
+}
+
 function setupEventListeners() {
-  // Modal controls
   addProductBtn.addEventListener('click', openAddProductModal);
-  if (emptyAddBtn) {
-    emptyAddBtn.addEventListener('click', openAddProductModal);
-  }
+  if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddProductModal);
   closeModalBtn.addEventListener('click', closeProductModal);
   cancelBtn.addEventListener('click', closeProductModal);
   closeDetailsBtn.addEventListener('click', closeDetailsModal);
   closeDetailsModalBtn.addEventListener('click', closeDetailsModal);
-  
-  // Form
   productForm.addEventListener('submit', handleFormSubmit);
   productImageInput.addEventListener('change', handleImageChange);
-
-  // Details modal actions
   editProductBtn.addEventListener('click', editProduct);
   deleteProductBtn.addEventListener('click', deleteProduct);
 
-  // Close modals when clicking outside
-  productModal.addEventListener('click', function(e) {
-    if (e.target === productModal) closeProductModal();
+  productModal.addEventListener('click', function (event) {
+    if (event.target === productModal) closeProductModal();
   });
-  detailsModal.addEventListener('click', function(e) {
-    if (e.target === detailsModal) closeDetailsModal();
+
+  detailsModal.addEventListener('click', function (event) {
+    if (event.target === detailsModal) closeDetailsModal();
   });
 }
 
-// Modal Functions
 function openAddProductModal() {
   currentEditingProductId = null;
   productForm.reset();
+  fillSellerInfo(currentUser);
   imagePreview.innerHTML = '<span>No image selected</span>';
   modalTitle.textContent = 'Add New Product';
   const submitBtn = productForm.querySelector('button[type="submit"]');
@@ -99,6 +94,7 @@ function closeProductModal() {
   productModal.classList.add('hidden');
   document.body.style.overflow = 'auto';
   productForm.reset();
+  fillSellerInfo(currentUser);
   imagePreview.innerHTML = '<span>No image selected</span>';
   currentEditingProductId = null;
 }
@@ -108,135 +104,122 @@ function closeDetailsModal() {
   document.body.style.overflow = 'auto';
 }
 
-// Image Preview
-function handleImageChange(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      imagePreview.innerHTML = `<img src="${event.target.result}" alt="Product Image">`;
-    };
-    reader.readAsDataURL(file);
+function handleImageChange(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    imagePreview.innerHTML = '<span>No image selected</span>';
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onload = function (readerEvent) {
+    imagePreview.innerHTML = `<img src="${readerEvent.target.result}" alt="Product Image">`;
+  };
+  reader.readAsDataURL(file);
 }
 
-// Form Submission
-async function handleFormSubmit(e) {
-  e.preventDefault();
+async function handleFormSubmit(event) {
+  event.preventDefault();
 
   const paymentCheckboxes = document.querySelectorAll('input[name="paymentMethod"]:checked');
   if (paymentCheckboxes.length === 0) {
-    alert('Please select at least one payment method');
+    alert('Please select at least one payment method.');
     return;
   }
 
   const harvestDate = new Date(document.getElementById('harvestDate').value);
   const expiryDate = new Date(document.getElementById('expiryDate').value);
   if (expiryDate <= harvestDate) {
-    alert('Expiry date must be after harvest date');
+    alert('Expiry date must be after harvest date.');
     return;
   }
 
   const imageFile = productImageInput.files[0];
-  if (!imageFile && !currentEditingProductId) {
-    alert('Please select a product image');
-    return;
+  const paymentMethods = Array.from(paymentCheckboxes).map(checkbox => checkbox.value);
+  const listingData = await buildListingFromForm({ imageFile, paymentMethods });
+  const submitBtn = productForm.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
   }
 
-  const costPrice = parseFloat(document.getElementById('costPrice').value);
-  const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
-  const discount = parseFloat(document.getElementById('discount').value) || 0;
-  const paymentMethods = Array.from(paymentCheckboxes).map(cb => cb.value);
-
-  const submitBtn = document.getElementById('btn') || productForm.querySelector('button[type="submit"]');
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
-
   try {
-    if (currentEditingProductId) {
-      // Update via PUT (JSON, no file re-upload unless new file selected)
-      const updates = {
-        name: document.getElementById('name').value,
-        brand: document.getElementById('brand').value,
-        description: document.getElementById('description').value,
-        category: document.getElementById('category').value,
-        costPrice, sellingPrice, discount,
-        stock: parseInt(document.getElementById('stock').value, 10),
-        unit: document.getElementById('unit').value,
-        harvestDate: document.getElementById('harvestDate').value,
-        expiryDate: document.getElementById('expiryDate').value,
-        paymentMethods,
-        sellerName: document.getElementById('sellerName').value,
-        sellerEmail: document.getElementById('sellerEmail').value,
-        sellerPhone: document.getElementById('sellerPhone').value,
-        location: document.getElementById('sellerLocation').value,
-      };
-      if (imageFile) {
-        // Re-upload with FormData
-        const form = new FormData();
-        Object.entries(updates).forEach(([k, v]) =>
-          Array.isArray(v) ? v.forEach(i => form.append(k + '[]', i)) : form.append(k, v)
-        );
-        form.append('images', imageFile);
-        await updateProduct(currentEditingProductId, form);
-      } else {
-        await updateProduct(currentEditingProductId, updates);
-      }
+    if (currentEditingProductId && isLocalProductId(currentEditingProductId)) {
+      saveLocalProduct({ ...listingData, id: currentEditingProductId, updatedAt: new Date().toISOString() });
+      alert('Listing updated locally.');
+    } else if (currentEditingProductId) {
+      await updateRemoteProduct(currentEditingProductId, listingData, imageFile);
       alert('Product updated successfully!');
     } else {
-      // Create via POST with FormData (multipart)
-      const form = new FormData();
-      form.append('name', document.getElementById('name').value);
-      form.append('brand', document.getElementById('brand').value);
-      form.append('description', document.getElementById('description').value);
-      form.append('category', document.getElementById('category').value);
-      form.append('costPrice', costPrice);
-      form.append('sellingPrice', sellingPrice);
-      form.append('discount', discount);
-      form.append('stock', document.getElementById('stock').value);
-      form.append('unit', document.getElementById('unit').value);
-      form.append('harvestDate', document.getElementById('harvestDate').value);
-      form.append('expiryDate', document.getElementById('expiryDate').value);
-      form.append('sellerName', document.getElementById('sellerName').value);
-      form.append('sellerEmail', document.getElementById('sellerEmail').value);
-      form.append('sellerPhone', document.getElementById('sellerPhone').value);
-      form.append('location', document.getElementById('sellerLocation').value);
-      paymentMethods.forEach(m => form.append('paymentMethods[]', m));
-      form.append('images', imageFile);
-      await createProduct(form);
-      alert('Product added successfully!');
+      await createListing(listingData, imageFile);
     }
 
     await loadProductsFromAPI();
     closeProductModal();
-  } catch (err) {
-    alert('Failed to save product: ' + err.message);
+  } catch (error) {
+    alert('Failed to save product: ' + error.message);
   } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = currentEditingProductId ? 'Update Product' : 'Add Product'; }
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = currentEditingProductId ? 'Update Product' : 'List Product';
+    }
   }
 }
 
-// Render Products
+async function createListing(listingData, imageFile) {
+  try {
+    await createProduct(buildListingFormData(listingData, imageFile));
+    alert('Product added successfully!');
+  } catch (apiError) {
+    saveLocalProduct(listingData);
+    alert('Listing saved locally. It will stay visible on this device even if the API is unavailable.');
+  }
+}
+
+async function updateRemoteProduct(id, listingData, imageFile) {
+  if (imageFile) {
+    await updateProduct(id, buildListingFormData(listingData, imageFile));
+    return;
+  }
+
+  await updateProduct(id, {
+    name: listingData.name,
+    brand: listingData.brand,
+    description: listingData.description,
+    category: listingData.category,
+    costPrice: listingData.costPrice,
+    sellingPrice: listingData.sellingPrice,
+    discount: listingData.discount,
+    stock: listingData.stock,
+    unit: listingData.unit,
+    harvestDate: listingData.harvestDate,
+    expiryDate: listingData.expiryDate,
+    paymentMethods: listingData.paymentMethods,
+    sellerName: listingData.seller.name,
+    sellerEmail: listingData.seller.email,
+    sellerPhone: listingData.seller.phone,
+    location: listingData.seller.location,
+  });
+}
+
 function renderProducts() {
   productsGrid.innerHTML = '';
   productCount.textContent = `${products.length} product${products.length === 1 ? '' : 's'} listed`;
 
   if (products.length === 0) {
-    emptyState.style.display = 'block';
+    emptyState.style.display = 'grid';
+    productsGrid.appendChild(emptyState);
     return;
   }
 
   emptyState.style.display = 'none';
-
-  products.forEach(product => {
-    const productCard = createProductCard(product);
-    productsGrid.appendChild(productCard);
-  });
+  products.forEach(product => productsGrid.appendChild(createProductCard(product)));
 }
 
 function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card';
-  const imageUrl = product.imageUrl || 'https://via.placeholder.com/600x450?text=No+Image';
+  const imageUrl = product.imageUrl || PLACEHOLDER_IMAGE;
   const finalPrice = Number((product.sellingPrice || 0) * (1 - (product.discount || 0) / 100)).toFixed(2);
   const daysUntilExpiry = Math.ceil((new Date(product.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
   const expiryLabel = daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry < 7 ? `Expires in ${daysUntilExpiry}d` : 'Fresh';
@@ -248,7 +231,7 @@ function createProductCard(product) {
       <div class="product-card-category">${capitalizeCategory(product.category)}</div>
       <div class="product-card-price">$${finalPrice}</div>
       <div class="product-card-stock">Stock: ${product.stock || 0} ${product.unit || 'pcs'}</div>
-      <div class="product-card-meta">${expiryLabel} · Discount ${Number(product.discount || 0).toFixed(0)}%</div>
+      <div class="product-card-meta">${expiryLabel} - Discount ${Number(product.discount || 0).toFixed(0)}%</div>
       <div class="product-card-description">${product.description || 'No description provided.'}</div>
     </div>
   `;
@@ -257,141 +240,78 @@ function createProductCard(product) {
   return card;
 }
 
-// Show Product Details
 function showProductDetails(product) {
   const paymentMethodsText = (product.paymentMethods || [])
     .map(method => capitalizePaymentMethod(method))
     .join(', ');
-
   const daysUntilExpiry = Math.ceil((new Date(product.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
   const expiryStatus = daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry < 7 ? `Expires in ${daysUntilExpiry} days` : 'Fresh';
+  const costPrice = Number(product.costPrice || 0).toFixed(2);
+  const sellingPrice = Number(product.sellingPrice || 0).toFixed(2);
+  const finalPrice = Number(product.price || product.sellingPrice || 0).toFixed(2);
 
   detailsContent.innerHTML = `
-    <img src="${product.imageUrl}" alt="${product.name}" class="detail-image">
-    
-    <div class="detail-row">
-      <div class="detail-label">Product Name:</div>
-      <div class="detail-value">${product.name}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Category:</div>
-      <div class="detail-value">${capitalizeCategory(product.category)}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Brand/Model:</div>
-      <div class="detail-value">${product.brand || 'N/A'}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Description:</div>
-      <div class="detail-value">${product.description}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Cost Price:</div>
-      <div class="detail-value">$${product.costPrice.toFixed(2)}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Selling Price:</div>
-      <div class="detail-value">$${product.sellingPrice.toFixed(2)}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Discount:</div>
-      <div class="detail-value">${product.discount}%</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Final Price:</div>
-      <div class="detail-value" style="color: #d32f2f; font-weight: 700;">$${Number(product.price || 0).toFixed(2)}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Stock:</div>
-      <div class="detail-value">${product.stock} ${product.unit}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Harvest Date:</div>
-      <div class="detail-value">${formatDate(product.harvestDate)}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Expiry Date:</div>
-      <div class="detail-value">${formatDate(product.expiryDate)} (${expiryStatus})</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Payment Methods:</div>
-      <div class="detail-value">${paymentMethodsText}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Seller Name:</div>
-      <div class="detail-value">${product.seller?.name || 'N/A'}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Seller Email:</div>
-      <div class="detail-value"><a href="mailto:${product.seller?.email || ''}">${product.seller?.email || 'N/A'}</a></div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Seller Phone:</div>
-      <div class="detail-value"><a href="tel:${product.seller?.phone || ''}">${product.seller?.phone || 'N/A'}</a></div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Location:</div>
-      <div class="detail-value">${product.seller?.location || 'N/A'}</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="detail-label">Listed:</div>
-      <div class="detail-value">${product.createdAt}</div>
-    </div>
+    <img src="${product.imageUrl || PLACEHOLDER_IMAGE}" alt="${product.name}" class="detail-image">
+    ${detailRow('Product Name:', product.name)}
+    ${detailRow('Category:', capitalizeCategory(product.category))}
+    ${detailRow('Farm / Variety:', product.brand || 'N/A')}
+    ${detailRow('Description:', product.description || 'N/A')}
+    ${detailRow('Cost Price:', '$' + costPrice)}
+    ${detailRow('Selling Price:', '$' + sellingPrice)}
+    ${detailRow('Discount:', `${Number(product.discount || 0)}%`)}
+    ${detailRow('Final Price:', `<strong>$${finalPrice}</strong>`)}
+    ${detailRow('Stock:', `${product.stock || 0} ${product.unit || 'pcs'}`)}
+    ${detailRow('Harvest Date:', formatDate(product.harvestDate))}
+    ${detailRow('Expiry Date:', `${formatDate(product.expiryDate)} (${expiryStatus})`)}
+    ${detailRow('Payment Methods:', paymentMethodsText || 'N/A')}
+    ${detailRow('Seller Name:', product.seller?.name || 'N/A')}
+    ${detailRow('Seller Email:', product.seller?.email ? `<a href="mailto:${product.seller.email}">${product.seller.email}</a>` : 'N/A')}
+    ${detailRow('Seller Phone:', product.seller?.phone ? `<a href="tel:${product.seller.phone}">${product.seller.phone}</a>` : 'N/A')}
+    ${detailRow('Location:', product.seller?.location || 'N/A')}
+    ${detailRow('Listed:', formatDate(product.createdAt))}
   `;
 
-  // Store current product ID for editing/deleting
   currentEditingProductId = product.id;
   detailsModal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
 
-// Edit Product
+function detailRow(label, value) {
+  return `
+    <div class="detail-row">
+      <div class="detail-label">${label}</div>
+      <div class="detail-value">${value}</div>
+    </div>
+  `;
+}
+
 function editProduct() {
-  const product = products.find(p => p.id === currentEditingProductId);
+  const product = products.find(item => item.id === currentEditingProductId);
   if (!product) return;
 
-  currentEditingProductId = product.id;
-  
-  // Populate form with product data
-  document.getElementById('name').value = product.name;
-  document.getElementById('category').value = product.category;
-  document.getElementById('brand').value = product.brand;
-  document.getElementById('description').value = product.description;
-  document.getElementById('costPrice').value = product.costPrice;
-  document.getElementById('sellingPrice').value = product.sellingPrice;
-  document.getElementById('discount').value = product.discount;
-  document.getElementById('stock').value = product.stock;
-  document.getElementById('unit').value = product.unit;
-  document.getElementById('harvestDate').value = product.harvestDate ? new Date(product.harvestDate).toISOString().split('T')[0] : '';
-  document.getElementById('expiryDate').value = product.expiryDate ? new Date(product.expiryDate).toISOString().split('T')[0] : '';
+  document.getElementById('name').value = product.name || '';
+  document.getElementById('category').value = product.category || '';
+  document.getElementById('brand').value = product.brand || '';
+  document.getElementById('description').value = product.description || '';
+  document.getElementById('costPrice').value = product.costPrice || 0;
+  document.getElementById('sellingPrice').value = product.sellingPrice || 0;
+  document.getElementById('discount').value = product.discount || 0;
+  document.getElementById('stock').value = product.stock || 0;
+  document.getElementById('unit').value = product.unit || '';
+  document.getElementById('harvestDate').value = toDateInputValue(product.harvestDate);
+  document.getElementById('expiryDate').value = toDateInputValue(product.expiryDate);
   document.getElementById('sellerName').value = product.seller?.name || '';
   document.getElementById('sellerEmail').value = product.seller?.email || '';
   document.getElementById('sellerPhone').value = product.seller?.phone || '';
   document.getElementById('sellerLocation').value = product.seller?.location || '';
 
-  // Set payment methods
-  document.querySelectorAll('input[name="paymentMethod"]').forEach(cb => {
-    cb.checked = product.paymentMethods.includes(cb.value);
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(checkbox => {
+    checkbox.checked = (product.paymentMethods || []).includes(checkbox.value);
   });
 
-  // Set image preview
-  imagePreview.innerHTML = `<img src="${product.imageUrl}" alt="Product Image">`;
+  imagePreview.innerHTML = product.imageUrl
+    ? `<img src="${product.imageUrl}" alt="Product Image">`
+    : '<span>No image selected</span>';
 
   modalTitle.textContent = 'Edit Product';
   const submitBtn = productForm.querySelector('button[type="submit"]');
@@ -401,61 +321,177 @@ function editProduct() {
   document.body.style.overflow = 'hidden';
 }
 
-// Delete Product
 async function deleteProduct() {
   if (!confirm('Are you sure you want to delete this product?')) return;
+
   try {
-    await removeProduct(currentEditingProductId);
+    if (isLocalProductId(currentEditingProductId)) {
+      deleteLocalProduct(currentEditingProductId);
+    } else {
+      await removeProduct(currentEditingProductId);
+    }
+
     await loadProductsFromAPI();
     closeDetailsModal();
     alert('Product deleted successfully!');
-  } catch (err) {
-    alert('Failed to delete product: ' + err.message);
+  } catch (error) {
+    alert('Failed to delete product: ' + error.message);
   }
 }
 
-// Load products from API
 async function loadProductsFromAPI() {
+  const localProducts = getLocalProductsForCurrentUser();
+
   try {
-    const currentUser = getCurrentUser();
     const params = { limit: 100 };
-    if (currentUser?.id) {
-      params.farmerId = currentUser.id;
-    }
+    const farmerId = getCurrentUserId();
+    if (farmerId) params.farmerId = farmerId;
     const data = await getProducts(params);
-    products = data.data || [];
-  } catch (err) {
-    console.error('Failed to load products:', err);
-    products = [];
+    products = mergeProducts(localProducts, data.data || []);
+  } catch (error) {
+    console.error('Failed to load products:', error);
+    products = localProducts;
   }
+
   renderProducts();
 }
 
-// Utility Functions
+async function buildListingFromForm({ imageFile, paymentMethods }) {
+  const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+  const discount = parseFloat(document.getElementById('discount').value) || 0;
+  const price = Number((sellingPrice * (1 - discount / 100)).toFixed(2));
+  const imageUrl = imageFile ? await readFileAsDataUrl(imageFile) : '';
+
+  return {
+    id: `local-${Date.now()}`,
+    name: document.getElementById('name').value.trim(),
+    brand: document.getElementById('brand').value.trim(),
+    description: document.getElementById('description').value.trim(),
+    category: document.getElementById('category').value,
+    costPrice: parseFloat(document.getElementById('costPrice').value) || 0,
+    sellingPrice,
+    discount,
+    price,
+    stock: parseInt(document.getElementById('stock').value, 10) || 0,
+    unit: document.getElementById('unit').value,
+    harvestDate: document.getElementById('harvestDate').value,
+    expiryDate: document.getElementById('expiryDate').value,
+    imageUrl,
+    paymentMethods,
+    seller: {
+      id: getCurrentUserId(),
+      role: currentUser?.role || 'farmer',
+      name: document.getElementById('sellerName').value.trim(),
+      email: document.getElementById('sellerEmail').value.trim(),
+      phone: document.getElementById('sellerPhone').value.trim(),
+      location: document.getElementById('sellerLocation').value.trim(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function buildListingFormData(listing, imageFile) {
+  const form = new FormData();
+  form.append('name', listing.name);
+  form.append('brand', listing.brand);
+  form.append('description', listing.description);
+  form.append('category', listing.category);
+  form.append('costPrice', listing.costPrice);
+  form.append('sellingPrice', listing.sellingPrice);
+  form.append('discount', listing.discount);
+  form.append('stock', listing.stock);
+  form.append('unit', listing.unit);
+  form.append('harvestDate', listing.harvestDate);
+  form.append('expiryDate', listing.expiryDate);
+  form.append('sellerName', listing.seller.name);
+  form.append('sellerEmail', listing.seller.email);
+  form.append('sellerPhone', listing.seller.phone);
+  form.append('location', listing.seller.location);
+  listing.paymentMethods.forEach(method => form.append('paymentMethods[]', method));
+  if (imageFile) form.append('images', imageFile);
+  return form;
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = event => resolve(event.target.result);
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
+function getCurrentUserId() {
+  return currentUser?.id || currentUser?._id || currentUser?.email || 'local-farmer';
+}
+
+function getAllLocalProducts() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_LISTINGS_KEY)) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function getLocalProductsForCurrentUser() {
+  const userId = getCurrentUserId();
+  return getAllLocalProducts().filter(product => product.seller?.id === userId);
+}
+
+function saveLocalProduct(product) {
+  const allProducts = getAllLocalProducts();
+  const nextProducts = allProducts.filter(item => item.id !== product.id);
+  nextProducts.unshift(product);
+  localStorage.setItem(LOCAL_LISTINGS_KEY, JSON.stringify(nextProducts));
+}
+
+function deleteLocalProduct(id) {
+  const nextProducts = getAllLocalProducts().filter(product => product.id !== id);
+  localStorage.setItem(LOCAL_LISTINGS_KEY, JSON.stringify(nextProducts));
+}
+
+function isLocalProductId(id) {
+  return String(id || '').startsWith('local-');
+}
+
+function mergeProducts(localProducts, apiProducts) {
+  const localIds = new Set(localProducts.map(product => product.id));
+  return [...localProducts, ...apiProducts.filter(product => !localIds.has(product.id))];
+}
+
 function capitalizeCategory(category) {
   const categories = {
-    'vegetables': 'Vegetables',
-    'fruits': 'Fruits',
-    'grains': 'Grains',
-    'dairy': 'Dairy',
-    'spices': 'Spices',
-    'other': 'Other'
+    vegetables: 'Vegetables',
+    fruits: 'Fruits',
+    grains: 'Grains',
+    dairy: 'Dairy',
+    spices: 'Spices',
+    other: 'Other',
   };
-  return categories[category] || category;
+  return categories[category] || category || 'Other';
 }
 
 function capitalizePaymentMethod(method) {
   const methods = {
-    'cash': 'Cash',
-    'card': 'Credit/Debit Card',
-    'bank_transfer': 'Bank Transfer',
-    'digital_wallet': 'Digital Wallet'
+    cash: 'Cash',
+    card: 'Credit/Debit Card',
+    bank_transfer: 'Bank Transfer',
+    digital_wallet: 'Digital Wallet',
   };
   return methods[method] || method;
 }
 
 function formatDate(dateString) {
   if (!dateString) return 'N/A';
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function toDateInputValue(dateString) {
+  if (!dateString) return '';
+  return new Date(dateString).toISOString().split('T')[0];
 }
