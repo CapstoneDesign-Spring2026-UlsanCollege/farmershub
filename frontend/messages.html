@@ -10,62 +10,137 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/messages.css">
 </head>
-<body>
+<body class="messages-page">
 <canvas id="fallingCanvas"></canvas>
 
-<header class="top-nav">
-  <a href="index.html" class="brand">
-    <img src="assets/images/logorefined.png" alt="FarmersHub Logo" class="home-logo">
+<header class="messages-topbar">
+  <a href="index.html" class="messages-brand">
+    <img src="assets/images/logorefined.png" alt="FarmersHub Logo">
     <div>
-      <p class="brand-overline">Green Marketplace</p>
-      <h1>FarmersHub</h1>
+      <strong>FarmersHub</strong>
+      <small>Fresh from our fields to you</small>
     </div>
   </a>
 
-  <form class="global-search" action="#" method="get">
-    <span class="search-icon">⌕</span>
-    <input type="text" placeholder="Search farmers, crops, and updates">
-  </form>
+  <label class="topbar-search">
+    <span aria-hidden="true">⌕</span>
+    <input type="search" placeholder="Search products, farmers, categories...">
+  </label>
 
-  <nav class="user-nav">
-    <a href="index.html" class="nav-chip">Home</a>
-    <a href="profile.html" class="nav-chip">Profile</a>
-    <a href="notifications.html" class="nav-chip">Alerts</a>
-    <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
-    <button class="login-btn" id="navLogoutBtn" style="display:none;">Logout</button>
+  <button class="category-switch" type="button" disabled title="Category navigation will be connected separately">
+    <span>▦</span> All Categories <span>⌄</span>
+  </button>
+
+  <nav class="messages-user-nav" aria-label="Account navigation">
+    <a href="messages.html" class="topbar-item active"><span>✉</span><small>Messages</small></a>
+    <a href="notifications.html" class="topbar-item"><span>♧</span><small>Alerts</small></a>
+    <a href="profile.html" class="topbar-item"><span>♡</span><small>Profile</small></a>
+    <a href="index.html" class="topbar-item"><span>⌂</span><small>Home</small></a>
+    <a href="login/login.html" class="account-button" id="navLoginBtn">Login</a>
+    <button class="account-button" id="navLogoutBtn" style="display:none;">Logout</button>
   </nav>
 </header>
 
-<main class="messages-shell">
-  <section class="messages-heading">
-    <div>
-      <p class="eyebrow">Direct Messages</p>
-      <h2>Messages</h2>
-    </div>
-    <a class="message-action" href="customer.html">Find farmers</a>
-  </section>
+<div class="messages-workspace">
+  <aside class="messages-sidebar">
+    <nav class="sidebar-nav" aria-label="Messages sections">
+      <a href="index.html"><span>⌂</span> Home</a>
+      <a href="customer.html"><span>▣</span> Marketplace</a>
+      <a href="customer.html"><span>♧</span> Farmers</a>
+      <button type="button" disabled title="Orders will be connected after inspecting real data"><span>▢</span> Orders</button>
+      <a href="messages.html" class="active"><span>✉</span> Messages</a>
+      <a href="index.html"><span>▤</span> Social Feed</a>
+      <a href="profile.html"><span>♙</span> Profile</a>
+      <button type="button" disabled title="Settings connection will be inspected later"><span>⚙</span> Settings</button>
+    </nav>
 
-  <section class="messages-layout" aria-label="Messages workspace">
-    <aside class="conversation-panel">
-      <div class="conversation-tools">
-        <label class="conversation-search">
-          <span>Search</span>
-          <input type="search" id="conversationSearch" placeholder="Search conversations">
-        </label>
-      </div>
-      <div class="conversation-list" id="conversationList"></div>
-    </aside>
-
-    <section class="chat-panel" aria-live="polite">
-      <header class="chat-header" id="chatHeader"></header>
-      <div class="message-thread" id="messageThread"></div>
-      <form class="message-composer" id="messageComposer">
-        <textarea id="messageInput" rows="2" placeholder="Type a message"></textarea>
-        <button type="submit">Send</button>
-      </form>
+    <section class="sidebar-promo">
+      <h2>Connect with Buyers</h2>
+      <p>Build trust and answer product questions through direct messages.</p>
+      <a href="profile.html">View Profile</a>
     </section>
-  </section>
-</main>
+  </aside>
+
+  <main class="messages-shell">
+    <section class="messages-layout" aria-label="Messages workspace">
+      <aside class="conversation-panel">
+        <div class="conversation-heading">
+          <h1>Messages</h1>
+          <button type="button" disabled title="Start a conversation from a farmer profile">✎</button>
+        </div>
+
+        <div class="conversation-tabs">
+          <button type="button" class="active">All</button>
+          <button type="button" disabled title="Unread filtering not connected yet">Unread</button>
+          <button type="button" disabled title="Order filtering needs real order data">Orders</button>
+        </div>
+
+        <div class="conversation-tools">
+          <label class="conversation-search">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" id="conversationSearch" placeholder="Search conversations...">
+          </label>
+        </div>
+
+        <div class="conversation-list" id="conversationList"></div>
+      </aside>
+
+      <section class="chat-panel" aria-live="polite">
+        <header class="chat-header" id="chatHeader"></header>
+
+        <div class="order-context-note">
+          <span>🛒</span>
+          <p>Product or order context will appear here after real order data is connected.</p>
+        </div>
+
+        <div class="message-thread" id="messageThread"></div>
+
+        <form class="message-composer" id="messageComposer">
+          <button class="composer-tool" type="button" disabled aria-label="Attachments not connected yet">＋</button>
+          <textarea id="messageInput" rows="2" placeholder="Type a message..."></textarea>
+          <button class="send-message-btn" type="submit" aria-label="Send message">➤</button>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <aside class="messages-rightbar">
+    <section class="rightbar-card">
+      <div class="rightbar-heading">
+        <h2>Notifications &amp; Alerts</h2>
+        <a href="notifications.html">View all</a>
+      </div>
+      <div class="rightbar-empty">
+        <span>🔔</span>
+        <p>Open Alerts to view your real notifications.</p>
+      </div>
+      <a class="rightbar-link" href="notifications.html">Open Alerts →</a>
+    </section>
+
+    <section class="rightbar-card">
+      <div class="rightbar-heading">
+        <h2>Recent Order Updates</h2>
+      </div>
+      <div class="rightbar-empty compact">
+        <span>📦</span>
+        <p>Order updates will appear here after the backend source is verified.</p>
+      </div>
+    </section>
+
+    <section class="rightbar-card">
+      <div class="rightbar-heading">
+        <h2>Sound Preferences</h2>
+        <a href="notifications.html">Manage</a>
+      </div>
+      <p class="sound-copy">Manage available notification sounds from Alerts.</p>
+      <div class="sound-options" aria-hidden="true">
+        <span class="selected">🔊<small>All</small></span>
+        <span>💬<small>Messages</small></span>
+        <span>🔔<small>System</small></span>
+      </div>
+    </section>
+  </aside>
+</div>
 
 <script type="module" src="messages.js"></script>
 </body>
