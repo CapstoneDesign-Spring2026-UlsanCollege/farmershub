@@ -145,6 +145,45 @@ body[data-user-role="customer"] .section-heading a {
   font-weight: 900;
 }
 
+.search-results-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.search-results-summary[hidden] {
+  display: none;
+}
+
+.clear-search-btn {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid rgba(31, 107, 67, 0.16);
+  border-radius: 999px;
+  background: #f3fbf0;
+  color: #1f6b43;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.search-count-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search-count-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: #fff4d8;
+  color: #7a5408;
+  font-weight: 900;
+}
+
 body[data-user-role="customer"] .category-wrap {
   display: grid;
   grid-template-columns: repeat(4, minmax(120px, 1fr));

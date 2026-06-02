@@ -43,11 +43,20 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
   const sentinel = document.getElementById('feedSentinel');
   const searchInput = document.getElementById('globalSearchInput');
   const sortSelect = document.getElementById('globalSortSelect');
+  const searchForm = searchInput?.closest('form');
 
   const farmerTpl = document.getElementById('farmerCardTemplate');
   const productTpl = document.getElementById('productCardTemplate');
   const nearbyTpl = document.getElementById('nearbyCardTemplate');
   const postTpl = document.getElementById('postTemplate');
+  const searchStatus = document.createElement('section');
+  const heroCard = document.querySelector('.harvest-hero');
+
+  searchStatus.className = 'feed-section search-results-summary';
+  searchStatus.hidden = true;
+  if (heroCard?.parentNode) {
+    heroCard.insertAdjacentElement('afterend', searchStatus);
+  }
 
   function paintGradients(nodes, a, b) {
     nodes.forEach((node, i) => {
@@ -386,6 +395,53 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
     });
   }
 
+  function updateSearchStatus(query, counts) {
+    if (!searchStatus.parentNode) {
+      return;
+    }
+
+    if (!query) {
+      searchStatus.hidden = true;
+      searchStatus.innerHTML = '';
+      return;
+    }
+
+    searchStatus.hidden = false;
+    searchStatus.innerHTML = '';
+
+    const heading = document.createElement('div');
+    heading.className = 'section-heading';
+
+    const title = document.createElement('h3');
+    title.textContent = `Search results for "${searchInput.value.trim()}"`;
+
+    const clearButton = document.createElement('button');
+    clearButton.type = 'button';
+    clearButton.className = 'clear-search-btn';
+    clearButton.textContent = 'Clear';
+    clearButton.addEventListener('click', () => {
+      searchInput.value = '';
+      applySearchAndSort();
+      searchInput.focus();
+    });
+
+    heading.append(title, clearButton);
+
+    const countRow = document.createElement('div');
+    countRow.className = 'search-count-row';
+    [
+      `${counts.farmers} farmers`,
+      `${counts.products} products`,
+      `${counts.posts} updates`
+    ].forEach((label) => {
+      const chip = document.createElement('span');
+      chip.textContent = label;
+      countRow.appendChild(chip);
+    });
+
+    searchStatus.append(heading, countRow);
+  }
+
   function applySearchAndSort() {
     const query = (searchInput?.value || '').trim().toLowerCase();
     const sortMode = sortSelect?.value || 'recent';
@@ -409,6 +465,12 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
       farmers = query ? farmers : farmers.slice(0, 6);
       posts = query ? posts : posts.slice(0, 4);
     }
+
+    updateSearchStatus(query, {
+      farmers: farmers.length,
+      products: products.length,
+      posts: posts.length,
+    });
 
     renderFarmers(farmers.slice(0, 12));
     renderProducts(products.slice(0, 12));
@@ -527,6 +589,11 @@ document.addEventListener('DOMContentLoaded', initHeroModal);
 
   loadLiveData();
 
+  searchForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    applySearchAndSort();
+    searchInput?.blur();
+  });
   searchInput?.addEventListener('input', applySearchAndSort);
   sortSelect?.addEventListener('change', applySearchAndSort);
 
