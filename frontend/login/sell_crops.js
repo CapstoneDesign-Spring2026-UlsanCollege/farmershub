@@ -7,12 +7,13 @@ import {
   deleteProduct as removeProduct,
 } from '../js/productService.js';
 
-/* ─── State ──────────────────────────────────────────────────────────── */
+// State
 let products = [];
 let currentEditingProductId = null;
 
 // DOM Elements
 const addProductBtn = document.getElementById('addProductBtn');
+const sectionAddBtn = document.getElementById('sectionAddBtn');
 const emptyAddBtn = document.getElementById('emptyAddBtn');
 const productCount = document.getElementById('productCount');
 const productModal = document.getElementById('productModal');
@@ -58,6 +59,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupEventListeners() {
   // Modal controls
   addProductBtn.addEventListener('click', openAddProductModal);
+  if (sectionAddBtn) {
+    sectionAddBtn.addEventListener('click', openAddProductModal);
+  }
   if (emptyAddBtn) {
     emptyAddBtn.addEventListener('click', openAddProductModal);
   }
@@ -211,7 +215,7 @@ async function handleFormSubmit(e) {
   } catch (err) {
     alert('Failed to save product: ' + err.message);
   } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = currentEditingProductId ? 'Update Product' : 'Add Product'; }
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = currentEditingProductId ? 'Update Product' : 'List Product'; }
   }
 }
 
@@ -221,7 +225,7 @@ function renderProducts() {
   productCount.textContent = `${products.length} product${products.length === 1 ? '' : 's'} listed`;
 
   if (products.length === 0) {
-    emptyState.style.display = 'block';
+    emptyState.style.display = 'grid';
     return;
   }
 
@@ -248,7 +252,7 @@ function createProductCard(product) {
       <div class="product-card-category">${capitalizeCategory(product.category)}</div>
       <div class="product-card-price">$${finalPrice}</div>
       <div class="product-card-stock">Stock: ${product.stock || 0} ${product.unit || 'pcs'}</div>
-      <div class="product-card-meta">${expiryLabel} · Discount ${Number(product.discount || 0).toFixed(0)}%</div>
+      <div class="product-card-meta">${expiryLabel} - Discount ${Number(product.discount || 0).toFixed(0)}%</div>
       <div class="product-card-description">${product.description || 'No description provided.'}</div>
     </div>
   `;
