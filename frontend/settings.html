@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/settings.css">
+</head>
+<body data-workspace="settings">
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html">
+      <img src="logo.png" alt="FarmersHub Logo">
+      <span>Farmer Workspace</span>
+      <strong>FarmersHub</strong>
+    </a>
+    <div class="workspace-search">Private account and farm profile summary</div>
+    <nav class="workspace-actions" aria-label="Page actions">
+      <a class="workspace-icon-link" href="notifications.html">Alerts</a>
+      <button class="workspace-secondary" type="button" id="logoutBtn">Logout</button>
+    </nav>
+  </header>
+
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
+        <p class="workspace-nav-title">Farmer Workspace</p>
+        <a href="index.html">Dashboard</a>
+        <a href="products-management.html">Products</a>
+        <a href="notifications.html">Orders</a>
+        <a href="products-management.html">Inventory</a>
+        <a href="messages.html">Messages</a>
+        <a href="messages.html">Customers</a>
+        <a href="index.html">Analytics</a>
+        <a href="social-feed.html">Social Feed</a>
+        <a href="notifications.html">Payments</a>
+        <a href="settings.html" class="active">Settings</a>
+        <a href="help-center.html">Help Center</a>
+      </nav>
+    </aside>
+
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero">
+        <div class="workspace-hero-copy">
+          <p>Settings</p>
+          <h1>Farm account</h1>
+          <p>This page uses your authenticated profile only. It does not load another user's settings from URL parameters.</p>
+        </div>
+        <div class="workspace-hero-image">
+          <img src="assets/images/home/farmer-fallback-1.webp" alt="Farmer profile">
+        </div>
+      </section>
+
+      <section class="workspace-panel workspace-card" id="settingsState">
+        <h2>Loading settings</h2>
+        <p>Checking your secure session.</p>
+      </section>
+
+      <section class="workspace-panel workspace-card settings-profile" id="settingsProfile" hidden>
+        <div class="workspace-profile-row">
+          <div class="workspace-avatar" id="settingsAvatar"></div>
+          <div>
+            <h2 id="settingsName">Farmer</h2>
+            <p id="settingsFarm">Farm identity will appear here.</p>
+            <p id="settingsEmail" class="settings-muted"></p>
+          </div>
+        </div>
+        <div class="settings-grid">
+          <article>
+            <span class="workspace-section-label">Role</span>
+            <strong id="settingsRole">Farmer</strong>
+          </article>
+          <article>
+            <span class="workspace-section-label">Location</span>
+            <strong id="settingsLocation">Not provided</strong>
+          </article>
+          <article>
+            <span class="workspace-section-label">Products</span>
+            <strong id="settingsProducts">Not provided</strong>
+          </article>
+        </div>
+        <div class="workspace-card-actions">
+          <a class="workspace-primary" href="profile.html">Edit Profile and Media</a>
+          <a class="workspace-secondary" href="notifications.html">Notifications</a>
+          <a class="workspace-secondary" href="messages.html">Messages</a>
+        </div>
+      </section>
+
+      <section class="workspace-panel workspace-card">
+        <h2>Account actions</h2>
+        <p>Profile edits, avatar upload and cover upload continue to use the existing Profile page controls. Password, email, privacy and delete-account workflows are not shown here because secure endpoints were not confirmed in this frontend batch.</p>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/settings.js"></script>
+</body>
+</html>

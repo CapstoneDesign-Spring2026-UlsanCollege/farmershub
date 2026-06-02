@@ -1,0 +1,52 @@
+.post-card {
+  display: grid;
+  gap: 14px;
+}
+
+.post-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-avatar {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--fw-soft) center/cover no-repeat;
+}
+
+.post-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.post-date {
+  color: var(--fw-muted);
+  font-size: 12px;
+}
+
+.post-copy {
+  white-space: pre-wrap;
+}
+
+.post-media-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.post-media-grid img {
+  width: 100%;
+  max-height: 320px;
+  display: block;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+@media (max-width: 620px) {
+  .post-media-grid {
+    grid-template-columns: 1fr;
+  }
+}

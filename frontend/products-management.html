@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products Management | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/products-management.css">
+</head>
+<body data-workspace="products">
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html">
+      <img src="logo.png" alt="FarmersHub Logo">
+      <span>Farmer Workspace</span>
+      <strong>FarmersHub</strong>
+    </a>
+    <div class="workspace-search">Manage real crop listings from your farm account</div>
+    <nav class="workspace-actions" aria-label="Page actions">
+      <a class="workspace-icon-link" href="messages.html">Messages</a>
+      <a class="workspace-icon-link" href="notifications.html">Alerts</a>
+      <a class="workspace-primary" href="login/sell_crops.html">Add Product</a>
+    </nav>
+  </header>
+
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
+        <p class="workspace-nav-title">Farmer Workspace</p>
+        <a href="index.html">Dashboard</a>
+        <a href="products-management.html" class="active">Products</a>
+        <a href="notifications.html">Orders</a>
+        <a href="products-management.html">Inventory</a>
+        <a href="messages.html">Messages</a>
+        <a href="messages.html">Customers</a>
+        <a href="index.html">Analytics</a>
+        <a href="social-feed.html">Social Feed</a>
+        <a href="notifications.html">Payments</a>
+        <a href="settings.html">Settings</a>
+        <a href="help-center.html">Help Center</a>
+      </nav>
+    </aside>
+
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero">
+        <div class="workspace-hero-copy">
+          <p>Products Management</p>
+          <h1>Your farm listings</h1>
+          <p>Review the products loaded from your authenticated farmer account. Pricing, stock and images come from the Products API.</p>
+        </div>
+        <div class="workspace-hero-image">
+          <img src="assets/images/home/product-tomatoes.webp" alt="Fresh farm products">
+        </div>
+      </section>
+
+      <section class="workspace-panel workspace-toolbar">
+        <div>
+          <h2 id="productSummaryTitle">Loading products</h2>
+          <p id="productSummaryText">Checking your secure farmer session.</p>
+        </div>
+        <a class="workspace-primary" href="login/sell_crops.html">Add Product</a>
+      </section>
+
+      <section class="workspace-grid" id="productsGrid" aria-live="polite"></section>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/products-management.js"></script>
+</body>
+</html>

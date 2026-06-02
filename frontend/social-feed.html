@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Feed | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/social-feed.css">
+</head>
+<body data-workspace="social-feed">
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html">
+      <img src="logo.png" alt="FarmersHub Logo">
+      <span>Farmer Workspace</span>
+      <strong>FarmersHub</strong>
+    </a>
+    <div class="workspace-search">Share real farm updates with the community</div>
+    <nav class="workspace-actions" aria-label="Page actions">
+      <a class="workspace-icon-link" href="profile.html">Profile</a>
+      <a class="workspace-icon-link" href="messages.html">Messages</a>
+    </nav>
+  </header>
+
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
+        <p class="workspace-nav-title">Farmer Workspace</p>
+        <a href="index.html">Dashboard</a>
+        <a href="products-management.html">Products</a>
+        <a href="notifications.html">Orders</a>
+        <a href="products-management.html">Inventory</a>
+        <a href="messages.html">Messages</a>
+        <a href="messages.html">Customers</a>
+        <a href="index.html">Analytics</a>
+        <a href="social-feed.html" class="active">Social Feed</a>
+        <a href="notifications.html">Payments</a>
+        <a href="settings.html">Settings</a>
+        <a href="help-center.html">Help Center</a>
+      </nav>
+    </aside>
+
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero">
+        <div class="workspace-hero-copy">
+          <p>Social Feed</p>
+          <h1>Farm updates</h1>
+          <p>Posts shown here are loaded from the real Posts API. Farmers can publish updates when logged in.</p>
+        </div>
+        <div class="workspace-hero-image">
+          <img src="assets/images/home/hero-delivery.webp" alt="Farm produce prepared for customers">
+        </div>
+      </section>
+
+      <section class="workspace-panel workspace-card" id="composerPanel" hidden>
+        <h2>Create a farm update</h2>
+        <form class="workspace-form" id="postForm">
+          <textarea id="postContent" name="content" placeholder="Share harvest news, product availability, or a farm update"></textarea>
+          <input id="postImages" name="images" type="file" accept="image/*" multiple>
+          <div class="workspace-card-actions">
+            <button class="workspace-primary" type="submit">Publish Post</button>
+          </div>
+        </form>
+        <p class="workspace-note" id="composerMessage"></p>
+      </section>
+
+      <section class="workspace-panel workspace-toolbar">
+        <div>
+          <h2 id="feedSummaryTitle">Loading feed</h2>
+          <p id="feedSummaryText">Fetching real community posts.</p>
+        </div>
+        <a class="workspace-secondary" href="profile.html">View Store Profile</a>
+      </section>
+
+      <section class="workspace-list" id="feedList" aria-live="polite"></section>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/social-feed.js"></script>
+</body>
+</html>
