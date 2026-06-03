@@ -11,87 +11,190 @@
   <link rel="stylesheet" href="assets/css/settings.css">
 </head>
 <body data-workspace="settings">
-  <header class="workspace-topbar">
-    <a class="workspace-brand" href="index.html">
+  <header class="settings-topbar">
+    <a class="settings-brand" href="index.html" aria-label="Back to FarmersHub dashboard">
       <img src="logo.png" alt="FarmersHub Logo">
-      <span>Farmer Workspace</span>
-      <strong>FarmersHub</strong>
+      <span>FarmersHub</span>
     </a>
-    <div class="workspace-search">Private account and farm profile summary</div>
-    <nav class="workspace-actions" aria-label="Page actions">
-      <a class="workspace-icon-link" href="notifications.html">Alerts</a>
+    <div class="settings-title">
+      <span>Account workspace</span>
+      <h1>Settings</h1>
+    </div>
+    <div class="settings-user" id="topIdentity" hidden>
+      <div class="settings-mini-avatar" id="topAvatar" aria-hidden="true"></div>
+      <div>
+        <strong id="topName">Farmer</strong>
+        <span id="topEmail">Account identity</span>
+      </div>
+    </div>
+    <nav class="settings-actions" aria-label="Settings actions">
+      <a class="workspace-secondary" href="index.html">Back to Dashboard</a>
       <button class="workspace-secondary" type="button" id="logoutBtn">Logout</button>
     </nav>
   </header>
 
-  <main class="workspace-shell">
-    <aside class="workspace-sidebar">
-      <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
-        <p class="workspace-nav-title">Farmer Workspace</p>
-        <a href="index.html">Dashboard</a>
-        <a href="products-management.html">Products</a>
-        <a href="orders.html">Orders</a>
-        <a href="inventory.html">Inventory</a>
-        <a href="messages.html">Messages</a>
-        <a href="customers.html">Customers</a>
-        <a href="analytics.html">Analytics</a>
-        <a href="social-feed.html">Social Feed</a>
-        <a href="payments.html">Payments</a>
-        <a href="settings.html" class="active">Settings</a>
-        <a href="help-center.html">Help Center</a>
+  <main class="settings-shell">
+    <aside class="settings-sidebar">
+      <nav class="settings-nav workspace-panel" aria-label="Settings sections">
+        <p class="workspace-nav-title">Settings</p>
+        <a href="#account-profile">Account & Farm Profile</a>
+        <a href="#profile-photos">Profile Photos</a>
+        <a href="#privacy-visibility">Privacy & Visibility</a>
+        <a href="#notifications">Notifications</a>
+        <a href="#security-login">Security & Login</a>
+        <a href="#help-support">Help & Support</a>
       </nav>
     </aside>
 
-    <section class="workspace-content">
-      <section class="workspace-panel workspace-hero">
-        <div class="workspace-hero-copy">
-          <p>Settings</p>
-          <h1>Farm account</h1>
-          <p>This page uses your authenticated profile only. It does not load another user's settings from URL parameters.</p>
-        </div>
-        <div class="workspace-hero-image">
-          <img src="assets/images/home/farmer-fallback-1.webp" alt="Farmer profile">
-        </div>
-      </section>
-
-      <section class="workspace-panel workspace-card" id="settingsState">
+    <section class="settings-content">
+      <section class="workspace-panel settings-state" id="settingsState" role="status" aria-live="polite">
         <h2>Loading settings</h2>
-        <p>Checking your secure session.</p>
+        <p>Checking your secure session and profile record.</p>
       </section>
 
-      <section class="workspace-panel workspace-card settings-profile" id="settingsProfile" hidden>
-        <div class="workspace-profile-row">
-          <div class="workspace-avatar" id="settingsAvatar"></div>
+      <section class="workspace-panel settings-summary" id="settingsSummary" hidden>
+        <div class="settings-avatar-wrap">
+          <div class="settings-avatar" id="summaryAvatar" aria-hidden="true"></div>
+        </div>
+        <div class="settings-summary-copy">
+          <span class="settings-badge">Available now</span>
+          <h2 id="summaryName">Farmer</h2>
+          <p id="summaryFarm">Farm profile loaded from your account record.</p>
+          <dl>
+            <div>
+              <dt>Role</dt>
+              <dd id="summaryRole">Farmer</dd>
+            </div>
+            <div>
+              <dt>Location</dt>
+              <dd id="summaryLocation">Not added yet</dd>
+            </div>
+          </dl>
+          <p class="settings-note">Profile information is loaded from the existing authenticated account/profile record.</p>
+        </div>
+      </section>
+
+      <section class="workspace-panel settings-section" id="account-profile">
+        <div class="settings-section-head">
           <div>
-            <h2 id="settingsName">Farmer</h2>
-            <p id="settingsFarm">Farm identity will appear here.</p>
-            <p id="settingsEmail" class="settings-muted"></p>
+            <span class="settings-badge">Available now</span>
+            <h2>Account & Farm Profile</h2>
+          </div>
+          <a class="workspace-primary" href="profile.html">Edit Farm Profile</a>
+        </div>
+        <dl class="settings-detail-grid">
+          <div><dt>Full name</dt><dd id="profileFullName">Not added yet</dd></div>
+          <div><dt>Farm name</dt><dd id="profileFarmName">Not added yet</dd></div>
+          <div><dt>Role</dt><dd id="profileRole">Farmer</dd></div>
+          <div><dt>Email <span>Account identity - Read-only</span></dt><dd id="profileEmail">Not available</dd></div>
+          <div><dt>Location</dt><dd id="profileLocation">Not added yet</dd></div>
+          <div><dt>Products or crops grown</dt><dd id="profileProducts">Not added yet</dd></div>
+          <div class="settings-wide"><dt>Bio</dt><dd id="profileBio">Not added yet</dd></div>
+        </dl>
+      </section>
+
+      <section class="workspace-panel settings-section" id="profile-photos">
+        <div class="settings-section-head">
+          <div>
+            <span class="settings-badge">Available now</span>
+            <h2>Profile Photos</h2>
+          </div>
+          <a class="workspace-secondary" href="profile.html">Manage photos in profile editor</a>
+        </div>
+        <div class="settings-photo-grid">
+          <article>
+            <div class="settings-photo settings-photo-avatar" id="avatarPreview" aria-label="Current profile picture"></div>
+            <h3>Profile picture</h3>
+            <p id="avatarStatus">Neutral placeholder shown until a real uploaded image is stored.</p>
+            <label class="workspace-primary" for="avatarInput">Change Profile Picture</label>
+            <input type="file" id="avatarInput" accept="image/*" hidden>
+          </article>
+          <article>
+            <div class="settings-photo settings-photo-cover" id="coverPreview" aria-label="Current cover photo"></div>
+            <h3>Cover photo</h3>
+            <p id="coverStatus">Neutral placeholder shown until a real uploaded image is stored.</p>
+            <label class="workspace-primary" for="coverInput">Change Cover Photo</label>
+            <input type="file" id="coverInput" accept="image/*" hidden>
+          </article>
+          <article class="settings-unavailable">
+            <span class="settings-badge muted">Coming later</span>
+            <h3>Remove Profile Picture</h3>
+            <p>No remove-avatar backend route was confirmed. Use the profile editor for currently supported photo changes.</p>
+            <button class="workspace-secondary" type="button" disabled>Remove Profile Picture</button>
+          </article>
+        </div>
+        <p class="settings-upload-status" id="photoUploadStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="workspace-panel settings-section" id="privacy-visibility">
+        <div class="settings-section-head">
+          <div>
+            <span class="settings-badge muted">Coming later</span>
+            <h2>Privacy & Visibility</h2>
           </div>
         </div>
-        <div class="settings-grid">
-          <article>
-            <span class="workspace-section-label">Role</span>
-            <strong id="settingsRole">Farmer</strong>
-          </article>
-          <article>
-            <span class="workspace-section-label">Location</span>
-            <strong id="settingsLocation">Not provided</strong>
-          </article>
-          <article>
-            <span class="workspace-section-label">Products</span>
-            <strong id="settingsProducts">Not provided</strong>
-          </article>
+        <div class="settings-info-card">
+          <h3>Privacy controls coming later</h3>
+          <p>Public profile fields currently follow the existing FarmersHub profile behavior. Saved visibility controls require secure account settings support before they can be enabled.</p>
         </div>
-        <div class="workspace-card-actions">
-          <a class="workspace-primary" href="profile.html">Edit Profile and Media</a>
-          <a class="workspace-secondary" href="notifications.html">Notifications</a>
-          <a class="workspace-secondary" href="messages.html">Messages</a>
+        <div class="settings-disabled-list">
+          <div>Show farm location publicly <span>Requires secure backend support</span></div>
+          <div>Show contact details publicly <span>Requires secure backend support</span></div>
+          <div>Allow buyers to message me <span>Requires secure backend support</span></div>
+          <div>Show product listings publicly <span>Requires secure backend support</span></div>
+          <div>Show farm posts publicly <span>Requires secure backend support</span></div>
         </div>
       </section>
 
-      <section class="workspace-panel workspace-card">
-        <h2>Account actions</h2>
-        <p>Profile edits, avatar upload and cover upload continue to use the existing Profile page controls. Password, email, privacy and delete-account workflows are not shown here because secure endpoints were not confirmed in this frontend batch.</p>
+      <section class="workspace-panel settings-section" id="notifications">
+        <div class="settings-section-head">
+          <div>
+            <span class="settings-badge">Available now</span>
+            <h2>Notifications</h2>
+          </div>
+          <a class="workspace-primary" href="notifications.html">Open Notifications</a>
+        </div>
+        <p class="settings-note">FarmersHub can show existing notification records. Per-account notification preference syncing and sound preferences are not connected yet.</p>
+        <div class="settings-disabled-list">
+          <div>Message notifications <span>Coming later</span></div>
+          <div>Order request alerts <span>Coming later</span></div>
+          <div>System notices <span>Coming later</span></div>
+          <div>Notification sounds <span>Coming later</span></div>
+          <div>Mute all sounds <span>Coming later</span></div>
+        </div>
+      </section>
+
+      <section class="workspace-panel settings-section" id="security-login">
+        <div class="settings-section-head">
+          <div>
+            <span class="settings-badge">Available now</span>
+            <h2>Security & Login</h2>
+          </div>
+          <button class="workspace-danger" type="button" id="sectionLogoutBtn">Logout</button>
+        </div>
+        <dl class="settings-detail-grid">
+          <div class="settings-wide"><dt>Email <span>Read-only</span></dt><dd id="securityEmail">Not available</dd></div>
+        </dl>
+        <div class="settings-disabled-list">
+          <div>Change password <span>Coming later</span></div>
+          <div>Email verification or email change <span>Coming later</span></div>
+          <div>Active sessions <span>Coming later</span></div>
+          <div>Delete account <span>Coming later</span></div>
+        </div>
+      </section>
+
+      <section class="workspace-panel settings-section" id="help-support">
+        <div class="settings-section-head">
+          <div>
+            <span class="settings-badge">Available now</span>
+            <h2>Help & Support</h2>
+          </div>
+        </div>
+        <div class="workspace-card-actions">
+          <a class="workspace-primary" href="help-center.html">Open Help Center</a>
+          <a class="workspace-secondary" href="messages.html">Open Messages</a>
+          <a class="workspace-secondary" href="index.html">Back to Dashboard</a>
+        </div>
       </section>
     </section>
   </main>

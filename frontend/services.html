@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Services | FarmersHub</title>
+  <title>Farm Services | FarmersHub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
@@ -12,48 +12,149 @@
 </head>
 <body>
   <header class="workspace-topbar">
-    <a class="workspace-brand" href="index.html"><img src="logo.png" alt="FarmersHub Logo"><span>Farmer Workspace</span><strong>FarmersHub</strong></a>
-    <div class="workspace-search" id="servicesTopLabel">Equipment provider workspace</div>
-    <nav class="workspace-actions"><a class="workspace-icon-link" href="help-center.html">Help Center</a></nav>
+    <a class="workspace-brand" href="index.html">
+      <img src="logo.png" alt="FarmersHub Logo">
+      <span>Farmer Workspace</span>
+      <strong>FarmersHub</strong>
+    </a>
+    <div class="workspace-search" id="servicesTopLabel">Farm services workspace</div>
+    <nav class="workspace-actions" aria-label="Services actions">
+      <a class="workspace-secondary" href="index.html">Back to Dashboard</a>
+      <a class="workspace-icon-link" href="help-center.html">Help Center</a>
+    </nav>
   </header>
+
   <main class="workspace-shell">
     <aside class="workspace-sidebar">
       <nav class="workspace-panel workspace-nav" aria-label="Farmer workspace navigation">
         <p class="workspace-nav-title">Farmer Workspace</p>
-        <a href="index.html">Dashboard</a><a href="products-management.html">Products</a><a href="orders.html">Orders</a><a href="inventory.html">Inventory</a><a href="messages.html">Messages</a><a href="customers.html">Customers</a><a href="analytics.html">Analytics</a><a href="social-feed.html">Social Feed</a><a href="payments.html">Payments</a><a href="settings.html">Settings</a><a href="help-center.html">Help Center</a>
+        <a href="index.html">Dashboard</a>
+        <a href="products-management.html">Products</a>
+        <a href="orders.html">Orders</a>
+        <a href="inventory.html">Inventory</a>
+        <a href="messages.html">Messages</a>
+        <a href="customers.html">Customers</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="social-feed.html">Social Feed</a>
+        <a href="payments.html">Payments</a>
+        <a href="settings.html">Settings</a>
+        <a href="help-center.html">Help Center</a>
       </nav>
-      <section class="workspace-panel services-category-nav">
-        <p class="workspace-nav-title">Equipment Providers</p>
-        <a href="services.html">View all</a>
-        <a href="services.html?category=tractor">Tractor</a>
-        <a href="services.html?category=tiller">Tiller</a>
-        <a href="services.html?category=irrigation_pump">Irrigation Pump</a>
-        <a href="services.html?category=delivery_truck">Delivery Truck</a>
-        <a href="services.html?category=fertilizer">Fertilizer</a>
-        <a href="services.html?category=cold_storage">Cold Storage</a>
-        <a href="services.html?action=request">Post a Request</a>
-      </section>
     </aside>
-    <section class="workspace-content">
-      <section class="workspace-panel workspace-hero">
-        <div class="workspace-hero-copy"><p>Services</p><h1 id="servicesTitle">Equipment providers</h1><p id="servicesIntro">Select an equipment category. Provider listings and persistent requests will appear after a real services backend is connected.</p></div>
-        <div class="workspace-hero-image"><img src="assets/images/home/service-equipment.webp" alt="Farm equipment"></div>
+
+    <section class="workspace-content services-content">
+      <section class="workspace-panel services-header">
+        <div>
+          <span class="services-kicker">Farm Services & Equipment</span>
+          <h1 id="servicesTitle">All Services</h1>
+          <p id="servicesIntro">Browse categories for equipment, transport and farm support. Provider listings will appear only after the services backend is connected.</p>
+        </div>
+        <a class="workspace-primary" href="services.html?action=request">Post a Request</a>
       </section>
-      <section class="workspace-panel workspace-state services-state">
-        <h2 id="servicesStateTitle">No provider backend connected</h2>
-        <p id="servicesStateText">FarmersHub does not currently have tracked provider listings, booking availability, distance, ratings, prices or saved equipment requests in the backend source inspected for this batch.</p>
+
+      <nav class="workspace-panel services-category-nav" aria-label="Service category filters">
+        <a href="services.html" data-category="">All Services</a>
+        <a href="services.html?category=tractor" data-category="tractor">Tractor</a>
+        <a href="services.html?category=tiller" data-category="tiller">Tiller</a>
+        <a href="services.html?category=irrigation_pump" data-category="irrigation_pump">Irrigation Pump</a>
+        <a href="services.html?category=delivery_truck" data-category="delivery_truck">Delivery Truck</a>
+        <a href="services.html?category=fertilizer" data-category="fertilizer">Fertilizer</a>
+        <a href="services.html?category=cold_storage" data-category="cold_storage">Cold Storage</a>
+      </nav>
+
+      <section class="workspace-panel services-selected-card">
+        <span class="services-badge" id="selectedCategoryBadge">All Services</span>
+        <p id="selectedCategoryText">Category selection is reflected in the page URL.</p>
       </section>
-      <section class="workspace-panel workspace-card" id="requestArea">
-        <h2>Request area</h2>
-        <p>Use this area to prepare request details later. Submitting a request is disabled until a real EquipmentRequest backend exists, so this page will not show a fake success state.</p>
-        <form class="workspace-form">
-          <input type="text" id="requestCategory" aria-label="Selected category" readonly>
-          <textarea placeholder="Request details will be saved after the backend is implemented" disabled></textarea>
-          <div class="workspace-card-actions"><button class="workspace-secondary" type="button" disabled>Request Backend Not Connected</button></div>
+
+      <section class="workspace-panel services-category-grid" aria-label="Farm service categories">
+        <a href="services.html?category=tractor" class="services-category-card service-tractor" data-category-link="tractor">
+          <span class="services-card-visual" aria-hidden="true"></span>
+          <strong>Tractor</strong>
+          <small>Large field machinery</small>
+        </a>
+        <a href="services.html?category=tiller" class="services-category-card service-tiller" data-category-link="tiller">
+          <span class="services-card-visual" aria-hidden="true"></span>
+          <strong>Tiller</strong>
+          <small>Smaller soil cultivation</small>
+        </a>
+        <a href="services.html?category=irrigation_pump" class="services-category-card service-irrigation" data-category-link="irrigation_pump">
+          <span class="services-card-visual" aria-hidden="true"></span>
+          <strong>Irrigation Pump</strong>
+          <small>Water pumping support</small>
+        </a>
+        <a href="services.html?category=delivery_truck" class="services-category-card service-delivery" data-category-link="delivery_truck">
+          <span class="services-card-visual" aria-hidden="true"></span>
+          <strong>Delivery Truck</strong>
+          <small>Produce transport</small>
+        </a>
+        <a href="services.html?category=fertilizer" class="services-category-card service-fertilizer" data-category-link="fertilizer">
+          <span class="services-card-visual" aria-hidden="true"></span>
+          <strong>Fertilizer</strong>
+          <small>Soil input support</small>
+        </a>
+        <a href="services.html?category=cold_storage" class="services-category-card service-cold" data-category-link="cold_storage">
+          <span class="services-card-visual" aria-hidden="true"></span>
+          <strong>Cold Storage</strong>
+          <small>Cold-chain holding</small>
+        </a>
+      </section>
+
+      <section class="workspace-panel services-empty-state" id="listingsState">
+        <span class="services-badge muted">Requires secure backend support</span>
+        <h2 id="servicesStateTitle">Service listings are being connected.</h2>
+        <p id="servicesStateText">Verified farm-service providers are not available in FarmersHub yet. Once service listings are connected, farmers will be able to browse equipment, transport and farm support here.</p>
+      </section>
+
+      <section class="workspace-panel services-request-panel" id="requestArea">
+        <div class="services-request-head">
+          <div>
+            <span class="services-badge muted">Preview only - Submissions are not available yet</span>
+            <h2>Request posting is being connected</h2>
+          </div>
+        </div>
+        <p>Farm service requests cannot be submitted yet because secure request storage and provider matching are not connected.</p>
+        <form class="services-request-form" aria-label="Service request preview">
+          <label>
+            Requested category
+            <input type="text" id="requestCategory" readonly>
+          </label>
+          <label>
+            Request title
+            <input type="text" value="Request title will be entered here" disabled>
+          </label>
+          <label class="services-wide">
+            Description of need
+            <textarea disabled>Description will be entered here after request storage exists.</textarea>
+          </label>
+          <label>
+            Farm/service location
+            <input type="text" value="Location field pending backend support" disabled>
+          </label>
+          <label>
+            Preferred start date
+            <input type="text" value="Start date pending backend support" disabled>
+          </label>
+          <label>
+            Preferred end date
+            <input type="text" value="End date pending backend support" disabled>
+          </label>
+          <label>
+            Budget, optional
+            <input type="text" value="Optional budget pending backend support" disabled>
+          </label>
+          <label>
+            Contact preference, optional
+            <input type="text" value="Optional contact preference pending backend support" disabled>
+          </label>
+          <div class="services-wide">
+            <button class="workspace-secondary" type="button" disabled>Submit Request - Coming Later</button>
+          </div>
         </form>
       </section>
     </section>
   </main>
+
   <script type="module" src="assets/js/services.js"></script>
 </body>
 </html>
