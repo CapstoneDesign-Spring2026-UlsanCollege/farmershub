@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Products | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-workspace-pages.css">
+  <link rel="stylesheet" href="assets/css/products-management.css">
+</head>
+<body>
+  <header class="workspace-topbar">
+    <a class="workspace-brand" href="index.html">
+      <img src="logo.png" alt="FarmersHub Logo">
+      <span>FarmersHub</span>
+      <strong>Saved Products</strong>
+    </a>
+    <div class="workspace-search">Saved on this device</div>
+    <nav class="workspace-actions">
+      <a class="workspace-icon-link" href="product.html">Browse Products</a>
+      <a class="workspace-icon-link" href="index.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <nav class="workspace-panel workspace-nav" aria-label="Saved products navigation">
+        <p class="workspace-nav-title">Farmer Workspace</p>
+        <a href="index.html">Dashboard</a>
+        <a href="products-management.html">Products</a>
+        <a href="orders.html">Orders</a>
+        <a href="inventory.html">Inventory</a>
+        <a href="messages.html">Messages</a>
+        <a href="notifications.html">Alerts</a>
+        <a href="saved.html" class="active">Saved</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </aside>
+
+    <section class="workspace-content">
+      <section class="workspace-panel workspace-hero">
+        <div class="workspace-hero-copy">
+          <p>Saved on this device</p>
+          <h1>Saved products</h1>
+          <p>These products come from this browser's saved-list storage. They are not synced across accounts or devices yet.</p>
+        </div>
+        <div class="workspace-hero-image">
+          <img src="assets/images/home/support-basket.webp" alt="Saved local products">
+        </div>
+      </section>
+
+      <section class="workspace-panel workspace-toolbar">
+        <div>
+          <h2 id="savedSummaryTitle">Loading saved products</h2>
+          <p id="savedSummaryText">Checking this browser's saved product list.</p>
+        </div>
+        <a class="workspace-primary" href="product.html">Browse Products</a>
+      </section>
+
+      <section class="workspace-grid" id="savedProductsGrid" aria-live="polite"></section>
+    </section>
+  </main>
+
+  <script type="module" src="assets/js/saved.js"></script>
+</body>
+</html>

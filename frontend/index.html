@@ -26,7 +26,7 @@
 
   <form class="global-search" action="#" method="get">
     <span class="search-icon">⌕</span>
-    <input type="text" id="globalSearchInput" placeholder="Search farmers, crops, organic picks, and local updates">
+    <input type="text" id="globalSearchInput" placeholder="Search products, farmers and community updates">
     <select id="globalSortSelect" class="global-sort" aria-label="Sort search results">
       <option value="recent">Recent</option>
       <option value="name">Name A-Z</option>
@@ -66,7 +66,7 @@
         <span class="fd-header-symbol">♧</span>
         <small>Alerts</small>
       </a>
-      <a href="profile.html" class="fd-header-icon" aria-label="Saved">
+      <a href="saved.html" class="fd-header-icon" aria-label="Saved">
         <span class="fd-header-symbol">♡</span>
         <small>Saved</small>
       </a>
@@ -111,7 +111,7 @@
       <p class="fd-nav-heading">Farmer Workspace</p>
       <a href="index.html" class="active"><span>⌂</span> Dashboard</a>
       <a href="products-management.html"><span>🌿</span> Products</a>
-      <a href="orders.html"><span>📦</span> Orders <span class="fd-badge">0</span></a>
+      <a href="orders.html"><span>📦</span> Orders</a>
       <a href="inventory.html"><span>🧺</span> Inventory</a>
       <a href="messages.html"><span>✉</span> Messages</a>
       <a href="customers.html"><span>👥</span> Customers</a>
@@ -167,10 +167,10 @@
       <div class="fd-hero-copy">
         <p>Welcome back,</p>
         <h2 id="farmerDashboardGreeting">Your Farm 🌱</h2>
-        <p class="fd-hero-text">Manage products, respond to buyers, track orders, and grow your business today.</p>
+        <p class="fd-hero-text">Manage products, respond to messages and keep your farm profile up to date.</p>
         <div class="fd-hero-actions">
           <a href="login/sell_crops.html" class="fd-button">＋ Add Product</a>
-          <a href="profile.html" class="fd-button-secondary">View Store</a>
+          <a href="profile.html" class="fd-button-secondary" data-own-store-link>View Store</a>
         </div>
       </div>
       <div class="fd-hero-image">
@@ -181,12 +181,12 @@
     <section class="fd-kpis" aria-label="Farm business overview">
       <article class="fd-panel fd-kpi">
         <p class="fd-kpi-label">Total Revenue</p>
-        <strong id="fdRevenue">₩0</strong>
-        <span class="fd-positive">Sales summary</span>
+        <strong id="fdRevenue">Not connected</strong>
+        <span class="fd-muted-state">Orders and payments required</span>
       </article>
       <article class="fd-panel fd-kpi">
         <p class="fd-kpi-label">Pending Orders</p>
-        <strong id="fdPendingOrders">0</strong>
+        <strong id="fdPendingOrders">Not connected</strong>
         <a class="fd-link" href="orders.html">View orders →</a>
       </article>
       <article class="fd-panel fd-kpi">
@@ -195,12 +195,12 @@
         <a class="fd-link" href="products-management.html">Manage products →</a>
       </article>
       <article class="fd-panel fd-kpi">
-        <p class="fd-kpi-label">Farmer Friends</p>
+        <p class="fd-kpi-label">Discover Farmers</p>
         <strong id="fdFriendCount">0</strong>
         <a class="fd-link" href="#fdFarmerFriends">Connect →</a>
       </article>
       <article class="fd-panel fd-kpi">
-        <p class="fd-kpi-label">Low Stock Alerts</p>
+        <p class="fd-kpi-label">Listing Stock Alerts</p>
         <strong id="fdLowStockCount">0</strong>
         <a class="fd-link" href="inventory.html">View inventory →</a>
       </article>
@@ -210,13 +210,14 @@
       <article class="fd-panel fd-card-section" id="fdRecentOrders">
         <div class="fd-heading">
           <h3>Recent Orders</h3>
-          <a class="fd-link" href="notifications.html">View all →</a>
+          <a class="fd-link" href="orders.html">Status →</a>
         </div>
         <div class="fd-orders" id="farmerRecentOrders">
           <div class="fd-order">
             <div>
               <h4>Orders will appear here</h4>
-              <p>We will connect this panel to real buyer order data.</p>
+              <p>Buyer order management will appear after secure order storage and fulfillment tracking are available.</p>
+              <span class="fd-status">Not connected</span>
             </div>
           </div>
         </div>
@@ -250,7 +251,7 @@
         <div class="fd-list">
           <div class="fd-list-item">
             <h4>Your buyer conversations</h4>
-            <p>Open Messages to respond to customers and order questions.</p>
+            <p>Open Messages to respond to customers and farmers through the connected messaging workspace.</p>
           </div>
         </div>
       </article>
@@ -258,17 +259,12 @@
       <article class="fd-panel fd-card-section" id="fdEarnings">
         <div class="fd-heading">
           <h3>Earnings Overview</h3>
-          <span class="fd-link">This week</span>
+          <a class="fd-link" href="analytics.html">Analytics status</a>
         </div>
-        <strong style="font-size:25px;" id="fdEarningsTotal">₩0</strong>
-        <div class="fd-chart-placeholder" aria-label="Earnings chart placeholder">
-          <span class="fd-chart-bar" style="height:30%;"></span>
-          <span class="fd-chart-bar" style="height:48%;"></span>
-          <span class="fd-chart-bar" style="height:39%;"></span>
-          <span class="fd-chart-bar" style="height:65%;"></span>
-          <span class="fd-chart-bar" style="height:54%;"></span>
-          <span class="fd-chart-bar" style="height:76%;"></span>
-          <span class="fd-chart-bar" style="height:88%;"></span>
+        <strong style="font-size:25px;" id="fdEarningsTotal">Not connected</strong>
+        <div class="fd-unavailable-state" aria-label="Earnings not connected">
+          <h4>Revenue analytics pending</h4>
+          <p>Weekly earnings need verified order and payment records before FarmersHub can calculate them.</p>
         </div>
       </article>
 
@@ -291,7 +287,7 @@
     <section class="fd-panel">
       <div class="fd-heading">
         <h3>Store Overview</h3>
-        <a class="fd-link" href="profile.html">View store →</a>
+        <a class="fd-link" href="profile.html" data-own-store-link>View store →</a>
       </div>
       <div class="fd-stat-row"><span>Store Rating</span><strong>Not rated</strong></div>
       <div class="fd-stat-row"><span>Total Products</span><strong id="fdStoreProducts">0</strong></div>
@@ -305,7 +301,7 @@
       </div>
       <div class="fd-note">
         <h4>Farm alerts</h4>
-        <p>Order and inventory alerts will be checked after the dashboard UI is applied.</p>
+        <p>Message, friend request and product request alerts are available in Notifications. Order and inventory alerts need backend support.</p>
       </div>
     </section>
 
@@ -325,7 +321,7 @@
 
     <section class="fd-panel" id="fdFarmerFriends">
       <div class="fd-heading">
-        <h3>Farmer Friends</h3>
+        <h3>Discover Farmers</h3>
         <a class="fd-link" href="#fdFarmerFriends">View all →</a>
       </div>
       <div id="farmerFriendsGrid">
@@ -333,7 +329,7 @@
           <div class="fd-person-avatar"></div>
           <div class="fd-person-info">
             <h4>Loading farmers...</h4>
-            <p>Local farmer connections will appear here.</p>
+            <p>Public farmer profiles will appear here.</p>
           </div>
         </div>
       </div>
@@ -345,7 +341,7 @@
       </div>
       <div class="fd-note">
         <h4>Customer insights</h4>
-        <p>This will populate when order data is inspected.</p>
+        <p>Customer metrics will appear after durable order relationships are connected.</p>
       </div>
     </section>
   </aside>

@@ -373,6 +373,12 @@ body[data-user-role="farmer"] .top-nav {
   font-weight: 800;
 }
 
+.fd-muted-state {
+  color: var(--fd-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
 .fd-link {
   color: var(--fd-green);
   font-size: 12px;
@@ -561,6 +567,27 @@ body[data-user-role="farmer"] .top-nav {
   min-height: 22px;
   border-radius: 7px 7px 3px 3px;
   background: linear-gradient(180deg, #50ad6d, var(--fd-green));
+}
+
+.fd-unavailable-state {
+  min-height: 126px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px dashed var(--fd-border);
+  border-radius: 10px;
+  background: var(--fd-card-soft);
+}
+
+.fd-unavailable-state h4 {
+  color: var(--fd-text);
+  font-size: 12px;
+}
+
+.fd-unavailable-state p {
+  margin-top: 6px;
+  color: var(--fd-muted);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .fd-rightbar .fd-panel {
