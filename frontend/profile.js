@@ -1,67 +1,230 @@
-import { getProfile, updateProfile, updateFarmerProfile, uploadAvatar, uploadCover, sendFriendRequest } from './js/profileService.js';
+import {
+  getProfile,
+  getProfileById,
+  updateProfile,
+  updateFarmerProfile,
+  uploadAvatar,
+  uploadCover,
+  sendFriendRequest,
+} from './js/profileService.js';
 import { getFarmerById } from './js/farmerService.js';
 import { getFeed, createPost, deletePost } from './js/postService.js';
 import { getProducts } from './js/productService.js';
-import { isLoggedIn, logout } from './js/authService.js';
+import { API_BASE } from './js/api.config.js';
+import { isLoggedIn, logout, getCurrentUser } from './js/authService.js';
+
+const VALID_ROLES = new Set(['farmer', 'customer', 'admin']);
 
 let currentProfile = null;
-let isViewingPublicFarmer = false;
+let currentPosts = [];
+let currentProducts = [];
+let viewContext = {
+  isOwner: false,
+  requestedType: 'owner',
+  requestedId: '',
+};
 
-function getRequestedFarmerId() {
+function byId(id) {
+  return document.getElementById(id);
+}
+
+function setText(id, value, fallback = '') {
+  const element = byId(id);
+  if (!element) return;
+  const normalized = Array.isArray(value) ? value.filter(Boolean).join(', ') : value;
+  element.textContent = normalized ? String(normalized) : fallback;
+}
+
+function setVisible(elementOrId, visible) {
+  const element = typeof elementOrId === 'string' ? byId(elementOrId) : elementOrId;
+  if (!element) return;
+  element.hidden = !visible;
+}
+
+function on(id, eventName, handler) {
+  const element = byId(id);
+  if (element) element.addEventListener(eventName, handler);
+}
+
+function normalizeRole(role) {
+  const normalized = String(role || '').trim().toLowerCase();
+  return VALID_ROLES.has(normalized) ? normalized : 'unknown';
+}
+
+function getRoleLabel(role) {
+  const normalized = normalizeRole(role);
+  if (normalized === 'farmer') return 'Farmer';
+  if (normalized === 'customer') return 'Customer';
+  if (normalized === 'admin') return 'Admin';
+  return 'FarmersHub Member';
+}
+
+function getProfileId(profile) {
+  return String(profile?.userId || profile?.id || profile?._id || profile?.user?._id || '').trim();
+}
+
+function sameId(left, right) {
+  return Boolean(left && right && String(left) === String(right));
+}
+
+function getStoredUser() {
+  return getCurrentUser() || (() => {
+    try {
+      return JSON.parse(localStorage.getItem('fh_user') || 'null');
+    } catch {
+      return null;
+    }
+  })();
+}
+
+function getStoredUserId() {
+  const user = getStoredUser();
+  return String(user?.id || user?._id || user?.userId || '').trim();
+}
+
+function getRequestedProfile() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('farmer') || params.get('farmerId') || params.get('id') || '';
+  const farmerId = params.get('farmer') || params.get('farmerId');
+  if (farmerId) {
+    return { type: 'farmer', id: farmerId };
+  }
+
+  const userId = params.get('userId') || params.get('profileId') || params.get('user') || params.get('id');
+  if (userId) {
+    return { type: 'user', id: userId };
+  }
+
+  return { type: 'owner', id: '' };
 }
 
-function setPublicProfileActionsVisible(visible) {
-  ['messageProfileBtn', 'addFriendBtn'].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = visible ? '' : 'none';
-  });
+function getProductsLabel(profile) {
+  if (typeof profile?.products === 'string' && profile.products.trim()) {
+    return profile.products.trim();
+  }
+  if (Array.isArray(profile?.cropTypes) && profile.cropTypes.length) {
+    return profile.cropTypes.filter(Boolean).join(', ');
+  }
+  if (typeof profile?.farmType === 'string' && profile.farmType.trim()) {
+    return profile.farmType.trim();
+  }
+  return '';
 }
 
-function setOwnerControlsVisible(visible) {
-  setPublicProfileActionsVisible(!visible);
+function normalizeProfile(profile = {}) {
+  const userId = getProfileId(profile);
+  const role = normalizeRole(profile.role);
+  const avatarUrl = profile.avatarUrl || profile.avatar?.url || profile.profileImage || '';
+  const coverUrl = profile.coverUrl || profile.coverImage?.url || profile.coverImage || '';
 
-  // Fix: show Settings only on the logged-in user's own profile, not public farmer profiles.
-  ['editProfileBtn', 'settingsProfileBtn', 'submitPostBtn'].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = visible ? '' : 'none';
-  });
-
-  ['coverInput', 'avatarInput', 'postImageInput'].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.disabled = !visible;
-  });
-
-  document.querySelectorAll('.cover-upload-btn, .avatar-upload-btn, .create-post-card').forEach((el) => {
-    el.style.display = visible ? '' : 'none';
-  });
-}
-
-function normalisePublicFarmerProfile(farmer) {
   return {
-    ...farmer,
-    role: 'farmer',
-    userId: farmer.id,
-    products: farmer.productsLabel || farmer.cropTypes?.join(', ') || '',
+    ...profile,
+    id: userId,
+    userId,
+    role,
+    fullName: profile.fullName || profile.name || profile.user?.fullName || '',
+    email: profile.email || profile.user?.email || '',
+    phone: profile.phone || profile.user?.phone || '',
+    location: profile.location || '',
+    address: profile.address || '',
+    farmName: profile.farmName || '',
+    products: getProductsLabel(profile),
+    cropTypes: Array.isArray(profile.cropTypes) ? profile.cropTypes : [],
+    avatarUrl,
+    coverUrl,
     stats: {
-      posts: farmer.posts?.length || 0,
-      products: farmer.products?.length || 0,
+      products: Number(profile.stats?.products || 0),
+      posts: Number(profile.stats?.posts || 0),
     },
-    posts: (farmer.posts || []).map((post) => ({
-      ...post,
-      text: post.text || post.content || '',
-      author: { name: farmer.fullName },
-      canDelete: false,
-    })),
+    posts: Array.isArray(profile.posts) ? profile.posts : [],
+    productListings: Array.isArray(profile.productListings) ? profile.productListings : [],
   };
 }
 
+function normalizePublicFarmerProfile(farmer = {}) {
+  const productListings = Array.isArray(farmer.products) ? farmer.products : [];
+  const posts = Array.isArray(farmer.posts)
+    ? farmer.posts.map((post) => ({
+        ...post,
+        text: post.text || post.content || '',
+        author: { name: farmer.fullName, id: farmer.id, role: 'farmer' },
+        canDelete: false,
+      }))
+    : [];
+
+  return normalizeProfile({
+    ...farmer,
+    role: 'farmer',
+    userId: farmer.userId || farmer.id || farmer._id,
+    products: farmer.productsLabel || farmer.farmType || '',
+    productListings,
+    posts,
+    stats: {
+      products: productListings.length,
+      posts: posts.length,
+    },
+  });
+}
+
+function apiOrigin() {
+  try {
+    return new URL(API_BASE).origin;
+  } catch {
+    return 'https://farmershub-kkjd.onrender.com';
+  }
+}
+
+function resolveMediaUrl(value) {
+  let raw = String(value || '').trim();
+  if (!raw || raw === 'null' || raw === 'undefined' || raw === '#') return '';
+  if (/^[a-z]:[\\/]/i.test(raw)) return '';
+  raw = raw.replaceAll('\\', '/');
+
+  if (/^(data|blob):/i.test(raw)) return raw;
+  if (/^(assets|login|\.{1,2})\//i.test(raw)) return raw;
+  if (/^\/?uploads\//i.test(raw)) {
+    const path = raw.startsWith('/') ? raw : `/${raw}`;
+    return new URL(path, apiOrigin()).href;
+  }
+  if (/^\/api\/uploads\//i.test(raw)) {
+    return new URL(raw.replace(/^\/api/i, ''), apiOrigin()).href;
+  }
+
+  try {
+    const url = raw.startsWith('//')
+      ? new URL(`${window.location.protocol}${raw}`)
+      : new URL(raw, window.location.href);
+
+    if (
+      url.protocol === 'http:' &&
+      window.location.protocol === 'https:' &&
+      !['localhost', '127.0.0.1'].includes(url.hostname)
+    ) {
+      url.protocol = 'https:';
+    }
+
+    return url.href;
+  } catch {
+    return '';
+  }
+}
+
+function getInitials(profile) {
+  const source = profile?.fullName || profile?.farmName || 'FarmersHub';
+  const initials = source
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('');
+
+  return initials || 'FH';
+}
+
 function setStatus(message, type = 'info') {
-  const el = document.getElementById('actionStatus');
-  if (!el) return;
-  el.textContent = message || '';
-  el.className = `action-status ${type}`;
+  const element = byId('actionStatus');
+  if (!element) return;
+  element.textContent = message || '';
+  element.className = message ? `action-status ${type}` : 'action-status';
 }
 
 function validateImageFile(file, maxMb = 5) {
@@ -76,29 +239,125 @@ function validateImageFile(file, maxMb = 5) {
 }
 
 function showAuthGate() {
-  document.getElementById('loginModal').style.display = 'flex';
-  document.getElementById('profilePage').style.display = 'none';
+  const loginModal = byId('loginModal');
+  const profilePage = byId('profilePage');
+  if (loginModal) loginModal.style.display = 'flex';
+  if (profilePage) profilePage.style.display = 'none';
 }
 
 function showProfilePage() {
-  document.getElementById('loginModal').style.display = 'none';
-  document.getElementById('profilePage').style.display = 'block';
+  const loginModal = byId('loginModal');
+  const profilePage = byId('profilePage');
+  if (loginModal) loginModal.style.display = 'none';
+  if (profilePage) profilePage.style.display = 'block';
 }
 
-function renderImage(targetId, placeholderId, url, placeholderFallback = '👤') {
-  const img = document.getElementById(targetId);
-  const placeholder = document.getElementById(placeholderId);
+function renderImage(targetId, placeholderId, rawUrl, fallbackText, altText) {
+  const img = byId(targetId);
+  const placeholder = byId(placeholderId);
+  if (!img || !placeholder) return;
 
-  if (url) {
-    img.src = url;
-    img.style.display = 'block';
-    placeholder.style.display = 'none';
-  } else {
+  const url = resolveMediaUrl(rawUrl);
+  const showFallback = () => {
+    img.onload = null;
+    img.onerror = null;
     img.removeAttribute('src');
-    img.style.display = 'none';
-    placeholder.style.display = 'flex';
-    placeholder.textContent = placeholderFallback;
+    img.hidden = true;
+    placeholder.hidden = false;
+    placeholder.textContent = fallbackText;
+  };
+
+  placeholder.textContent = fallbackText;
+  placeholder.hidden = false;
+  img.hidden = true;
+  img.alt = altText;
+
+  if (!url) {
+    showFallback();
+    return;
   }
+
+  img.onload = () => {
+    img.hidden = false;
+    placeholder.hidden = true;
+  };
+  img.onerror = showFallback;
+  img.src = url;
+}
+
+function renderSmallAvatar(profile) {
+  const container = byId('postAvatarSmall');
+  if (!container) return;
+
+  const initials = getInitials(profile);
+  const url = resolveMediaUrl(profile.avatarUrl);
+  container.replaceChildren();
+  container.textContent = initials;
+
+  if (!url) return;
+
+  const img = document.createElement('img');
+  img.alt = `${profile.fullName || 'Profile'} picture`;
+  img.hidden = true;
+  img.onload = () => {
+    container.textContent = '';
+    img.hidden = false;
+  };
+  img.onerror = () => {
+    img.remove();
+    container.textContent = initials;
+  };
+  img.src = url;
+  container.appendChild(img);
+}
+
+function renderByline(profile) {
+  const byline = byId('profileByline');
+  if (!byline) return;
+
+  const role = normalizeRole(profile.role);
+  const label = role === 'farmer'
+    ? 'Managed by'
+    : role === 'customer'
+      ? 'Profile owner'
+      : 'Account owner';
+
+  const strong = document.createElement('strong');
+  strong.id = 'profileName';
+  strong.textContent = profile.fullName || 'FarmersHub member';
+
+  byline.replaceChildren(document.createTextNode(`${label} `), strong);
+}
+
+function getDisplayTitle(profile) {
+  const role = normalizeRole(profile.role);
+  if (role === 'farmer') {
+    return profile.farmName || profile.fullName || 'Farmer profile';
+  }
+  if (role === 'customer') {
+    return profile.fullName || 'Customer profile';
+  }
+  if (role === 'admin') {
+    return profile.fullName || 'Admin account';
+  }
+  return profile.fullName || 'FarmersHub profile';
+}
+
+function getVisibleLocation(profile) {
+  if (viewContext.isOwner) {
+    return profile.location || profile.address || profile.farmLocation || '';
+  }
+
+  const publicLocation = profile.location || profile.farmLocation || '';
+  if (
+    publicLocation &&
+    profile.address &&
+    String(publicLocation).trim().toLowerCase() === String(profile.address).trim().toLowerCase()
+  ) {
+    return '';
+  }
+
+  return publicLocation;
 }
 
 function renderSettingsProfile(profile) {
@@ -106,46 +365,207 @@ function renderSettingsProfile(profile) {
     settingsName: profile.fullName || 'Not set',
     settingsEmail: profile.email || 'Not available',
     settingsPhone: profile.phone || 'Not set',
-    settingsRole: profile.role === 'farmer' ? 'Farmer' : 'Customer',
+    settingsRole: getRoleLabel(profile.role),
     settingsLocation: profile.location || profile.address || 'Not set',
   };
 
-  Object.entries(values).forEach(([id, value]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
+  Object.entries(values).forEach(([id, value]) => setText(id, value));
+}
+
+function setOwnerControlsVisible(isOwner, isFarmer, hasViewedUser) {
+  ['editProfileBtn', 'settingsProfileBtn'].forEach((id) => setVisible(id, isOwner));
+  ['coverInput', 'avatarInput'].forEach((id) => {
+    const element = byId(id);
+    if (element) element.disabled = !isOwner;
   });
+
+  document.querySelectorAll('.cover-upload-btn, .avatar-upload-btn').forEach((element) => {
+    setVisible(element, isOwner);
+  });
+
+  const canCreatePost = isOwner && isFarmer;
+  setVisible('createPostCard', canCreatePost);
+  ['submitPostBtn', 'postImageInput', 'postInput'].forEach((id) => {
+    const element = byId(id);
+    if (element) element.disabled = !canCreatePost;
+  });
+
+  const canContact = !isOwner && hasViewedUser;
+  ['messageProfileBtn', 'addFriendBtn', 'profileContactCard'].forEach((id) => setVisible(id, canContact));
+}
+
+function updateMessageActions(profile) {
+  const name = profile.fullName || getDisplayTitle(profile);
+  const role = normalizeRole(profile.role);
+  const messageLabel = role === 'farmer' ? 'Message Farmer' : 'Message User';
+  const title = role === 'farmer' ? 'Contact Farmer' : 'Contact User';
+  const text = role === 'farmer'
+    ? 'Contact this farmer through FarmersHub Messages. Public phone details stay hidden until privacy controls are verified.'
+    : 'Contact this user through FarmersHub Messages.';
+
+  ['messageProfileBtn', 'sidebarMessageBtn'].forEach((id) => {
+    const button = byId(id);
+    if (!button) return;
+    button.textContent = messageLabel;
+    button.setAttribute('aria-label', `Message ${name}`);
+  });
+
+  setText('profileContactTitle', title);
+  setText('profileContactText', text);
+}
+
+function updateSidebarVisibility() {
+  const sidebar = document.querySelector('.store-sidebar');
+  const layout = document.querySelector('.store-layout');
+  if (!sidebar || !layout) return;
+
+  const hasVisibleCards = Array.from(sidebar.children).some((child) => !child.hidden);
+  sidebar.hidden = !hasVisibleCards;
+  layout.classList.toggle('sidebar-hidden', !hasVisibleCards);
+}
+
+function setTabsForRole(role) {
+  const isFarmer = role === 'farmer';
+  setVisible('productsTab', isFarmer);
+  setVisible('profileProducts', isFarmer);
+
+  const productsTab = byId('productsTab');
+  const aboutTab = byId('aboutTab');
+  if (!isFarmer && productsTab?.classList.contains('active')) {
+    productsTab.classList.remove('active');
+    aboutTab?.classList.add('active');
+  }
+
+  const postsTab = byId('postsTab');
+  if (postsTab?.firstChild) {
+    postsTab.firstChild.textContent = isFarmer ? 'Posts ' : 'Activity ';
+  }
+}
+
+function createDetailCard(label, value, className = '') {
+  const card = document.createElement('div');
+  card.className = `store-detail-card${className ? ` ${className}` : ''}`;
+
+  const labelEl = document.createElement('span');
+  labelEl.className = 'store-detail-label';
+  labelEl.textContent = label;
+
+  const valueEl = document.createElement('strong');
+  valueEl.textContent = value || 'Not added yet';
+
+  card.append(labelEl, valueEl);
+  return card;
+}
+
+function renderAboutDetails(profile) {
+  const grid = byId('profileAboutGrid');
+  if (!grid) return;
+
+  const role = normalizeRole(profile.role);
+  const isFarmer = role === 'farmer';
+  const visibleLocation = getVisibleLocation(profile);
+  const details = [];
+
+  if (isFarmer) {
+    details.push(createDetailCard('Products grown', profile.products || 'Not listed yet'));
+    details.push(createDetailCard('Location', visibleLocation || 'Not listed yet'));
+  } else {
+    details.push(createDetailCard('Account type', getRoleLabel(role)));
+    details.push(createDetailCard('Location', visibleLocation || (viewContext.isOwner ? 'Not added yet' : 'Not listed publicly')));
+  }
+
+  if (viewContext.isOwner) {
+    details.push(createDetailCard('Phone', profile.phone || 'Not added yet'));
+  } else if (isFarmer) {
+    details.push(createDetailCard('Contact', 'Contact through FarmersHub Messages'));
+  }
+
+  grid.replaceChildren(...details);
+}
+
+function renderRoleLayout(profile) {
+  const role = normalizeRole(profile.role);
+  const isFarmer = role === 'farmer';
+  const isCustomer = role === 'customer';
+
+  setTabsForRole(role);
+  setVisible('profileGlanceCard', isFarmer);
+  setVisible('profileCertificationsCard', isFarmer);
+
+  setText('profileAboutTitle', isFarmer ? 'About the Farm' : 'About This Profile');
+  setText('profilePostsTitle', isFarmer ? 'Farm Updates' : 'Profile Activity');
+  setText('profileProductsTitle', 'Featured Products');
+
+  const textarea = byId('postInput');
+  if (textarea) {
+    textarea.placeholder = isFarmer
+      ? 'Share an update about your farm, harvest, or products...'
+      : 'Posting is not connected for this profile type.';
+  }
+
+  const coverText = byId('coverPlaceholderText');
+  if (coverText) {
+    coverText.textContent = viewContext.isOwner
+      ? (isFarmer ? 'Add a cover photo for your farm' : 'Add a cover photo')
+      : 'No cover photo yet';
+  }
+
+  const productActions = byId('profileProductActions');
+  if (productActions) {
+    productActions.replaceChildren();
+    if (viewContext.isOwner && isFarmer) {
+      const addLink = document.createElement('a');
+      addLink.className = 'section-action-link';
+      addLink.href = 'login/sell_crops.html';
+      addLink.textContent = 'Add Product';
+
+      const manageLink = document.createElement('a');
+      manageLink.className = 'section-action-link secondary';
+      manageLink.href = 'products-management.html';
+      manageLink.textContent = 'Manage Products';
+
+      productActions.append(addLink, manageLink);
+    }
+  }
+
+  document.body.dataset.profileRole = isCustomer ? 'customer' : role;
 }
 
 function renderProfile(profile) {
-  currentProfile = profile;
+  currentProfile = normalizeProfile(profile);
+  const role = normalizeRole(currentProfile.role);
+  const isFarmer = role === 'farmer';
+  const title = getDisplayTitle(currentProfile);
+  const initials = getInitials(currentProfile);
+  const visibleLocation = getVisibleLocation(currentProfile);
+  const hasViewedUser = Boolean(getProfileId(currentProfile));
 
-  document.getElementById('profileName').textContent = profile.fullName;
-  document.getElementById('profileRole').textContent = profile.role === 'farmer' ? 'Farmer' : 'Customer';
-  document.getElementById('profileLocation').textContent = profile.location ? `📍 ${profile.location}` : '📍 Add your location';
-  document.getElementById('bioText').textContent = profile.bio || 'No bio yet. Click "Edit Profile" to add one.';
-  document.getElementById('farmNameDisplay').textContent = profile.farmName || 'Not set';
-  document.getElementById('productsDisplay').textContent = profile.products || (profile.cropTypes?.join(', ') || 'Not set');
-  document.getElementById('phoneDisplay').textContent = profile.phone || 'Not set';
-  document.getElementById('postCount').textContent = String(profile.stats?.posts || 0);
-  document.getElementById('productCount').textContent = String(profile.stats?.products || 0);
+  setText('farmNameDisplay', title);
+  setText('profileRole', getRoleLabel(role));
+  setText('profileLocation', visibleLocation ? `Location: ${visibleLocation}` : (viewContext.isOwner ? 'Add your location' : 'Location not listed publicly'));
+  setText(
+    'bioText',
+    currentProfile.bio,
+    viewContext.isOwner
+      ? 'No bio yet. Use Edit Profile to add one.'
+      : 'No public bio has been added yet.'
+  );
 
-  renderImage('coverImg', 'coverPlaceholder', profile.coverUrl, '🌾 Add a cover photo of your farm');
-  renderImage('avatarImg', 'avatarPlaceholder', profile.avatarUrl);
+  renderByline(currentProfile);
+  renderRoleLayout(currentProfile);
+  renderAboutDetails(currentProfile);
+  renderSettingsProfile(currentProfile);
+  renderImage('coverImg', 'coverPlaceholder', currentProfile.coverUrl, 'Cover photo not added', `${title} cover photo`);
+  renderImage('avatarImg', 'avatarPlaceholder', currentProfile.avatarUrl, initials, `${title} profile picture`);
+  renderSmallAvatar(currentProfile);
+  setOwnerControlsVisible(viewContext.isOwner, isFarmer, hasViewedUser);
+  updateMessageActions(currentProfile);
+  updateSidebarVisibility();
 
-  const avatarSmall = document.getElementById('postAvatarSmall');
-  avatarSmall.innerHTML = profile.avatarUrl
-    ? `<img src="${profile.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
-    : '👤';
-
-  renderSettingsProfile(profile);
-}
-
-function getStoredUserId() {
-  try {
-    const user = JSON.parse(localStorage.getItem('fh_user') || 'null');
-    return user?.id || user?._id || user?.userId || '';
-  } catch {
-    return '';
+  setText('postCount', String(currentProfile.stats.posts || 0));
+  setText('sidebarPostCount', String(currentProfile.stats.posts || 0));
+  if (isFarmer) {
+    setText('productCount', String(currentProfile.stats.products || 0));
   }
 }
 
@@ -191,14 +611,14 @@ function getProductFallback(product, index) {
   const fallbacks = [
     'assets/images/home/product-tomatoes.webp',
     'assets/images/home/product-onions.webp',
-    'assets/images/home/support-basket.webp'
+    'assets/images/home/support-basket.webp',
   ];
 
   return fallbacks[index % fallbacks.length];
 }
 
 function formatWon(value) {
-  return `₩${Number(value || 0).toLocaleString()}`;
+  return `KRW ${Number(value || 0).toLocaleString()}`;
 }
 
 function getStockValue(product) {
@@ -206,7 +626,7 @@ function getStockValue(product) {
     product?.stock,
     product?.quantity,
     product?.availableQuantity,
-    product?.availableStock
+    product?.availableStock,
   ].find((item) => item !== undefined && item !== null && item !== '');
 
   return value === undefined ? null : Number(value);
@@ -216,147 +636,355 @@ function getProductUnit(product) {
   return product?.unit || product?.weightUnit || '';
 }
 
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+function renderProductCountBadge(value, label = 'listed') {
+  const badge = byId('profileProductCountBadge');
+  if (!badge) return;
+  badge.replaceChildren();
+
+  if (value === 'Loading' || value === 'Unable to load') {
+    badge.textContent = value === 'Loading' ? 'Loading products' : 'Products unavailable';
+    return;
+  }
+
+  const strong = document.createElement('strong');
+  strong.id = 'profileFeaturedProductCount';
+  strong.textContent = String(value);
+  badge.append(strong, document.createTextNode(` ${label}`));
+}
+
+function renderStateCard(container, title, text, className = 'profile-empty-products') {
+  container.replaceChildren();
+  const state = document.createElement('div');
+  state.className = className;
+
+  if (title) {
+    const heading = document.createElement('h4');
+    heading.textContent = title;
+    state.appendChild(heading);
+  }
+
+  if (text) {
+    const copy = document.createElement('p');
+    copy.textContent = text;
+    state.appendChild(copy);
+  }
+
+  container.appendChild(state);
+}
+
+function createProductCard(product, index) {
+  const productId = getProductId(product);
+  const listingUrl = productId
+    ? `product.html?productId=${encodeURIComponent(productId)}&id=${encodeURIComponent(productId)}`
+    : 'product.html';
+  const manageUrl = productId
+    ? `login/sell_crops.html?productId=${encodeURIComponent(productId)}`
+    : 'login/sell_crops.html';
+  const imageUrl = resolveMediaUrl(getProductImage(product)) || getProductFallback(product, index);
+  const fallbackUrl = getProductFallback(product, index);
+  const stock = getStockValue(product);
+  const unit = getProductUnit(product);
+  const amount = stock === null || Number.isNaN(stock)
+    ? ''
+    : `${stock}${unit ? ` ${unit}` : ''}`;
+
+  const article = document.createElement('article');
+  article.className = 'store-product-card';
+
+  const imageLink = document.createElement('a');
+  imageLink.className = 'store-product-image';
+  imageLink.href = listingUrl;
+
+  const img = document.createElement('img');
+  img.src = imageUrl;
+  img.alt = product.name || 'Farm product';
+  img.loading = 'lazy';
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = fallbackUrl;
+  };
+  imageLink.appendChild(img);
+
+  const content = document.createElement('div');
+  content.className = 'store-product-content';
+
+  const name = document.createElement('h4');
+  name.textContent = product.name || 'Farm product';
+  content.appendChild(name);
+
+  if (amount) {
+    const amountEl = document.createElement('p');
+    amountEl.className = 'store-product-amount';
+    amountEl.textContent = amount;
+    content.appendChild(amountEl);
+  }
+
+  const bottom = document.createElement('div');
+  bottom.className = 'store-product-bottom';
+
+  const price = document.createElement('strong');
+  price.textContent = formatWon(product.price || product.sellingPrice || 0);
+
+  const view = document.createElement('a');
+  view.className = 'store-product-view';
+  view.href = listingUrl;
+  view.textContent = 'View';
+
+  bottom.append(price, view);
+
+  if (viewContext.isOwner && normalizeRole(currentProfile?.role) === 'farmer') {
+    const manage = document.createElement('a');
+    manage.className = 'store-product-manage';
+    manage.href = manageUrl;
+    manage.textContent = 'Manage';
+    bottom.appendChild(manage);
+  }
+
+  content.appendChild(bottom);
+  article.append(imageLink, content);
+  return article;
 }
 
 function renderProfileProducts(products) {
-  const grid = document.getElementById('profileProductGrid');
+  const grid = byId('profileProductGrid');
   if (!grid) return;
 
-  const count = document.getElementById('profileFeaturedProductCount');
-  if (count) count.textContent = String(products.length);
+  currentProducts = Array.isArray(products) ? products : [];
+  renderProductCountBadge(currentProducts.length);
+  setText('productCount', String(currentProducts.length));
 
-  if (!products.length) {
-    grid.innerHTML = `
-      <div class="profile-empty-products">
-        <h4>No products listed yet</h4>
-        <p>This farmer has not added products to the store yet.</p>
-      </div>
-    `;
+  grid.replaceChildren();
+  if (!currentProducts.length) {
+    renderStateCard(
+      grid,
+      viewContext.isOwner ? 'No products listed yet' : 'No products listed',
+      viewContext.isOwner
+        ? 'Add your first product when your farm listing is ready.'
+        : 'This farmer has not added products to the store yet.'
+    );
     return;
   }
 
-  grid.innerHTML = products.slice(0, 6).map((product, index) => {
-    const productId = getProductId(product);
-    const name = escapeHtml(product.name || 'Farm product');
-    const price = formatWon(product.price || product.sellingPrice || 0);
-    const image = escapeHtml(getProductImage(product) || getProductFallback(product, index));
-    const stock = getStockValue(product);
-    const unit = escapeHtml(getProductUnit(product));
-    const amount = stock === null || Number.isNaN(stock)
-      ? ''
-      : `${stock}${unit ? ` ${unit}` : ''}`;
-    const listingUrl = productId
-      ? `product.html?productId=${encodeURIComponent(productId)}&id=${encodeURIComponent(productId)}`
-      : 'product.html';
-    const manageUrl = productId
-      ? `login/sell_crops.html?productId=${encodeURIComponent(productId)}`
-      : 'login/sell_crops.html';
-
-    return `
-      <article class="store-product-card">
-        <a class="store-product-image" href="${listingUrl}">
-          <img src="${image}" alt="${name}" loading="lazy">
-        </a>
-        <div class="store-product-content">
-          <h4>${name}</h4>
-          ${amount ? `<p class="store-product-amount">${amount}</p>` : ''}
-          <div class="store-product-bottom">
-            <strong>${price}</strong>
-            <a class="store-product-view" href="${listingUrl}">View</a>
-            ${isViewingPublicFarmer ? '' : `<a class="store-product-manage" href="${manageUrl}">Manage</a>`}
-          </div>
-        </div>
-      </article>
-    `;
-  }).join('');
+  currentProducts.slice(0, 6).forEach((product, index) => {
+    grid.appendChild(createProductCard(product, index));
+  });
 }
 
 async function loadProfileProducts() {
-  const farmerId = currentProfile?.userId || currentProfile?.id || currentProfile?._id || getStoredUserId();
-  if (!farmerId) {
-    renderProfileProducts([]);
+  if (!currentProfile || normalizeRole(currentProfile.role) !== 'farmer') {
+    currentProducts = [];
     return;
   }
 
-  const response = await getProducts({ farmerId, limit: 12 });
-  renderProfileProducts(response.data || []);
+  const farmerId = getProfileId(currentProfile);
+  const grid = byId('profileProductGrid');
+  if (!farmerId || !grid) return;
+
+  renderProductCountBadge('Loading');
+  setText('productCount', '...');
+  renderStateCard(grid, 'Loading products', 'Fetching this farmer profile product list.');
+
+  try {
+    const response = await getProducts({ farmerId, limit: 12 });
+    renderProfileProducts(response.data || []);
+  } catch (error) {
+    renderProductCountBadge('Unable to load');
+    setText('productCount', 'Unable');
+    renderStateCard(grid, 'Unable to load products', error.message || 'Please try again later.');
+  }
 }
 
 function openSettingsModal() {
-  if (!currentProfile || isViewingPublicFarmer) return;
+  if (!currentProfile || !viewContext.isOwner) return;
   renderSettingsProfile(currentProfile);
-  document.getElementById('settingsModal').style.display = 'flex';
+  const modal = byId('settingsModal');
+  if (modal) modal.style.display = 'flex';
 }
 
 function closeSettingsModal() {
-  document.getElementById('settingsModal').style.display = 'none';
+  const modal = byId('settingsModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function setFarmerEditFieldsVisible(visible) {
+  setVisible('farmNameFormGroup', visible);
+  setVisible('productsFormGroup', visible);
 }
 
 function openEditModal() {
-  if (!currentProfile) return;
+  if (!currentProfile || !viewContext.isOwner) return;
 
-  document.getElementById('editName').value = currentProfile.fullName || '';
-  document.getElementById('editRole').value = currentProfile.role || 'farmer';
-  document.getElementById('editLocation').value = currentProfile.location || '';
-  document.getElementById('editBio').value = currentProfile.bio || '';
-  document.getElementById('editPhone').value = currentProfile.phone || '';
-  document.getElementById('editFarmName').value = currentProfile.farmName || '';
-  document.getElementById('editProducts').value = currentProfile.products || currentProfile.cropTypes?.join(', ') || '';
-  document.getElementById('editModal').style.display = 'flex';
+  const isFarmer = normalizeRole(currentProfile.role) === 'farmer';
+  byId('editName').value = currentProfile.fullName || '';
+  byId('editRole').value = isFarmer ? 'farmer' : 'customer';
+  byId('editLocation').value = currentProfile.location || currentProfile.address || '';
+  byId('editBio').value = currentProfile.bio || '';
+  byId('editPhone').value = currentProfile.phone || '';
+  byId('editFarmName').value = currentProfile.farmName || '';
+  byId('editProducts').value = currentProfile.products || '';
+  setFarmerEditFieldsVisible(isFarmer);
+
+  const modal = byId('editModal');
+  if (modal) modal.style.display = 'flex';
 }
 
 async function loadProfileData() {
-  const requestedFarmerId = getRequestedFarmerId();
+  const requested = getRequestedProfile();
+  const storedUserId = getStoredUserId();
 
-  if (requestedFarmerId) {
-    isViewingPublicFarmer = true;
-    setOwnerControlsVisible(false);
-    const response = await getFarmerById(requestedFarmerId);
-    renderProfile(normalisePublicFarmerProfile(response.data));
-    return;
+  if (requested.type === 'farmer') {
+    const response = await getFarmerById(requested.id);
+    let profile = normalizePublicFarmerProfile(response.data || {});
+
+    if (sameId(storedUserId, getProfileId(profile)) && isLoggedIn()) {
+      const ownerResponse = await getProfile();
+      profile = normalizeProfile(ownerResponse.data || {});
+      viewContext = { isOwner: true, requestedType: 'owner', requestedId: getProfileId(profile) };
+    } else {
+      viewContext = { isOwner: false, requestedType: 'farmer', requestedId: requested.id };
+    }
+
+    renderProfile(profile);
+    return profile;
   }
 
-  isViewingPublicFarmer = false;
-  setOwnerControlsVisible(true);
+  if (requested.type === 'user') {
+    if (!isLoggedIn()) {
+      showAuthGate();
+      return null;
+    }
+
+    const response = await getProfileById(requested.id);
+    const profile = normalizeProfile(response.data || {});
+    viewContext = {
+      isOwner: sameId(storedUserId, getProfileId(profile)),
+      requestedType: 'user',
+      requestedId: requested.id,
+    };
+    renderProfile(profile);
+    return profile;
+  }
+
+  if (!isLoggedIn()) {
+    showAuthGate();
+    return null;
+  }
+
   const response = await getProfile();
-  renderProfile(response.data);
+  const profile = normalizeProfile(response.data || {});
+  viewContext = { isOwner: true, requestedType: 'owner', requestedId: getProfileId(profile) };
+  renderProfile(profile);
+  return profile;
 }
 
-function renderPosts(posts) {
-  const feed = document.getElementById('postsFeed');
+function formatDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString();
+}
 
-  if (!posts.length) {
-    feed.innerHTML = '<div class="post-card"><p class="post-text">No posts yet. Share your first update.</p></div>';
+function getPostImage(post) {
+  if (post?.image) return post.image;
+  if (Array.isArray(post?.imageUrls) && post.imageUrls.length) return post.imageUrls[0];
+  if (Array.isArray(post?.images) && post.images.length) {
+    const first = post.images[0];
+    return typeof first === 'string' ? first : (first.url || first.path || '');
+  }
+  return '';
+}
+
+function renderPosts(posts, state = 'loaded') {
+  const feed = byId('postsFeed');
+  if (!feed) return;
+
+  const role = normalizeRole(currentProfile?.role);
+  const isFarmer = role === 'farmer';
+  currentPosts = Array.isArray(posts) ? posts : [];
+  setText('postCount', state === 'error' ? '-' : String(currentPosts.length));
+  setText('sidebarPostCount', state === 'error' ? '-' : String(currentPosts.length));
+
+  feed.replaceChildren();
+  if (state === 'loading') {
+    renderStateCard(feed, 'Loading posts', 'Fetching profile activity.', 'post-card profile-post-state');
     return;
   }
 
-  feed.innerHTML = posts.map(post => `
-    <div class="post-card">
-      <div class="post-header">
-        <strong>${post.author?.name || currentProfile?.fullName || 'User'}</strong>
-        <small>${new Date(post.createdAt).toLocaleDateString()}</small>
-        ${post.canDelete === false || isViewingPublicFarmer ? '' : `<button class="delete-post-btn" data-id="${post.id}" title="Delete">✕</button>`}
-      </div>
-      ${post.text ? `<p class="post-text">${post.text}</p>` : ''}
-      ${post.image ? `<img src="${post.image}" class="post-image" alt="Post image" />` : ''}
-    </div>
-  `).join('');
+  if (state === 'error') {
+    renderStateCard(feed, 'Unable to load posts', 'Profile posts could not be loaded right now.', 'post-card profile-post-state');
+    return;
+  }
 
-  feed.querySelectorAll('.delete-post-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
+  if (!currentPosts.length) {
+    const title = isFarmer ? 'No farm updates yet' : 'No public activity yet';
+    const text = viewContext.isOwner && isFarmer
+      ? 'Share your first farm update when you are ready.'
+      : isFarmer
+        ? 'This farmer has not shared public farm updates yet.'
+        : 'Public activity is not connected for this profile yet.';
+    renderStateCard(feed, title, text, 'post-card profile-post-state');
+    return;
+  }
+
+  currentPosts.forEach((post) => {
+    const card = document.createElement('div');
+    card.className = 'post-card';
+
+    const header = document.createElement('div');
+    header.className = 'post-header';
+
+    const author = document.createElement('strong');
+    author.textContent = post.author?.name || currentProfile?.fullName || 'FarmersHub member';
+
+    const date = document.createElement('small');
+    date.textContent = formatDate(post.createdAt);
+
+    header.append(author, date);
+
+    const canDelete = viewContext.isOwner && isFarmer && post.canDelete !== false;
+    if (canDelete) {
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'delete-post-btn';
+      deleteButton.dataset.id = post.id || post._id || '';
+      deleteButton.title = 'Delete post';
+      deleteButton.textContent = 'Delete';
+      header.appendChild(deleteButton);
+    }
+
+    card.appendChild(header);
+
+    const textValue = post.text || post.content || post.caption || '';
+    if (textValue) {
+      const text = document.createElement('p');
+      text.className = 'post-text';
+      text.textContent = textValue;
+      card.appendChild(text);
+    }
+
+    const imageUrl = resolveMediaUrl(getPostImage(post));
+    if (imageUrl) {
+      const image = document.createElement('img');
+      image.className = 'post-image';
+      image.alt = 'Post image';
+      image.src = imageUrl;
+      image.onerror = () => image.remove();
+      card.appendChild(image);
+    }
+
+    feed.appendChild(card);
+  });
+
+  feed.querySelectorAll('.delete-post-btn').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const postId = button.dataset.id;
+      if (!postId) return;
+
       try {
-        await deletePost(btn.dataset.id);
+        await deletePost(postId);
         await loadPosts();
-        await loadProfileData();
+        setStatus('Post deleted.', 'success');
       } catch (error) {
-        alert(error.message || 'Failed to delete post.');
+        setStatus(error.message || 'Failed to delete post.', 'error');
       }
     });
   });
@@ -365,34 +993,50 @@ function renderPosts(posts) {
 async function loadPosts() {
   if (!currentProfile) return;
 
-  if (isViewingPublicFarmer) {
-    renderPosts(currentProfile.posts || []);
+  const authorId = getProfileId(currentProfile);
+  if (!authorId) {
+    renderPosts([], 'loaded');
     return;
   }
 
-  const response = await getFeed({ authorId: currentProfile.userId, limit: 100 });
-  renderPosts(response.data || []);
+  renderPosts([], 'loading');
+
+  try {
+    const response = await getFeed({ authorId, limit: 100 });
+    renderPosts(response.data || [], 'loaded');
+  } catch {
+    if (currentProfile.posts?.length) {
+      renderPosts(currentProfile.posts, 'loaded');
+      return;
+    }
+    renderPosts([], 'error');
+  }
 }
 
 async function handleProfileSave(event) {
   event.preventDefault();
 
+  const role = normalizeRole(currentProfile?.role);
   const updates = {
-    fullName: document.getElementById('editName').value.trim(),
-    location: document.getElementById('editLocation').value.trim(),
-    bio: document.getElementById('editBio').value.trim(),
-    phone: document.getElementById('editPhone').value.trim(),
-    farmName: document.getElementById('editFarmName').value.trim(),
-    products: document.getElementById('editProducts').value.trim(),
-    cropTypes: document.getElementById('editProducts').value.trim(),
+    fullName: byId('editName').value.trim(),
+    location: byId('editLocation').value.trim(),
+    bio: byId('editBio').value.trim(),
+    phone: byId('editPhone').value.trim(),
   };
+
+  if (role === 'farmer') {
+    updates.farmName = byId('editFarmName').value.trim();
+    updates.products = byId('editProducts').value.trim();
+    updates.cropTypes = byId('editProducts').value.trim();
+  }
 
   try {
     setStatus('Saving profile...', 'info');
-    const action = currentProfile?.role === 'farmer' ? updateFarmerProfile : updateProfile;
+    const action = role === 'farmer' ? updateFarmerProfile : updateProfile;
     const response = await action(updates);
-    renderProfile(response.data);
-    document.getElementById('editModal').style.display = 'none';
+    renderProfile(response.data || {});
+    const modal = byId('editModal');
+    if (modal) modal.style.display = 'none';
     setStatus('Profile updated successfully.', 'success');
   } catch (error) {
     setStatus(error.message || 'Failed to update profile.', 'error');
@@ -400,7 +1044,7 @@ async function handleProfileSave(event) {
 }
 
 async function handleAvatarUpload(event) {
-  const file = event.target.files[0];
+  const file = event.target.files?.[0];
   const check = validateImageFile(file);
   if (!check.ok) {
     setStatus(check.message, 'error');
@@ -409,18 +1053,19 @@ async function handleAvatarUpload(event) {
   }
 
   try {
-    setStatus('Uploading avatar...', 'info');
+    setStatus('Uploading profile picture...', 'info');
     const response = await uploadAvatar(file);
-    renderProfile(response.data);
-    setStatus('Avatar uploaded successfully.', 'success');
-    event.target.value = '';
+    renderProfile(response.data || {});
+    setStatus('Profile picture uploaded successfully.', 'success');
   } catch (error) {
-    setStatus(error.message || 'Failed to upload avatar.', 'error');
+    setStatus(error.message || 'Failed to upload profile picture.', 'error');
+  } finally {
+    event.target.value = '';
   }
 }
 
 async function handleCoverUpload(event) {
-  const file = event.target.files[0];
+  const file = event.target.files?.[0];
   const check = validateImageFile(file);
   if (!check.ok) {
     setStatus(check.message, 'error');
@@ -431,17 +1076,24 @@ async function handleCoverUpload(event) {
   try {
     setStatus('Uploading cover photo...', 'info');
     const response = await uploadCover(file);
-    renderProfile(response.data);
+    renderProfile(response.data || {});
     setStatus('Cover photo uploaded successfully.', 'success');
-    event.target.value = '';
   } catch (error) {
     setStatus(error.message || 'Failed to upload cover image.', 'error');
+  } finally {
+    event.target.value = '';
   }
 }
 
 function handleMessageProfile() {
-  if (!currentProfile?.userId) {
+  const recipientId = getProfileId(currentProfile);
+  if (!recipientId) {
     setStatus('Unable to find this user profile.', 'error');
+    return;
+  }
+
+  if (sameId(recipientId, getStoredUserId())) {
+    setStatus('This is your own profile.', 'info');
     return;
   }
 
@@ -451,18 +1103,23 @@ function handleMessageProfile() {
   }
 
   const params = new URLSearchParams({
-    recipientId: currentProfile.userId,
+    recipientId,
     recipientName: currentProfile.fullName || 'FarmersHub member',
-    recipientRole: currentProfile.role || 'Direct message',
+    recipientRole: getRoleLabel(currentProfile.role),
   });
 
   window.location.href = `messages.html?${params.toString()}`;
 }
 
-// Fix before merging to main: connect Add Friend button to the authenticated friend request API.
 async function handleAddFriend() {
-  if (!currentProfile?.userId) {
+  const recipientId = getProfileId(currentProfile);
+  if (!recipientId) {
     setStatus('Unable to find this user profile.', 'error');
+    return;
+  }
+
+  if (sameId(recipientId, getStoredUserId())) {
+    setStatus('This is your own profile.', 'info');
     return;
   }
 
@@ -471,29 +1128,34 @@ async function handleAddFriend() {
     return;
   }
 
-  const btn = document.getElementById('addFriendBtn');
+  const button = byId('addFriendBtn');
   try {
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Sending...';
     }
-    setStatus('Sending friend request...', 'info');
-    await sendFriendRequest(currentProfile.userId);
-    if (btn) btn.textContent = 'Request Sent';
-    setStatus('Friend request sent. The user will receive a notification.', 'success');
+    setStatus('Sending connection request...', 'info');
+    await sendFriendRequest(recipientId);
+    if (button) button.textContent = 'Request Sent';
+    setStatus('Connection request sent.', 'success');
   } catch (error) {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = '➕ Add Friend';
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Connect';
     }
-    setStatus(error.message || 'Failed to send friend request.', 'error');
+    setStatus(error.message || 'Failed to send connection request.', 'error');
   }
 }
 
 async function handlePostSubmit() {
-  const text = document.getElementById('postInput').value.trim();
-  const imageInput = document.getElementById('postImageInput');
-  const file = imageInput.files[0];
+  if (!viewContext.isOwner || normalizeRole(currentProfile?.role) !== 'farmer') {
+    setStatus('Only farmer profile owners can publish farm updates.', 'error');
+    return;
+  }
+
+  const text = byId('postInput').value.trim();
+  const imageInput = byId('postImageInput');
+  const file = imageInput.files?.[0];
 
   if (!text && !file) {
     setStatus('Write something or select an image before posting.', 'error');
@@ -515,11 +1177,10 @@ async function handlePostSubmit() {
   try {
     setStatus('Publishing post...', 'info');
     await createPost(form);
-    document.getElementById('postInput').value = '';
-    document.getElementById('postImageName').textContent = '';
+    byId('postInput').value = '';
+    setText('postImageName', '');
     imageInput.value = '';
     await loadPosts();
-    await loadProfileData();
     setStatus('Post published successfully.', 'success');
   } catch (error) {
     setStatus(error.message || 'Failed to create post.', 'error');
@@ -527,59 +1188,55 @@ async function handlePostSubmit() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('goLoginBtn').addEventListener('click', () => {
+  on('goLoginBtn', 'click', () => {
     window.location.href = 'login/login.html';
   });
+  on('logoutBtn', 'click', () => logout('index.html'));
+  on('editProfileBtn', 'click', openEditModal);
+  on('settingsProfileBtn', 'click', openSettingsModal);
+  on('closeSettingsBtn', 'click', closeSettingsModal);
+  on('settingsCloseOnlyBtn', 'click', closeSettingsModal);
+  on('settingsEditProfileBtn', 'click', () => {
+    closeSettingsModal();
+    openEditModal();
+  });
+  on('settingsLogoutBtn', 'click', () => logout('index.html'));
+  on('cancelEditBtn', 'click', () => {
+    const modal = byId('editModal');
+    if (modal) modal.style.display = 'none';
+  });
+  on('editForm', 'submit', handleProfileSave);
+  on('avatarInput', 'change', handleAvatarUpload);
+  on('coverInput', 'change', handleCoverUpload);
+  on('submitPostBtn', 'click', handlePostSubmit);
+  on('messageProfileBtn', 'click', handleMessageProfile);
+  on('sidebarMessageBtn', 'click', handleMessageProfile);
+  on('addFriendBtn', 'click', handleAddFriend);
+  on('postImageInput', 'change', (event) => {
+    const name = event.target.files?.[0] ? event.target.files[0].name : '';
+    setText('postImageName', name);
+  });
 
-  const requestedFarmerId = getRequestedFarmerId();
-
-  if (!requestedFarmerId && !isLoggedIn()) {
+  const requested = getRequestedProfile();
+  if (requested.type === 'owner' && !isLoggedIn()) {
     showAuthGate();
     return;
   }
 
   showProfilePage();
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    logout('index.html');
-  });
-
-  document.getElementById('editProfileBtn').addEventListener('click', openEditModal);
-  document.getElementById('settingsProfileBtn').addEventListener('click', openSettingsModal);
-  document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
-  document.getElementById('settingsCloseOnlyBtn').addEventListener('click', closeSettingsModal);
-  document.getElementById('settingsEditProfileBtn').addEventListener('click', () => {
-    closeSettingsModal();
-    openEditModal();
-  });
-  document.getElementById('settingsLogoutBtn').addEventListener('click', () => {
-    logout('index.html');
-  });
-  document.getElementById('cancelEditBtn').addEventListener('click', () => {
-    document.getElementById('editModal').style.display = 'none';
-  });
-  document.getElementById('editForm').addEventListener('submit', handleProfileSave);
-  document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
-  document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
-  document.getElementById('submitPostBtn').addEventListener('click', handlePostSubmit);
-  document.getElementById('messageProfileBtn').addEventListener('click', handleMessageProfile);
-  document.getElementById('addFriendBtn').addEventListener('click', handleAddFriend);
-  document.getElementById('postImageInput').addEventListener('change', (event) => {
-    const name = event.target.files[0] ? event.target.files[0].name : '';
-    document.getElementById('postImageName').textContent = name;
-  });
-
   try {
     setStatus('Loading profile...', 'info');
-    await loadProfileData();
-    await loadPosts();
-    await loadProfileProducts();
-    setStatus('Profile loaded.', 'success');
+    const profile = await loadProfileData();
+    if (!profile) return;
+    await Promise.all([loadPosts(), loadProfileProducts()]);
+    setStatus('');
   } catch (error) {
-    if ((error.message || '').toLowerCase().includes('invalid') || (error.message || '').toLowerCase().includes('authentication')) {
+    const message = error.message || '';
+    if (message.toLowerCase().includes('invalid') || message.toLowerCase().includes('authentication')) {
       showAuthGate();
       return;
     }
-    setStatus(error.message || 'Failed to load profile data.', 'error');
+    setStatus(message || 'Failed to load profile data.', 'error');
   }
 });

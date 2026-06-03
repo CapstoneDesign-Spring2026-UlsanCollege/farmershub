@@ -36,11 +36,25 @@ a {
   text-decoration: none;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 button,
 input,
 textarea,
 select {
   font: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+label:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(34, 114, 59, 0.35);
+  outline-offset: 3px;
 }
 
 .profile-page {
@@ -270,6 +284,8 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 18px;
+  text-align: center;
   color: #4f6959;
   font-weight: 650;
 }
@@ -278,12 +294,17 @@ select {
   position: absolute;
   top: 176px;
   right: 22px;
+  max-width: calc(100% - 44px);
+  min-height: 34px;
   padding: 8px 13px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   color: #43554c;
   font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -321,20 +342,30 @@ select {
 }
 
 .avatar-placeholder {
-  font-size: 42px;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--accent-strong);
+  font-size: 30px;
+  font-weight: 800;
 }
 
 .avatar-upload-btn {
   position: absolute;
-  right: 0;
+  right: -6px;
   bottom: 6px;
-  width: 34px;
-  height: 34px;
+  min-width: 48px;
+  height: 30px;
+  padding: 0 8px;
   display: grid;
   place-items: center;
   border: 1px solid var(--line-strong);
-  border-radius: 50%;
+  border-radius: 999px;
   background: #fff;
+  color: #43554c;
+  font-size: 11px;
+  font-weight: 750;
   cursor: pointer;
 }
 
@@ -407,6 +438,11 @@ select {
   padding: 8px 15px;
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
 .store-tabs {
   height: 62px;
   display: flex;
@@ -458,6 +494,10 @@ select {
   align-items: start;
 }
 
+.store-layout.sidebar-hidden {
+  grid-template-columns: 1fr;
+}
+
 .store-main,
 .store-sidebar {
   min-width: 0;
@@ -483,6 +523,7 @@ select {
   align-items: center;
   gap: 13px;
   margin: 0 0 18px;
+  flex-wrap: wrap;
 }
 
 .store-section-heading h2,
@@ -500,6 +541,32 @@ select {
   background: #edf4e9;
   font-size: 12px;
   font-weight: 600;
+}
+
+.section-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.section-action-link {
+  min-height: 32px;
+  padding: 7px 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--accent);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.section-action-link.secondary {
+  color: var(--accent);
+  background: var(--accent-pale);
+  border: 1px solid var(--line-strong);
 }
 
 .store-product-grid {
@@ -703,6 +770,16 @@ select {
   border: 1px solid var(--line);
   border-radius: 50%;
   background: #eef5ec;
+  color: var(--accent-strong);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.post-avatar-small img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 #postInput,
@@ -766,12 +843,15 @@ select {
 
 .delete-post-btn {
   margin-left: auto;
-  width: 30px;
+  min-width: 58px;
   height: 30px;
+  padding: 0 9px;
   border: 1px solid #f0c4c4;
   border-radius: 8px;
   color: #922;
   background: #fff5f5;
+  font-size: 12px;
+  font-weight: 750;
   cursor: pointer;
 }
 
@@ -785,6 +865,16 @@ select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 10px;
+}
+
+.profile-post-state {
+  text-align: center;
+  color: var(--muted);
+}
+
+.profile-post-state h4,
+.profile-post-state p {
+  margin: 4px 0;
 }
 
 .modal-overlay {
@@ -976,7 +1066,7 @@ select {
   }
 
   .store-sidebar {
-    order: -1;
+    order: initial;
   }
 
   .store-identity {

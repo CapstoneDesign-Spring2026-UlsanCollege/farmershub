@@ -24,7 +24,7 @@
 <!-- Profile Page Content (hidden until logged in) -->
 <div class="profile-page" id="profilePage" style="display:none;">
 
-  <!-- Store Profile Navigation -->
+  <!-- Profile Navigation -->
   <header class="profile-nav store-nav">
     <a href="index.html" class="nav-logo">
       <img src="assets/images/logorefined.png" alt="FarmersHub Logo" class="nav-logo-img" onerror="this.style.display='none'" />
@@ -58,52 +58,52 @@
 
   <div id="actionStatus" class="action-status" role="status" aria-live="polite"></div>
 
-  <!-- Farmer Store Hero -->
+  <!-- Profile Hero -->
   <section class="store-hero-shell">
     <div class="store-hero">
       <div class="cover-photo" id="coverPhoto">
-        <img src="" alt="Farm cover" id="coverImg" style="display:none;" />
+        <img src="" alt="Profile cover photo" id="coverImg" hidden />
         <div class="cover-placeholder" id="coverPlaceholder">
-          <span>🌾 Add a cover photo of your farm</span>
+          <span id="coverPlaceholderText">Add a cover photo</span>
         </div>
       </div>
 
-      <label class="cover-upload-btn" for="coverInput">📷 Change Cover</label>
+      <label class="cover-upload-btn" for="coverInput" aria-label="Change cover photo" title="Change cover photo" hidden>Change cover photo</label>
       <input type="file" id="coverInput" accept="image/*" hidden />
 
       <div class="store-identity">
         <div class="profile-avatar-wrapper">
           <div class="profile-avatar" id="profileAvatar">
-            <img src="" alt="Avatar" id="avatarImg" style="display:none;" />
-            <div class="avatar-placeholder" id="avatarPlaceholder">👤</div>
+            <img src="" alt="Profile picture" id="avatarImg" hidden />
+            <div class="avatar-placeholder" id="avatarPlaceholder">FH</div>
           </div>
-          <label class="avatar-upload-btn" for="avatarInput">📷</label>
+          <label class="avatar-upload-btn" for="avatarInput" aria-label="Change profile picture" title="Change profile picture" hidden>Photo</label>
           <input type="file" id="avatarInput" accept="image/*" hidden />
         </div>
 
         <div class="store-profile-copy">
           <div class="store-heading-row">
-            <h1 class="profile-name" id="farmNameDisplay">Farm Name</h1>
-            <span class="profile-role" id="profileRole">Farmer</span>
+            <h1 class="profile-name" id="farmNameDisplay">Profile</h1>
+            <span class="profile-role" id="profileRole">Account</span>
           </div>
-          <p class="store-owner-name">Managed by <strong id="profileName">Your Name</strong></p>
-          <p class="profile-location" id="profileLocation">📍 Add your location</p>
+          <p class="store-owner-name" id="profileByline">Profile owner <strong id="profileName">FarmersHub member</strong></p>
+          <p class="profile-location" id="profileLocation">Add your location</p>
           <p class="bio-text store-bio" id="bioText">No bio yet. Click "Edit Profile" to add one.</p>
 
           <div class="profile-actions">
-            <button class="btn btn-message" id="messageProfileBtn">💬 Message</button>
-            <button class="btn btn-secondary" id="addFriendBtn">＋ Follow</button>
-            <button class="btn btn-edit" id="editProfileBtn">✏️ Edit Profile</button>
-            <button class="btn btn-settings" id="settingsProfileBtn" type="button">⚙️ Settings</button>
+            <button class="btn btn-message" id="messageProfileBtn" type="button" hidden>Message</button>
+            <button class="btn btn-secondary" id="addFriendBtn" type="button" hidden>Connect</button>
+            <button class="btn btn-edit" id="editProfileBtn" type="button" hidden>Edit Profile</button>
+            <button class="btn btn-settings" id="settingsProfileBtn" type="button" hidden>Settings</button>
           </div>
         </div>
       </div>
     </div>
 
-    <nav class="store-tabs" aria-label="Farmer profile sections">
-      <a class="store-tab active" href="#profileProducts">▣ Products</a>
-      <a class="store-tab" href="#profileAbout">♙ About</a>
-      <a class="store-tab" href="#postsFeed">▤ Posts <span id="postCount">0</span></a>
+    <nav class="store-tabs" id="profileTabs" aria-label="Profile sections">
+      <a class="store-tab active" id="productsTab" href="#profileProducts" hidden>Products</a>
+      <a class="store-tab" id="aboutTab" href="#profileAbout">About</a>
+      <a class="store-tab" id="postsTab" href="#postsFeed">Posts <span id="postCount">0</span></a>
     </nav>
   </section>
 
@@ -171,11 +171,11 @@
           <label>Phone</label>
           <input type="tel" id="editPhone" placeholder="Your contact number" />
         </div>
-        <div class="form-group">
+        <div class="form-group" id="farmNameFormGroup">
           <label>Farm Name <small>(Farmers only)</small></label>
           <input type="text" id="editFarmName" placeholder="Your farm name" />
         </div>
-        <div class="form-group">
+        <div class="form-group" id="productsFormGroup">
           <label>Products You Grow <small>(Farmers only)</small></label>
           <input type="text" id="editProducts" placeholder="e.g. Tomatoes, Rice, Apples" />
         </div>
@@ -190,10 +190,11 @@
   <!-- Store Profile Body -->
   <div class="store-layout">
     <main class="store-main">
-      <section class="store-section" id="profileProducts">
+      <section class="store-section" id="profileProducts" hidden>
         <div class="store-section-heading">
-          <h2>Featured Products</h2>
-          <span class="section-count"><strong id="profileFeaturedProductCount">0</strong> listed</span>
+          <h2 id="profileProductsTitle">Featured Products</h2>
+          <span class="section-count" id="profileProductCountBadge"><strong id="profileFeaturedProductCount">0</strong> listed</span>
+          <span class="section-actions" id="profileProductActions"></span>
         </div>
         <div class="store-product-grid" id="profileProductGrid">
           <div class="profile-empty-products">
@@ -204,32 +205,32 @@
 
       <section class="store-section store-about" id="profileAbout">
         <div class="store-section-heading">
-          <h2>About the Farm</h2>
+          <h2 id="profileAboutTitle">About This Profile</h2>
         </div>
-        <div class="store-about-grid">
+        <div class="store-about-grid" id="profileAboutGrid">
           <div class="store-detail-card">
-            <span class="store-detail-label">Products Grown</span>
-            <strong id="productsDisplay">Not set</strong>
+            <span class="store-detail-label">Profile</span>
+            <strong id="productsDisplay">Loading...</strong>
           </div>
           <div class="store-detail-card">
-            <span class="store-detail-label">Phone</span>
-            <strong id="phoneDisplay">Not set</strong>
+            <span class="store-detail-label">Contact</span>
+            <strong id="phoneDisplay">Loading...</strong>
           </div>
         </div>
       </section>
 
       <section class="store-section store-community">
         <div class="store-section-heading">
-          <h2>From the Farm</h2>
+          <h2 id="profilePostsTitle">Profile Activity</h2>
         </div>
 
-        <div class="create-post-card">
+        <div class="create-post-card" id="createPostCard" hidden>
           <div class="post-input-row">
-            <div class="post-avatar-small" id="postAvatarSmall">👤</div>
+            <div class="post-avatar-small" id="postAvatarSmall">FH</div>
             <textarea id="postInput" placeholder="Share an update about your farm, harvest, or products..." rows="3"></textarea>
           </div>
           <div class="post-actions">
-            <label class="post-action-btn" for="postImageInput">🖼️ Photo</label>
+            <label class="post-action-btn" for="postImageInput">Photo</label>
             <input type="file" id="postImageInput" accept="image/*" hidden />
             <span class="post-image-name" id="postImageName"></span>
             <button class="btn btn-primary btn-post" id="submitPostBtn">Post</button>
@@ -241,7 +242,7 @@
     </main>
 
     <aside class="store-sidebar">
-      <section class="store-side-card">
+      <section class="store-side-card" id="profileGlanceCard" hidden>
         <h2>Farm At a Glance</h2>
         <div class="glance-grid">
           <div class="glance-item">
@@ -249,32 +250,24 @@
             <span>Products</span>
           </div>
           <div class="glance-item">
-            <strong>—</strong>
-            <span>Reviews</span>
-          </div>
-          <div class="glance-item">
-            <strong>—</strong>
-            <span>Orders</span>
-          </div>
-          <div class="glance-item">
-            <strong>—</strong>
-            <span>Followers</span>
+            <strong id="sidebarPostCount">0</strong>
+            <span>Posts</span>
           </div>
         </div>
-        <p class="data-note">Order, review, and follower totals will appear after their backend data sources are verified.</p>
+        <p class="data-note" id="profileGlanceNote">Reviews, order totals, and follower counts are not connected to verified backend data yet.</p>
       </section>
 
-      <section class="store-side-card">
+      <section class="store-side-card" id="profileCertificationsCard" hidden>
         <h2>Certifications</h2>
         <div class="pending-feature">
           No certification records connected yet.
         </div>
       </section>
 
-      <section class="store-side-card store-contact-card">
-        <h2>Get in Touch</h2>
-        <p>Use the message button to contact this farmer directly through FarmersHub.</p>
-        <button class="btn btn-message store-message-wide" type="button" onclick="document.getElementById('messageProfileBtn').click()">💬 Message Farmer</button>
+      <section class="store-side-card store-contact-card" id="profileContactCard" hidden>
+        <h2 id="profileContactTitle">Get in Touch</h2>
+        <p id="profileContactText">Use FarmersHub Messages to contact this profile.</p>
+        <button class="btn btn-message store-message-wide" id="sidebarMessageBtn" type="button">Message</button>
       </section>
     </aside>
   </div>
