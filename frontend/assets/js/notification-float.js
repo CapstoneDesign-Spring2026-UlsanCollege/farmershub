@@ -1,4 +1,5 @@
 import { API_BASE, getToken } from './config/api.config.js';
+import { playNotificationSound } from './notification-sounds.js';
 
 const POLL_INTERVAL_MS = 30000;
 const DISMISSED_KEY = 'fh_alert_float_dismissed_signature';
@@ -7,6 +8,8 @@ const FLOAT_ID = 'floatingAlertTab';
 
 let pollTimer = null;
 let latestSignature = '';
+let lastCheckedSignature = '';
+let hasCheckedAlerts = false;
 
 function isAlertsPage() {
   return window.location.pathname.toLowerCase().endsWith('/notifications.html');
@@ -225,7 +228,18 @@ function renderFloatingTab(unreadNotifications) {
 
 async function refreshFloatingTab() {
   const unreadNotifications = await fetchUnreadNotifications();
+  const unreadSignature = getSignature(unreadNotifications);
+  const shouldPlaySound = hasCheckedAlerts
+    && unreadSignature
+    && unreadSignature !== lastCheckedSignature
+    && localStorage.getItem(DISMISSED_KEY) !== unreadSignature;
+
   renderFloatingTab(unreadNotifications);
+  if (shouldPlaySound) {
+    playNotificationSound();
+  }
+  lastCheckedSignature = unreadSignature;
+  hasCheckedAlerts = true;
 }
 
 function initFloatingAlertTab() {

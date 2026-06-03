@@ -1,9 +1,11 @@
 import { API_BASE } from './assets/js/config/api.config.js';
+import {
+  hydrateNotificationSoundSelect,
+  playNotificationSound,
+  saveNotificationSoundPreference,
+} from './assets/js/notification-sounds.js';
 
 const ALERT_READ_SYNC_KEY = 'fh_alerts_read_sync';
-const NOTIFICATION_SOUND_KEY = 'fh_notification_sound';
-const DEFAULT_NOTIFICATION_SOUND = 'hens';
-const NOTIFICATION_SOUND_MAX_MS = 3500;
 
 // API functions for notifications
 async function fetchNotifications() {
@@ -249,8 +251,6 @@ const markAllReadBtn = document.getElementById('markAllReadBtn');
 const refreshBtn = document.getElementById('refreshNotificationsBtn');
 const soundSelectEl = document.getElementById('notificationSoundSelect');
 const previewSoundBtn = document.getElementById('previewNotificationSoundBtn');
-const hensSoundEl = document.getElementById('notificationSoundHens');
-const catSoundEl = document.getElementById('notificationSoundCat');
 const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
 const loginBtn = document.getElementById('navLoginBtn');
 const logoutBtn = document.getElementById('navLogoutBtn');
@@ -264,39 +264,9 @@ const closeReplyModalBtn = document.getElementById('closeReplyModal');
 let activeFilter = 'all';
 let currentReplyTargetId = null;
 let knownNotificationIds = new Set();
-let notificationSoundStopTimer = null;
 
 function getNotificationId(item) {
   return item?.id || item?._id || null;
-}
-
-function getCurrentNotificationSound() {
-  const savedSound = localStorage.getItem(NOTIFICATION_SOUND_KEY);
-  return ['hens', 'cat', 'silent'].includes(savedSound) ? savedSound : DEFAULT_NOTIFICATION_SOUND;
-}
-
-function getSoundElement(soundName = getCurrentNotificationSound()) {
-  if (soundName === 'cat') return catSoundEl;
-  if (soundName === 'hens') return hensSoundEl;
-  return null;
-}
-
-async function playNotificationSound(soundName) {
-  const audio = getSoundElement(soundName);
-  if (!audio) return;
-
-  try {
-    window.clearTimeout(notificationSoundStopTimer);
-    audio.pause();
-    audio.currentTime = 0;
-    await audio.play();
-    notificationSoundStopTimer = window.setTimeout(() => {
-      audio.pause();
-      audio.currentTime = 0;
-    }, NOTIFICATION_SOUND_MAX_MS);
-  } catch (error) {
-    console.info('Notification sound needs a user interaction first.', error);
-  }
 }
 
 function getNewUnreadNotifications(freshNotifications) {
@@ -312,15 +282,16 @@ function rememberNotificationIds(items) {
 
 function setupNotificationSoundControls() {
   if (soundSelectEl) {
-    soundSelectEl.value = getCurrentNotificationSound();
+    hydrateNotificationSoundSelect(soundSelectEl);
     soundSelectEl.addEventListener('change', () => {
-      localStorage.setItem(NOTIFICATION_SOUND_KEY, soundSelectEl.value);
-      playNotificationSound(soundSelectEl.value);
+      const selectedSound = saveNotificationSoundPreference(soundSelectEl.value);
+      soundSelectEl.value = selectedSound;
+      playNotificationSound(selectedSound);
     });
   }
 
   addSafeListener(previewSoundBtn, 'click', () => {
-    playNotificationSound(soundSelectEl?.value || getCurrentNotificationSound());
+    playNotificationSound(soundSelectEl?.value);
   });
 }
 
