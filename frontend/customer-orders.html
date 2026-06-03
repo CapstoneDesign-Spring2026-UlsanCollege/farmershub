@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Orders | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/customer-shell.css">
+  <link rel="stylesheet" href="assets/css/customer-orders.css">
+</head>
+<body>
+  <div class="customer-app">
+    <aside class="customer-sidebar">
+      <a class="customer-brand" href="customer.html" aria-label="FarmersHub customer home">
+        <img src="logo.png" alt="FarmersHub logo">
+        <span>FarmersHub</span>
+      </a>
+      <nav class="customer-nav" aria-label="Customer navigation">
+        <a href="customer.html"><span class="customer-nav-mark">H</span><span>Home</span></a>
+        <a href="customer-marketplace.html"><span class="customer-nav-mark">M</span><span>Marketplace</span></a>
+        <a href="social-feed.html"><span class="customer-nav-mark">S</span><span>Social Feed</span></a>
+        <a class="is-active" href="customer-orders.html" aria-current="page"><span class="customer-nav-mark">O</span><span>Orders</span></a>
+        <a href="customer-messages.html"><span class="customer-nav-mark">C</span><span>Messages</span></a>
+        <a href="customer-favorites.html"><span class="customer-nav-mark">F</span><span>Favorites</span></a>
+        <a href="customer-profile.html"><span class="customer-nav-mark">P</span><span>Profile</span></a>
+        <a href="customer-settings.html"><span class="customer-nav-mark">G</span><span>Settings</span></a>
+        <a href="customer-help.html"><span class="customer-nav-mark">?</span><span>Help Center</span></a>
+      </nav>
+    </aside>
+
+    <main class="customer-main">
+      <header class="customer-topbar">
+        <div>
+          <p class="customer-kicker">Purchases</p>
+          <h1>Orders</h1>
+        </div>
+        <form class="customer-search" id="ordersSearchForm" aria-label="Search marketplace">
+          <span aria-hidden="true">Search</span>
+          <input id="ordersSearchInput" type="search" placeholder="Search products instead">
+        </form>
+        <nav class="customer-actions" aria-label="Customer quick links">
+          <a class="customer-icon-button" href="customer-cart.html" aria-label="Cart">Cart<span class="customer-badge" data-cart-count>0</span></a>
+          <a class="customer-icon-button" href="customer-favorites.html" aria-label="Favorites">Fav<span class="customer-badge" data-favorite-count>0</span></a>
+          <a class="customer-icon-button" href="customer-notifications.html" aria-label="Notifications">Bell</a>
+          <a class="customer-icon-button" href="customer-messages.html" aria-label="Messages">Msg</a>
+          <a class="customer-avatar" href="customer-profile.html" aria-label="Profile" data-customer-avatar>FH</a>
+        </nav>
+      </header>
+
+      <section class="orders-hero">
+        <div>
+          <p class="customer-section-kicker">Order history status</p>
+          <h1>Track your purchases when checkout is connected.</h1>
+          <p>FarmersHub currently supports marketplace browsing, local cart storage, messages and notifications. A durable customer order history source was not confirmed in this frontend task.</p>
+        </div>
+      </section>
+
+      <section class="orders-status-grid" aria-label="Order status">
+        <article class="customer-card orders-status-card">
+          <span class="customer-pill">Pending integration</span>
+          <h2>No customer order history connected yet</h2>
+          <p>Completed purchases, delivery tracking and checkout receipts will appear here after secure checkout and order records are connected.</p>
+          <div class="orders-actions">
+            <a class="customer-button" href="customer-marketplace.html">Browse marketplace</a>
+            <a class="customer-secondary-button" href="customer-cart.html">Open cart</a>
+          </div>
+        </article>
+        <article class="customer-card orders-status-card">
+          <span class="customer-pill">Available now</span>
+          <h2>Message farmers before ordering</h2>
+          <p>Use customer Messages to ask sellers about availability, pickup, delivery and product details before checkout support is connected.</p>
+          <div class="orders-actions">
+            <a class="customer-secondary-button" href="customer-messages.html">Open messages</a>
+            <a class="customer-secondary-button" href="customer-notifications.html">Open notifications</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="customer-panel">
+        <div class="customer-panel-heading">
+          <div>
+            <p class="customer-section-kicker">Current cart</p>
+            <h2>Cart is not an order</h2>
+          </div>
+          <p class="customer-status" id="ordersCartStatus" role="status" aria-live="polite"></p>
+        </div>
+        <div class="orders-cart-note" id="ordersCartNote"></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="customer-mobile-nav" aria-label="Customer mobile navigation">
+    <a href="customer.html"><span class="customer-nav-mark">H</span>Home</a>
+    <a href="customer-marketplace.html"><span class="customer-nav-mark">M</span>Shop</a>
+    <a href="customer-cart.html"><span class="customer-nav-mark">C</span>Cart</a>
+    <a href="customer-messages.html"><span class="customer-nav-mark">C</span>Chat</a>
+    <a href="customer-profile.html"><span class="customer-nav-mark">P</span>Profile</a>
+  </nav>
+
+  <script type="module" src="assets/js/customer-orders.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+.market-hero {
+  min-height: 285px;
+  padding: 34px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(110deg, rgba(18, 78, 43, 0.96), rgba(37, 133, 76, 0.72)),
+    url("../images/home/support-basket.webp") center/cover;
+  box-shadow: 0 28px 70px rgba(36, 97, 56, 0.24);
+}
+
+.market-hero h2 {
+  max-width: 720px;
+  margin: 8px 0 12px;
+  font-family: Sora, sans-serif;
+  font-size: clamp(2.6rem, 6vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.market-hero p {
+  max-width: 650px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.65;
+}
+
+.market-hero .customer-section-kicker {
+  color: #ffe18c;
+}
+
+.market-toolbar {
+  display: block;
+}
+
+.market-card-note {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  color: var(--customer-muted);
+  font-size: 0.82rem;
+}
+
+.market-card-note strong {
+  color: var(--customer-green);
+}
+
+.market-product-stock {
+  width: fit-content;
+  min-height: 27px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 10px;
+  color: #8a5a00;
+  background: #fff2d2;
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.market-product-card-disabled {
+  color: var(--customer-muted);
+  background: #f2f6ef;
+}
+
+@media (max-width: 760px) {
+  .market-hero {
+    min-height: 250px;
+    align-items: start;
+    flex-direction: column;
+    padding: 26px;
+  }
+}

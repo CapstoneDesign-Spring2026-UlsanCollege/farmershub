@@ -1,0 +1,124 @@
+.farmer-profile-shell {
+  display: grid;
+  gap: 20px;
+}
+
+.farmer-public-hero {
+  min-height: 330px;
+  padding: 34px;
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: end;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(110deg, rgba(18, 78, 43, 0.96), rgba(37, 133, 76, 0.72)),
+    url("../images/home/farmer-fallback-1.webp") center/cover;
+  box-shadow: 0 28px 70px rgba(36, 97, 56, 0.24);
+}
+
+.farmer-public-avatar {
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+  border: 5px solid rgba(255, 255, 255, 0.8);
+  border-radius: 38px;
+  color: var(--customer-green);
+  background: #fff center/cover;
+  font-family: Sora, sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.farmer-public-hero h1 {
+  margin: 8px 0 10px;
+  font-family: Sora, sans-serif;
+  font-size: clamp(2.3rem, 5vw, 4.4rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.farmer-public-hero p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.65;
+}
+
+.farmer-public-hero .customer-section-kicker {
+  color: #ffe18c;
+}
+
+.farmer-public-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 9px;
+}
+
+.farmer-profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.farmer-about-card,
+.farmer-contact-card {
+  padding: 22px;
+  display: grid;
+  gap: 12px;
+}
+
+.farmer-about-card h2,
+.farmer-contact-card h2,
+.farmer-about-card p,
+.farmer-contact-card p {
+  margin: 0;
+}
+
+.farmer-about-card h2,
+.farmer-contact-card h2 {
+  color: var(--customer-deep);
+  font-family: Sora, sans-serif;
+}
+
+.farmer-about-card p,
+.farmer-contact-card p {
+  color: var(--customer-muted);
+  line-height: 1.65;
+}
+
+.farmer-products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1080px) {
+  .farmer-public-hero,
+  .farmer-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farmer-public-actions {
+    justify-content: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .farmer-public-hero {
+    padding: 26px;
+  }
+
+  .farmer-public-avatar {
+    width: 104px;
+    height: 104px;
+    border-radius: 30px;
+  }
+
+  .farmer-products-grid {
+    grid-template-columns: 1fr;
+  }
+}

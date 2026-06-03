@@ -1,0 +1,144 @@
+.notification-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.notification-summary-card {
+  padding: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.notification-summary-card span {
+  color: var(--customer-deep);
+  font-family: Sora, sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.notification-summary-card p {
+  margin: 0;
+  color: var(--customer-muted);
+  font-weight: 900;
+}
+
+.notification-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.notification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 10px;
+}
+
+.notification-sound {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--customer-muted);
+  font-weight: 900;
+}
+
+.notification-sound select {
+  min-height: 42px;
+  border: 1px solid var(--customer-border);
+  border-radius: 999px;
+  padding: 0 14px;
+  color: var(--customer-deep);
+  background: #fff;
+  font-weight: 900;
+}
+
+.notification-list {
+  display: grid;
+  gap: 14px;
+}
+
+.notification-card {
+  padding: 18px;
+  border: 1px solid var(--customer-border);
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.notification-card.is-read {
+  opacity: 0.72;
+}
+
+.notification-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: #f35b32;
+}
+
+.notification-card.is-read .notification-dot {
+  background: var(--customer-border);
+}
+
+.notification-content {
+  display: grid;
+  gap: 6px;
+}
+
+.notification-content h2,
+.notification-content p {
+  margin: 0;
+}
+
+.notification-content h2 {
+  color: var(--customer-deep);
+  font-family: Sora, sans-serif;
+  font-size: 1.05rem;
+}
+
+.notification-content p {
+  color: var(--customer-muted);
+  line-height: 1.55;
+}
+
+.notification-meta {
+  color: var(--customer-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.notification-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .notification-controls,
+  .notification-card {
+    grid-template-columns: 1fr;
+  }
+
+  .notification-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .notification-actions,
+  .notification-card-actions {
+    justify-content: start;
+  }
+}
+
+@media (max-width: 660px) {
+  .notification-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

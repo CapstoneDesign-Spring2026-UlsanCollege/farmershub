@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Profile | FarmersHub Customer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/customer-shell.css">
+  <link rel="stylesheet" href="assets/css/customer-farmer-profile.css">
+</head>
+<body>
+  <div class="customer-app">
+    <aside class="customer-sidebar">
+      <a class="customer-brand" href="customer.html" aria-label="FarmersHub customer home">
+        <img src="logo.png" alt="FarmersHub logo">
+        <span>FarmersHub</span>
+      </a>
+      <nav class="customer-nav" aria-label="Customer navigation">
+        <a href="customer.html"><span class="customer-nav-mark">H</span><span>Home</span></a>
+        <a class="is-active" href="customer-marketplace.html" aria-current="page"><span class="customer-nav-mark">M</span><span>Marketplace</span></a>
+        <a href="social-feed.html"><span class="customer-nav-mark">S</span><span>Social Feed</span></a>
+        <a href="customer-orders.html"><span class="customer-nav-mark">O</span><span>Orders</span></a>
+        <a href="customer-messages.html"><span class="customer-nav-mark">C</span><span>Messages</span></a>
+        <a href="customer-favorites.html"><span class="customer-nav-mark">F</span><span>Favorites</span></a>
+        <a href="customer-profile.html"><span class="customer-nav-mark">P</span><span>Profile</span></a>
+        <a href="customer-settings.html"><span class="customer-nav-mark">G</span><span>Settings</span></a>
+        <a href="customer-help.html"><span class="customer-nav-mark">?</span><span>Help Center</span></a>
+      </nav>
+    </aside>
+
+    <main class="customer-main">
+      <header class="customer-topbar">
+        <div>
+          <p class="customer-kicker">Public seller view</p>
+          <h1 id="farmerTopTitle">Farmer profile</h1>
+        </div>
+        <form class="customer-search" id="farmerSearchForm" aria-label="Search marketplace">
+          <span aria-hidden="true">Search</span>
+          <input id="farmerSearchInput" type="search" placeholder="Search marketplace">
+        </form>
+        <nav class="customer-actions" aria-label="Customer quick links">
+          <a class="customer-icon-button" href="customer-cart.html" aria-label="Cart">Cart<span class="customer-badge" data-cart-count>0</span></a>
+          <a class="customer-icon-button" href="customer-favorites.html" aria-label="Favorites">Fav<span class="customer-badge" data-favorite-count>0</span></a>
+          <a class="customer-icon-button" href="customer-notifications.html" aria-label="Notifications">Bell</a>
+          <a class="customer-icon-button" href="customer-messages.html" aria-label="Messages">Msg</a>
+          <a class="customer-avatar" href="customer-profile.html" aria-label="Profile" data-customer-avatar>FH</a>
+        </nav>
+      </header>
+
+      <section class="farmer-profile-shell" id="farmerProfileShell" aria-live="polite">
+        <div class="customer-state customer-empty">
+          <strong>Loading farmer profile</strong>
+          <p>Fetching public farmer information for customer viewing.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="customer-mobile-nav" aria-label="Customer mobile navigation">
+    <a href="customer.html"><span class="customer-nav-mark">H</span>Home</a>
+    <a href="customer-marketplace.html" aria-current="page"><span class="customer-nav-mark">M</span>Shop</a>
+    <a href="customer-cart.html"><span class="customer-nav-mark">C</span>Cart</a>
+    <a href="customer-messages.html"><span class="customer-nav-mark">C</span>Chat</a>
+    <a href="customer-profile.html"><span class="customer-nav-mark">P</span>Profile</a>
+  </nav>
+
+  <script type="module" src="assets/js/customer-farmer-profile.js"></script>
+</body>
+</html>

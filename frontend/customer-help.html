@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Help Center | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/customer-shell.css">
+  <link rel="stylesheet" href="assets/css/customer-help.css">
+</head>
+<body>
+  <div class="customer-app">
+    <aside class="customer-sidebar">
+      <a class="customer-brand" href="customer.html" aria-label="FarmersHub customer home">
+        <img src="logo.png" alt="FarmersHub logo">
+        <span>FarmersHub</span>
+      </a>
+      <nav class="customer-nav" aria-label="Customer navigation">
+        <a href="customer.html"><span class="customer-nav-mark">H</span><span>Home</span></a>
+        <a href="customer-marketplace.html"><span class="customer-nav-mark">M</span><span>Marketplace</span></a>
+        <a href="social-feed.html"><span class="customer-nav-mark">S</span><span>Social Feed</span></a>
+        <a href="customer-orders.html"><span class="customer-nav-mark">O</span><span>Orders</span></a>
+        <a href="customer-messages.html"><span class="customer-nav-mark">C</span><span>Messages</span></a>
+        <a href="customer-favorites.html"><span class="customer-nav-mark">F</span><span>Favorites</span></a>
+        <a href="customer-profile.html"><span class="customer-nav-mark">P</span><span>Profile</span></a>
+        <a href="customer-settings.html"><span class="customer-nav-mark">G</span><span>Settings</span></a>
+        <a class="is-active" href="customer-help.html" aria-current="page"><span class="customer-nav-mark">?</span><span>Help Center</span></a>
+      </nav>
+    </aside>
+
+    <main class="customer-main">
+      <header class="customer-topbar">
+        <div>
+          <p class="customer-kicker">Customer guidance</p>
+          <h1>Help Center</h1>
+        </div>
+        <form class="customer-search" id="helpSearchForm" aria-label="Search help topics">
+          <span aria-hidden="true">Search</span>
+          <input id="helpSearchInput" type="search" placeholder="Search help topics">
+        </form>
+        <nav class="customer-actions" aria-label="Customer quick links">
+          <a class="customer-icon-button" href="customer-cart.html" aria-label="Cart">Cart<span class="customer-badge" data-cart-count>0</span></a>
+          <a class="customer-icon-button" href="customer-favorites.html" aria-label="Favorites">Fav<span class="customer-badge" data-favorite-count>0</span></a>
+          <a class="customer-icon-button" href="customer-notifications.html" aria-label="Notifications">Bell</a>
+          <a class="customer-icon-button" href="customer-messages.html" aria-label="Messages">Msg</a>
+          <a class="customer-avatar" href="customer-profile.html" aria-label="Profile" data-customer-avatar>FH</a>
+        </nav>
+      </header>
+
+      <section class="help-hero">
+        <div>
+          <p class="customer-section-kicker">Shopping on FarmersHub</p>
+          <h1>Help Center</h1>
+          <p>Find answers for shopping on FarmersHub.</p>
+        </div>
+        <div class="help-hero-actions">
+          <a class="customer-button" href="customer-marketplace.html">Browse marketplace</a>
+          <a class="customer-secondary-button" href="customer-messages.html">Open messages</a>
+        </div>
+      </section>
+
+      <section class="help-grid" id="helpTopics" aria-label="Help topics">
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Browsing products</h2>
+          <p>How to find products and local farmers.</p>
+          <a class="customer-secondary-button" href="customer-marketplace.html">Browse marketplace</a>
+        </article>
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Saving favorites</h2>
+          <p>Saved items are stored in this browser until account sync is connected.</p>
+          <a class="customer-secondary-button" href="customer-favorites.html">Open favorites</a>
+        </article>
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Using your cart</h2>
+          <p>Cart items are stored on this device until secure checkout is connected.</p>
+          <a class="customer-secondary-button" href="customer-cart.html">Open cart</a>
+        </article>
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Messaging farmers</h2>
+          <p>Use Messages to ask sellers about products and availability.</p>
+          <a class="customer-secondary-button" href="customer-messages.html">Open messages</a>
+        </article>
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Orders and checkout</h2>
+          <p>Order tracking and secure checkout are coming in a later integration stage.</p>
+          <a class="customer-secondary-button" href="customer-orders.html">Open orders</a>
+        </article>
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Social Feed</h2>
+          <p>The current feed is a preview UI until live community features are connected.</p>
+          <a class="customer-secondary-button" href="social-feed.html">Open social feed</a>
+        </article>
+        <article class="customer-card help-card" data-help-topic>
+          <h2>Settings and privacy</h2>
+          <p>Use Customer Settings to manage customer-facing account options.</p>
+          <a class="customer-secondary-button" href="customer-settings.html">Open settings</a>
+        </article>
+      </section>
+
+      <p class="customer-status" id="helpStatus" role="status" aria-live="polite"></p>
+    </main>
+  </div>
+
+  <nav class="customer-mobile-nav" aria-label="Customer mobile navigation">
+    <a href="customer.html"><span class="customer-nav-mark">H</span>Home</a>
+    <a href="customer-marketplace.html"><span class="customer-nav-mark">M</span>Shop</a>
+    <a href="customer-cart.html"><span class="customer-nav-mark">C</span>Cart</a>
+    <a href="customer-messages.html"><span class="customer-nav-mark">C</span>Chat</a>
+    <a href="customer-profile.html"><span class="customer-nav-mark">P</span>Profile</a>
+  </nav>
+
+  <script type="module" src="assets/js/customer-help.js"></script>
+</body>
+</html>

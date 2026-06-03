@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Cart | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/customer-shell.css">
+  <link rel="stylesheet" href="assets/css/customer-cart.css">
+</head>
+<body>
+  <div class="customer-app">
+    <aside class="customer-sidebar">
+      <a class="customer-brand" href="customer.html" aria-label="FarmersHub customer home">
+        <img src="logo.png" alt="FarmersHub logo">
+        <span>FarmersHub</span>
+      </a>
+      <nav class="customer-nav" aria-label="Customer navigation">
+        <a href="customer.html"><span class="customer-nav-mark">H</span><span>Home</span></a>
+        <a class="is-active" href="customer-marketplace.html" aria-current="page"><span class="customer-nav-mark">M</span><span>Marketplace</span></a>
+        <a href="social-feed.html"><span class="customer-nav-mark">S</span><span>Social Feed</span></a>
+        <a href="customer-orders.html"><span class="customer-nav-mark">O</span><span>Orders</span></a>
+        <a href="customer-messages.html"><span class="customer-nav-mark">C</span><span>Messages</span></a>
+        <a href="customer-favorites.html"><span class="customer-nav-mark">F</span><span>Favorites</span></a>
+        <a href="customer-profile.html"><span class="customer-nav-mark">P</span><span>Profile</span></a>
+        <a href="customer-settings.html"><span class="customer-nav-mark">G</span><span>Settings</span></a>
+        <a href="customer-help.html"><span class="customer-nav-mark">?</span><span>Help Center</span></a>
+      </nav>
+    </aside>
+
+    <main class="customer-main">
+      <header class="customer-topbar">
+        <div>
+          <p class="customer-kicker">Local cart</p>
+          <h1>Cart</h1>
+        </div>
+        <form class="customer-search" id="cartSearchForm" aria-label="Search marketplace">
+          <span aria-hidden="true">Search</span>
+          <input id="cartSearchInput" type="search" placeholder="Search more products">
+        </form>
+        <nav class="customer-actions" aria-label="Customer quick links">
+          <a class="customer-icon-button" href="customer-cart.html" aria-label="Cart" aria-current="page">Cart<span class="customer-badge" data-cart-count>0</span></a>
+          <a class="customer-icon-button" href="customer-favorites.html" aria-label="Favorites">Fav<span class="customer-badge" data-favorite-count>0</span></a>
+          <a class="customer-icon-button" href="customer-notifications.html" aria-label="Notifications">Bell</a>
+          <a class="customer-icon-button" href="customer-messages.html" aria-label="Messages">Msg</a>
+          <a class="customer-avatar" href="customer-profile.html" aria-label="Profile" data-customer-avatar>FH</a>
+        </nav>
+      </header>
+
+      <section class="customer-page-heading">
+        <p class="customer-section-kicker">Saved on this device</p>
+        <h1>Your Cart</h1>
+        <p>Cart items are stored in this browser until secure checkout and account-synced carts are connected.</p>
+      </section>
+
+      <section class="cart-layout">
+        <main class="customer-panel cart-items-panel" aria-label="Cart items">
+          <div class="customer-panel-heading">
+            <div>
+              <p class="customer-section-kicker">Selected products</p>
+              <h2>Cart items</h2>
+            </div>
+            <button class="customer-text-button" id="clearCartBtn" type="button">Clear cart</button>
+          </div>
+          <p class="customer-status" id="cartStatus" role="status" aria-live="polite"></p>
+          <div class="cart-list" id="cartList" aria-live="polite"></div>
+        </main>
+
+        <aside class="customer-panel cart-summary" aria-label="Cart summary">
+          <p class="customer-section-kicker">Summary</p>
+          <h2>Local estimate</h2>
+          <dl>
+            <div>
+              <dt>Items</dt>
+              <dd id="cartItemCount">0</dd>
+            </div>
+            <div>
+              <dt>Estimated subtotal</dt>
+              <dd id="cartSubtotal">KRW 0</dd>
+            </div>
+          </dl>
+          <p>Delivery, tax, discounts, payment authorization and checkout totals are not calculated yet.</p>
+          <button class="customer-button" type="button" disabled>Secure checkout coming soon</button>
+          <a class="customer-secondary-button" href="customer-marketplace.html">Continue shopping</a>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <nav class="customer-mobile-nav" aria-label="Customer mobile navigation">
+    <a href="customer.html"><span class="customer-nav-mark">H</span>Home</a>
+    <a href="customer-marketplace.html" aria-current="page"><span class="customer-nav-mark">M</span>Shop</a>
+    <a href="customer-cart.html"><span class="customer-nav-mark">C</span>Cart</a>
+    <a href="customer-messages.html"><span class="customer-nav-mark">C</span>Chat</a>
+    <a href="customer-profile.html"><span class="customer-nav-mark">P</span>Profile</a>
+  </nav>
+
+  <script type="module" src="assets/js/customer-cart.js"></script>
+</body>
+</html>

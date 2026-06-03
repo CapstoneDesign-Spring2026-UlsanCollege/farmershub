@@ -1,0 +1,166 @@
+.cart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 20px;
+  align-items: start;
+}
+
+.cart-list {
+  display: grid;
+  gap: 14px;
+}
+
+.cart-item {
+  padding: 14px;
+  border: 1px solid var(--customer-border);
+  border-radius: 24px;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  background: #fff;
+}
+
+.cart-item-image {
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  color: var(--customer-green);
+  background: #edf6e8 center/cover;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.cart-item h3,
+.cart-item p {
+  margin: 0;
+}
+
+.cart-item h3 {
+  color: var(--customer-deep);
+}
+
+.cart-item p {
+  color: var(--customer-muted);
+}
+
+.cart-item-price {
+  display: block;
+  margin-top: 7px;
+  color: #e88616;
+  font-weight: 900;
+}
+
+.cart-item-controls {
+  display: grid;
+  justify-items: end;
+  gap: 9px;
+}
+
+.cart-quantity {
+  display: grid;
+  grid-template-columns: 38px 42px 38px;
+  overflow: hidden;
+  border: 1px solid var(--customer-border);
+  border-radius: 999px;
+  background: #f7fbf4;
+}
+
+.cart-quantity button {
+  min-height: 38px;
+  border: 0;
+  color: var(--customer-green);
+  background: transparent;
+  font-weight: 900;
+}
+
+.cart-quantity output {
+  display: grid;
+  place-items: center;
+  color: var(--customer-deep);
+  font-weight: 900;
+}
+
+.cart-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 8px;
+}
+
+.cart-summary {
+  position: sticky;
+  top: 22px;
+  display: grid;
+  gap: 14px;
+}
+
+.cart-summary h2 {
+  margin: 0;
+  color: var(--customer-deep);
+  font-family: Sora, sans-serif;
+}
+
+.cart-summary dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.cart-summary dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--customer-border);
+}
+
+.cart-summary dt {
+  color: var(--customer-muted);
+  font-weight: 800;
+}
+
+.cart-summary dd {
+  margin: 0;
+  color: var(--customer-deep);
+  font-weight: 900;
+}
+
+.cart-summary p {
+  margin: 0;
+  color: var(--customer-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 1020px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .cart-item {
+    grid-template-columns: 74px minmax(0, 1fr);
+  }
+
+  .cart-item-image {
+    width: 74px;
+    height: 74px;
+  }
+
+  .cart-item-controls {
+    grid-column: 1 / -1;
+    justify-items: stretch;
+  }
+
+  .cart-item-actions {
+    justify-content: stretch;
+  }
+}

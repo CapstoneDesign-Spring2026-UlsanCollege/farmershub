@@ -1,0 +1,50 @@
+.favorites-hero {
+  min-height: 260px;
+  padding: 34px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 22px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(110deg, rgba(18, 78, 43, 0.94), rgba(37, 133, 76, 0.72)),
+    url("../images/home/product-onions.webp") center/cover;
+  box-shadow: 0 28px 70px rgba(36, 97, 56, 0.24);
+}
+
+.favorites-hero h1 {
+  margin: 8px 0 12px;
+  font-family: Sora, sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.favorites-hero p {
+  max-width: 680px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.65;
+}
+
+.favorites-hero .customer-section-kicker {
+  color: #ffe18c;
+}
+
+.favorite-stale-note {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border: 1px solid var(--customer-border);
+  border-radius: 22px;
+  color: var(--customer-muted);
+  background: #fffaf0;
+}
+
+@media (max-width: 760px) {
+  .favorites-hero {
+    align-items: start;
+    flex-direction: column;
+    padding: 26px;
+  }
+}
