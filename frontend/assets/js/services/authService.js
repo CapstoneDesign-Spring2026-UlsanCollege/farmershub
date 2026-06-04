@@ -9,7 +9,7 @@ async function register(payload) {
     body: JSON.stringify(payload),
   });
   const session = data?.data || data;
-  _saveSession(session.user, session.token);
+  saveSession(session.user, session.token);
   return data;
 }
 
@@ -20,7 +20,7 @@ async function login(payload) {
     body: JSON.stringify(payload),
   });
   const session = data?.data || data;
-  _saveSession(session.user, session.token);
+  saveSession(session.user, session.token);
   return data;
 }
 
@@ -56,7 +56,7 @@ function getCurrentUser() {
   }
 }
 
-function _saveSession(user, token) {
+function saveSession(user, token) {
   clearSessionStorage();
   if (token) {
     localStorage.setItem('fh_token', token);
@@ -69,4 +69,4 @@ function _saveSession(user, token) {
   }
 }
 
-export { register, login, getMe, logout, isLoggedIn, getCurrentUser, clearSessionStorage, AUTH_STORAGE_KEYS };
+export { register, login, getMe, logout, isLoggedIn, getCurrentUser, clearSessionStorage, saveSession, AUTH_STORAGE_KEYS };

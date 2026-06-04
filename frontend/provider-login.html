@@ -7,28 +7,88 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/provider-auth.css">
+  <link rel="stylesheet" href="assets/css/provider-login.css">
 </head>
-<body class="provider-auth-page" data-provider-auth-mode="login">
-  <main class="provider-auth-card">
-    <img class="provider-auth-logo" src="logo.png" alt="FarmersHub logo">
-    <h1>Provider Portal</h1>
-    <p>Sign in to manage farm service listings, farmer requests, quotations and provider messages.</p>
-    <form class="provider-auth-form" id="providerAuthForm">
-      <label>Email
-        <input type="email" name="email" autocomplete="email" required>
-      </label>
-      <label>Password
-        <input type="password" name="password" autocomplete="current-password" required>
-      </label>
-      <button class="provider-button" type="submit">Sign in</button>
-      <p class="provider-status" id="providerAuthStatus" role="status" aria-live="polite"></p>
-    </form>
-    <div class="provider-auth-switch">
-      <a class="provider-secondary-button" href="provider-register.html">Create provider account</a>
-      <a class="provider-text-link" href="login/login.html">Farmer login</a>
-    </div>
+<body class="provider-login-page">
+  <header class="provider-login-header">
+    <a class="provider-login-brand" href="provider-login.html" aria-label="FarmersHub Provider Portal">
+      <img src="logo.png" alt="FarmersHub logo">
+      <span>FarmersHub</span>
+      <strong>Provider Portal</strong>
+    </a>
+  </header>
+
+  <main class="provider-login-main">
+    <section class="provider-login-intro" aria-label="Provider portal introduction">
+      <div class="provider-login-kicker">Farm service access</div>
+      <h1>Support farms. Grow your service business.</h1>
+      <p>Connect with farmers looking for equipment, transport, storage and agricultural support.</p>
+
+      <ul class="provider-login-values" aria-label="Provider portal capabilities">
+        <li>
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M5 6h14M5 12h14M5 18h9"></path>
+            </svg>
+          </span>
+          Manage service listings
+        </li>
+        <li>
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M4 12h4l3-7 4 14 3-7h2"></path>
+            </svg>
+          </span>
+          Respond to farmer requests
+        </li>
+        <li>
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M5 6h14v9H8l-3 3V6z"></path>
+            </svg>
+          </span>
+          Stay connected through messages
+        </li>
+      </ul>
+    </section>
+
+    <section class="provider-login-card" aria-label="Provider sign in">
+      <div class="provider-login-card-heading">
+        <p>FarmersHub</p>
+        <h2>Sign in as a Provider</h2>
+        <span>Access your listings, farmer requests and service conversations.</span>
+      </div>
+
+      <form class="provider-login-form" id="providerLoginForm" novalidate>
+        <label for="providerLoginEmail">Email address</label>
+        <input id="providerLoginEmail" name="email" type="email" autocomplete="email" required>
+
+        <label for="providerLoginPassword">Password</label>
+        <div class="provider-password-control">
+          <input id="providerLoginPassword" name="password" type="password" autocomplete="current-password" required>
+          <button id="providerPasswordToggle" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span>Show</span>
+          </button>
+        </div>
+
+        <button class="provider-login-submit" type="submit">Sign In</button>
+        <p id="providerLoginStatus" class="provider-login-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="provider-login-note">Provider account access only.</p>
+
+      <nav class="provider-login-switch" aria-label="Other account types">
+        <a href="provider-register.html">Create provider account</a>
+        <a href="login/login.html">Farmer sign in</a>
+        <a href="login/login.html">Customer sign in</a>
+      </nav>
+    </section>
   </main>
-  <script type="module" src="assets/js/provider-auth.js"></script>
+
+  <script type="module" src="assets/js/provider-login.js"></script>
 </body>
 </html>
