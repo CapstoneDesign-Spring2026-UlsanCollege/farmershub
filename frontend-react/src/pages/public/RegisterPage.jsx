@@ -24,7 +24,7 @@ export function RegisterPage() {
         role,
         phone: formData.get('phone'),
         address: formData.get('address'),
-      });
+      }, { expectedRole: role });
       setStatus({ message: 'Account created. Sign in with the same role to continue.', tone: 'success' });
       window.setTimeout(() => navigate('/login'), 800);
     } catch (error) {

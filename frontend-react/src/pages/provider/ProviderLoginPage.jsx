@@ -17,15 +17,16 @@ export function ProviderLoginPage() {
     setBusy(true);
     setStatus({ message: 'Signing into Provider Portal...', tone: 'info' });
     try {
-      const response = await login({ email: formData.get('email'), password: formData.get('password'), role: 'provider' });
-      const user = response.user || response.data?.user || response.data;
-      if (user?.role !== 'provider') {
-        setStatus({ message: `Provider Portal access requires a provider account. This account is ${user?.role || 'unknown'}.`, tone: 'error' });
-        return;
-      }
+      await login(
+        { email: formData.get('email'), password: formData.get('password'), role: 'provider' },
+        { expectedRole: 'provider' },
+      );
       navigate(roleHomePath('provider'), { replace: true });
     } catch (error) {
-      setStatus({ message: error.message || 'Unable to sign in.', tone: 'error' });
+      const message = error.code === 'ROLE_MISMATCH'
+        ? `Provider Portal access requires a provider account. This account is ${error.actualRole || 'unknown'}.`
+        : error.message || 'Unable to sign in.';
+      setStatus({ message, tone: 'error' });
     } finally {
       setBusy(false);
     }

@@ -3,22 +3,42 @@ import { login as loginRequest, register as registerRequest, getMe } from '../ap
 import { clearSessionStorage, readSession, saveSession } from './sessionStorage.js';
 import { AuthContext } from './AuthContext.js';
 
+function getResponseUser(data) {
+  return data?.user || data?.data?.user || data?.data || null;
+}
+
+function createRoleMismatchError(actualRole, expectedRole) {
+  const error = new Error(`This account is registered as ${actualRole || 'unknown'}. Pick the correct role.`);
+  error.code = 'ROLE_MISMATCH';
+  error.actualRole = actualRole || '';
+  error.expectedRole = expectedRole;
+  return error;
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(readSession);
   const [authError, setAuthError] = useState('');
 
-  async function login(payload) {
+  async function login(payload, options = {}) {
     setAuthError('');
     const data = await loginRequest(payload);
+    const user = getResponseUser(data);
+    if (options.expectedRole && user?.role !== options.expectedRole) {
+      throw createRoleMismatchError(user?.role, options.expectedRole);
+    }
     const next = saveSession(data);
     setSession({ ...next, isAuthenticated: Boolean(next.token) });
     return data;
   }
 
-  async function register(payload) {
+  async function register(payload, options = {}) {
     setAuthError('');
     const data = await registerRequest(payload);
-    if (data?.token || data?.data?.token) {
+    const user = getResponseUser(data);
+    if (options.expectedRole && user?.role !== options.expectedRole) {
+      throw createRoleMismatchError(user?.role, options.expectedRole);
+    }
+    if (options.persistSession && (data?.token || data?.data?.token)) {
       const next = saveSession(data);
       setSession({ ...next, isAuthenticated: Boolean(next.token) });
     }
