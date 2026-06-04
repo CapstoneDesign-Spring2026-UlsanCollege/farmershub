@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Notifications | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-service-notifications.css">
+</head>
+<body class="farmer-service-page">
+  <header class="farmer-service-topbar"><a class="farmer-service-brand" href="index.html"><img src="logo.png" alt="FarmersHub logo"><span>Farmer Services</span><strong>FarmersHub</strong></a><div class="farmer-service-topbar-status">Service request notifications</div><nav class="farmer-service-actions" aria-label="Farmer service actions"><button class="farmer-service-secondary-button" type="button" id="farmerMarkServiceNotificationsRead">Mark all read</button><button class="farmer-service-secondary-button" type="button" data-farmer-service-logout>Log out</button></nav></header>
+  <main class="farmer-service-shell">
+    <aside class="farmer-service-sidebar"><nav class="farmer-service-nav" data-farmer-service-nav aria-label="Farmer service navigation"><p class="farmer-service-nav-title">Service Marketplace</p><a href="farmer-services-marketplace.html">Services</a><a href="farmer-service-requests.html">My Requests</a><a href="farmer-provider-messages.html">Provider Messages</a><a href="farmer-service-notifications.html">Service Notifications</a><a href="index.html">Farmer Dashboard</a><a href="help-center.html">Help Center</a></nav></aside>
+    <section class="farmer-service-content"><section class="farmer-service-hero"><div><span class="farmer-service-pill">Notifications</span><h1>Service updates</h1><p>Quotes, declines, cancellations, completions and service messages appear here when backed by real API notifications.</p></div></section><section class="farmer-service-card"><p class="farmer-service-status" id="farmerServiceNotificationsStatus" role="status" aria-live="polite"></p><div class="farmer-service-list" id="farmerServiceNotificationsList" aria-live="polite"></div></section></section>
+  </main>
+  <script type="module" src="assets/js/farmer-service-notifications.js"></script>
+</body>
+</html>

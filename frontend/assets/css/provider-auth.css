@@ -1,0 +1,63 @@
+@import url("./provider-shell.css");
+
+body.provider-auth-page {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--provider-text);
+  background: #f4f7f2;
+  font-family: "Manrope", Arial, sans-serif;
+}
+
+.provider-auth-card {
+  width: min(480px, 100%);
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--provider-border);
+  box-shadow: var(--provider-shadow);
+}
+
+.provider-auth-card h1 {
+  margin: 12px 0 8px;
+  font-family: "Sora", sans-serif;
+}
+
+.provider-auth-card p {
+  color: var(--provider-muted);
+  line-height: 1.55;
+}
+
+.provider-auth-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+}
+
+.provider-auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.provider-auth-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.provider-auth-form input {
+  border: 1px solid var(--provider-border);
+  padding: 12px;
+  font: inherit;
+}
+
+.provider-auth-switch {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}

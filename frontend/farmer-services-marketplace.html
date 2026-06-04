@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Services Marketplace | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-services-marketplace.css">
+</head>
+<body class="farmer-service-page">
+  <header class="farmer-service-topbar">
+    <a class="farmer-service-brand" href="index.html"><img src="logo.png" alt="FarmersHub logo"><span>Farmer Services</span><strong>FarmersHub</strong></a>
+    <div class="farmer-service-topbar-status">Signed in as <span id="farmerServiceUserName">Farmer</span></div>
+    <nav class="farmer-service-actions" aria-label="Farmer service actions"><a class="farmer-service-secondary-button" href="farmer-service-requests.html">My Requests</a><button class="farmer-service-secondary-button" type="button" data-farmer-service-logout>Log out</button></nav>
+  </header>
+  <main class="farmer-service-shell">
+    <aside class="farmer-service-sidebar">
+      <nav class="farmer-service-nav" data-farmer-service-nav aria-label="Farmer service navigation">
+        <p class="farmer-service-nav-title">Service Marketplace</p>
+        <a href="farmer-services-marketplace.html">Services</a>
+        <a href="farmer-service-requests.html">My Requests</a>
+        <a href="farmer-provider-messages.html">Provider Messages</a>
+        <a href="farmer-service-notifications.html">Service Notifications</a>
+        <a href="index.html">Farmer Dashboard</a>
+        <a href="help-center.html">Help Center</a>
+      </nav>
+    </aside>
+    <section class="farmer-service-content">
+      <section class="farmer-service-hero"><div><span class="farmer-service-pill">Farm support</span><h1>Find providers for farm services</h1><p>Browse real active provider listings for equipment, water, logistics, storage, inputs and specialist support.</p></div></section>
+      <section class="farmer-service-card">
+        <form class="farmer-service-form" id="serviceSearchForm">
+          <label>Search <input type="search" id="serviceSearchInput" placeholder="Search title, provider or service area"></label>
+          <label>Category
+            <select id="serviceCategoryFilter">
+              <option value="">All categories</option>
+              <option value="tractor">Tractor</option>
+              <option value="tiller">Tiller</option>
+              <option value="irrigation_pump">Irrigation Pump</option>
+              <option value="delivery_truck">Delivery Truck</option>
+              <option value="fertilizer">Fertilizer</option>
+              <option value="cold_storage">Cold Storage</option>
+              <option value="soil_testing">Soil Testing</option>
+              <option value="crop_consultation">Crop Consultation</option>
+            </select>
+          </label>
+          <div class="farmer-service-wide"><button class="farmer-service-button" type="submit">Apply filters</button></div>
+        </form>
+        <p class="farmer-service-status" id="farmerServicesStatus" role="status" aria-live="polite"></p>
+      </section>
+      <section class="farmer-service-grid" id="farmerServicesGrid" aria-live="polite"></section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/farmer-services-marketplace.js"></script>
+</body>
+</html>

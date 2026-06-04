@@ -1,0 +1,382 @@
+:root {
+  --fs-bg: #f6f8f2;
+  --fs-surface: #ffffff;
+  --fs-soft: #eef6e7;
+  --fs-text: #172016;
+  --fs-muted: #657260;
+  --fs-border: #dfe8d8;
+  --fs-green: #287342;
+  --fs-green-dark: #18492c;
+  --fs-blue: #325b6f;
+  --fs-gold: #aa7817;
+  --fs-danger: #b53b2d;
+  --fs-shadow: 0 12px 28px rgba(33, 52, 31, .08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.farmer-service-page {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--fs-text);
+  background: var(--fs-bg);
+  font-family: "Manrope", Arial, sans-serif;
+}
+
+.farmer-service-topbar {
+  width: min(1440px, calc(100% - 28px));
+  min-height: 72px;
+  margin: 0 auto;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  background: var(--fs-surface);
+  border: 1px solid var(--fs-border);
+  box-shadow: var(--fs-shadow);
+}
+
+.farmer-service-brand,
+.farmer-service-button,
+.farmer-service-secondary-button,
+.farmer-service-danger-button {
+  display: inline-flex;
+  align-items: center;
+}
+
+.farmer-service-brand {
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.farmer-service-brand img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.farmer-service-brand span {
+  display: block;
+  color: var(--fs-muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.farmer-service-brand strong,
+.farmer-service-hero h1,
+.farmer-service-card h2,
+.farmer-service-card h3,
+.farmer-service-state h2 {
+  font-family: "Sora", sans-serif;
+}
+
+.farmer-service-brand strong {
+  color: var(--fs-green-dark);
+  font-size: 21px;
+}
+
+.farmer-service-topbar-status {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  color: var(--fs-muted);
+  background: #f8faf6;
+  border: 1px solid var(--fs-border);
+  font-weight: 800;
+}
+
+.farmer-service-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.farmer-service-shell {
+  width: min(1440px, calc(100% - 28px));
+  margin: 16px auto 46px;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.farmer-service-sidebar {
+  position: sticky;
+  top: 16px;
+}
+
+.farmer-service-nav,
+.farmer-service-card,
+.farmer-service-state {
+  background: var(--fs-surface);
+  border: 1px solid var(--fs-border);
+  box-shadow: var(--fs-shadow);
+}
+
+.farmer-service-nav {
+  padding: 10px;
+}
+
+.farmer-service-nav-title {
+  margin: 0;
+  padding: 8px 10px 12px;
+  color: var(--fs-muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.farmer-service-nav a {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  padding: 0 12px;
+  color: var(--fs-muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.farmer-service-nav a:hover,
+.farmer-service-nav a:focus-visible,
+.farmer-service-nav a.is-active {
+  color: #fff;
+  background: var(--fs-green);
+  outline: none;
+}
+
+.farmer-service-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.farmer-service-hero {
+  min-height: 190px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+  padding: 24px;
+  color: #fff;
+  background: #1f5231;
+}
+
+.farmer-service-hero h1 {
+  margin: 6px 0 10px;
+  color: #fff;
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.farmer-service-hero p,
+.farmer-service-card p,
+.farmer-service-state p,
+.farmer-service-muted {
+  color: var(--fs-muted);
+  line-height: 1.55;
+}
+
+.farmer-service-hero p {
+  max-width: 720px;
+  margin: 0;
+  color: rgba(255, 255, 255, .84);
+}
+
+.farmer-service-card,
+.farmer-service-state {
+  padding: 18px;
+}
+
+.farmer-service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.farmer-service-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.farmer-service-list {
+  display: grid;
+  gap: 12px;
+}
+
+.farmer-service-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.farmer-service-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--fs-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.farmer-service-form input,
+.farmer-service-form textarea,
+.farmer-service-form select {
+  width: 100%;
+  border: 1px solid var(--fs-border);
+  padding: 11px 12px;
+  color: var(--fs-text);
+  background: #fff;
+  font: inherit;
+}
+
+.farmer-service-form textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+
+.farmer-service-wide {
+  grid-column: 1 / -1;
+}
+
+.farmer-service-button,
+.farmer-service-secondary-button,
+.farmer-service-danger-button {
+  min-height: 40px;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.farmer-service-button {
+  color: #fff;
+  background: var(--fs-green);
+}
+
+.farmer-service-secondary-button {
+  color: var(--fs-green-dark);
+  background: #fff;
+  border: 1px solid var(--fs-border);
+}
+
+.farmer-service-danger-button {
+  color: #fff;
+  background: var(--fs-danger);
+}
+
+.farmer-service-chipbar,
+.farmer-service-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.farmer-service-pill {
+  min-height: 26px;
+  width: max-content;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  color: var(--fs-green-dark);
+  background: var(--fs-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.farmer-service-status {
+  min-height: 24px;
+  margin: 8px 0 0;
+  color: var(--fs-muted);
+  font-weight: 800;
+}
+
+.farmer-service-status[data-tone="error"],
+.farmer-service-state[data-tone="error"] {
+  color: var(--fs-danger);
+}
+
+.farmer-service-field-row {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--fs-border);
+}
+
+.farmer-service-field-row span {
+  color: var(--fs-muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.farmer-service-field-row strong {
+  overflow-wrap: anywhere;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(170, 120, 23, .32);
+  outline-offset: 2px;
+}
+
+@media (max-width: 960px) {
+  .farmer-service-topbar,
+  .farmer-service-shell,
+  .farmer-service-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .farmer-service-sidebar {
+    position: static;
+  }
+
+  .farmer-service-grid,
+  .farmer-service-two-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .farmer-service-topbar,
+  .farmer-service-shell {
+    width: min(100% - 20px, 1440px);
+  }
+
+  .farmer-service-grid,
+  .farmer-service-two-column,
+  .farmer-service-form {
+    grid-template-columns: 1fr;
+  }
+
+  .farmer-service-hero h1 {
+    font-size: 28px;
+  }
+
+  .farmer-service-field-row {
+    grid-template-columns: 1fr;
+  }
+}

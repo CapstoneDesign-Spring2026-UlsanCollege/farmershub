@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Profile | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/provider-profile.css">
+</head>
+<body class="provider-page">
+  <header class="provider-topbar"><a class="provider-brand" href="provider-dashboard.html"><img src="logo.png" alt="FarmersHub logo"><span>Provider Portal</span><strong>FarmersHub</strong></a><div class="provider-topbar-status">Public provider profile controls</div><nav class="provider-topbar-actions" aria-label="Provider actions"><button class="provider-secondary-button" type="button" data-provider-logout>Log out</button></nav></header>
+  <main class="provider-shell">
+    <aside class="provider-sidebar"><nav class="provider-nav" data-provider-nav aria-label="Provider navigation"><p class="provider-nav-title">Provider Portal</p><a href="provider-dashboard.html">Dashboard</a><a href="provider-listings.html">Listings</a><a href="provider-requests.html">Requests</a><a href="provider-messages.html">Messages</a><a href="provider-notifications.html">Notifications</a><a href="provider-profile.html">Profile</a><a href="provider-settings.html">Settings</a><a href="provider-help.html">Help</a></nav></aside>
+    <section class="provider-content">
+      <section class="provider-hero"><div><span class="provider-pill">Profile</span><h1>Business profile</h1><p>Manage farmer-visible business details. Verification is pending platform review and is not shown as approved unless the backend stores that state.</p></div></section>
+      <section class="provider-two-column">
+        <section class="provider-card"><h2>Edit profile</h2><form class="provider-form" id="providerProfileForm"><label>Business name <input type="text" name="businessName" required></label><label>Business type <input type="text" name="businessType"></label><label>Service area <input type="text" name="serviceArea" required></label><label>Location <input type="text" name="location"></label><label>Public email <input type="email" name="publicEmail"></label><label>Public phone <input type="tel" name="publicPhone"></label><label>Website <input type="url" name="website"></label><label>Contact preference <select name="contactPreference"><option value="message">Message</option><option value="phone">Phone</option><option value="email">Email</option><option value="message_or_phone">Message or phone</option></select></label><label class="provider-wide">Service categories <input type="text" name="serviceCategories" placeholder="tractor, delivery_truck, soil_testing"></label><label class="provider-wide">Operating hours <input type="text" name="operatingHours"></label><label class="provider-wide">Bio <textarea name="bio"></textarea></label><div class="provider-wide"><button class="provider-button" type="submit">Save profile</button></div></form><p class="provider-status" id="providerProfileStatus" role="status" aria-live="polite"></p></section>
+        <section class="provider-card"><h2>Public preview</h2><div id="providerProfilePreview"></div><h3>Active listings</h3><div class="provider-list" id="providerProfileListings"></div></section>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/provider-profile.js"></script>
+</body>
+</html>

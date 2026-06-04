@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Request Detail | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/provider-request-detail.css">
+</head>
+<body class="provider-page">
+  <header class="provider-topbar"><a class="provider-brand" href="provider-dashboard.html"><img src="logo.png" alt="FarmersHub logo"><span>Provider Portal</span><strong>FarmersHub</strong></a><div class="provider-topbar-status">Request details and quotation</div><nav class="provider-topbar-actions" aria-label="Provider actions"><a class="provider-secondary-button" href="provider-requests.html">Back to Requests</a><button class="provider-secondary-button" type="button" data-provider-logout>Log out</button></nav></header>
+  <main class="provider-shell">
+    <aside class="provider-sidebar"><nav class="provider-nav" data-provider-nav aria-label="Provider navigation"><p class="provider-nav-title">Provider Portal</p><a href="provider-dashboard.html">Dashboard</a><a href="provider-listings.html">Listings</a><a href="provider-requests.html">Requests</a><a href="provider-messages.html">Messages</a><a href="provider-notifications.html">Notifications</a><a href="provider-profile.html">Profile</a><a href="provider-settings.html">Settings</a><a href="provider-help.html">Help</a></nav></aside>
+    <section class="provider-content">
+      <section class="provider-hero"><div><span class="provider-pill">Request Detail</span><h1>Review farmer request</h1><p>Send a real quote, decline if you cannot serve it, or complete accepted work after the farmer accepts your quotation.</p></div></section>
+      <section class="provider-two-column">
+        <section id="providerRequestDetail" aria-live="polite"></section>
+        <section class="provider-card">
+          <h2>Quote or update</h2>
+          <form class="provider-form" id="providerQuoteForm">
+            <label>Amount <input type="number" name="amount" min="1" step="1" required></label>
+            <label>Pricing type <select name="pricingType"><option value="fixed">Fixed</option><option value="per_hour">Per hour</option><option value="per_day">Per day</option><option value="per_acre">Per acre</option><option value="per_delivery">Per delivery</option><option value="per_unit">Per unit</option></select></label>
+            <label class="provider-wide">Valid until <input type="date" name="validUntil"></label>
+            <label class="provider-wide">Quote notes <textarea name="notes"></textarea></label>
+            <div class="provider-wide provider-actions"><button class="provider-button" type="submit">Send quote</button><button class="provider-danger-button" type="button" id="providerDeclineBtn">Decline</button><button class="provider-secondary-button" type="button" id="providerCompleteBtn">Mark complete</button></div>
+          </form>
+          <p class="provider-status" id="providerRequestDetailStatus" role="status" aria-live="polite"></p>
+        </section>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/provider-request-detail.js"></script>
+</body>
+</html>

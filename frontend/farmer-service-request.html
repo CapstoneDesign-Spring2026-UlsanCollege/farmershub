@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Request | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/farmer-service-request.css">
+</head>
+<body class="farmer-service-page">
+  <header class="farmer-service-topbar"><a class="farmer-service-brand" href="index.html"><img src="logo.png" alt="FarmersHub logo"><span>Farmer Services</span><strong>FarmersHub</strong></a><div class="farmer-service-topbar-status">Submit or view service request</div><nav class="farmer-service-actions" aria-label="Farmer service actions"><a class="farmer-service-secondary-button" href="farmer-service-requests.html">My Requests</a><button class="farmer-service-secondary-button" type="button" data-farmer-service-logout>Log out</button></nav></header>
+  <main class="farmer-service-shell">
+    <aside class="farmer-service-sidebar"><nav class="farmer-service-nav" data-farmer-service-nav aria-label="Farmer service navigation"><p class="farmer-service-nav-title">Service Marketplace</p><a href="farmer-services-marketplace.html">Services</a><a href="farmer-service-requests.html">My Requests</a><a href="farmer-provider-messages.html">Provider Messages</a><a href="farmer-service-notifications.html">Service Notifications</a><a href="index.html">Farmer Dashboard</a><a href="help-center.html">Help Center</a></nav></aside>
+    <section class="farmer-service-content">
+      <section class="farmer-service-hero"><div><span class="farmer-service-pill">Request</span><h1>Request provider support</h1><p>Submit location, timing, acreage or quantity and notes. This creates a real service request; it does not create a paid booking.</p></div></section>
+      <section class="farmer-service-two-column">
+        <section class="farmer-service-card" id="farmerServiceRequestListing" aria-live="polite"></section>
+        <section class="farmer-service-card">
+          <form class="farmer-service-form" id="farmerServiceRequestForm">
+            <label class="farmer-service-wide">Farm or service location <input type="text" name="farmLocation" required></label>
+            <label class="farmer-service-wide">Description of need <textarea name="needDescription" required></textarea></label>
+            <label>Preferred start date <input type="date" name="preferredStartDate"></label>
+            <label>Preferred end date <input type="date" name="preferredEndDate"></label>
+            <label>Acreage or quantity <input type="text" name="acreageOrQuantity"></label>
+            <label>Budget optional <input type="number" name="budget" min="0" step="1"></label>
+            <label>Contact preference <select name="contactPreference"><option value="message">Message</option><option value="phone">Phone</option><option value="email">Email</option><option value="message_or_phone">Message or phone</option></select></label>
+            <label class="farmer-service-wide">Notes <textarea name="notes"></textarea></label>
+            <div class="farmer-service-wide"><button class="farmer-service-button" type="submit">Submit request</button></div>
+          </form>
+          <div id="farmerSubmittedRequestPanel" aria-live="polite"></div>
+          <p class="farmer-service-status" id="farmerServiceRequestStatus" role="status" aria-live="polite"></p>
+        </section>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/farmer-service-request.js"></script>
+</body>
+</html>

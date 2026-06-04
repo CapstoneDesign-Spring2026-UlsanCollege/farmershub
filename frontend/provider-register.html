@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Registration | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/provider-auth.css">
+</head>
+<body class="provider-auth-page" data-provider-auth-mode="register">
+  <main class="provider-auth-card">
+    <img class="provider-auth-logo" src="logo.png" alt="FarmersHub logo">
+    <h1>Create Provider Account</h1>
+    <p>Register as a farm support provider. This creates a real provider role, separate from farmer and produce buyer accounts.</p>
+    <form class="provider-auth-form" id="providerAuthForm">
+      <label>Full name
+        <input type="text" name="fullName" autocomplete="name" required>
+      </label>
+      <label>Email
+        <input type="email" name="email" autocomplete="email" required>
+      </label>
+      <label>Password
+        <input type="password" name="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <label>Phone
+        <input type="tel" name="phone" autocomplete="tel">
+      </label>
+      <label>Business address
+        <input type="text" name="address" autocomplete="street-address">
+      </label>
+      <button class="provider-button" type="submit">Create provider account</button>
+      <p class="provider-status" id="providerAuthStatus" role="status" aria-live="polite"></p>
+    </form>
+    <div class="provider-auth-switch">
+      <a class="provider-secondary-button" href="provider-login.html">I already have an account</a>
+      <a class="provider-text-link" href="login/login.html">Farmer login</a>
+    </div>
+  </main>
+  <script type="module" src="assets/js/provider-auth.js"></script>
+</body>
+</html>

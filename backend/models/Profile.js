@@ -9,7 +9,7 @@ const profileSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['farmer', 'customer'],
+        enum: ['farmer', 'customer', 'provider'],
     },
     bio: {
         type: String,

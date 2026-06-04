@@ -15,7 +15,7 @@ const register = async (req, res, next) => {
       address, age, gender, paymentMethod,
     } = req.body;
 
-    const role = rawRole || 'customer';
+    const role = rawRole === 'buyer' ? 'customer' : (rawRole || 'customer');
     // Normalize phone field
     const phoneNorm = phone || contact || '';
 

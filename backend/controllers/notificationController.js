@@ -26,6 +26,13 @@ const getUserNotifications = async (req, res, next) => {
       { path: 'relatedId.receiver', select: 'fullName role' },
     ]);
 
+    const serviceRequestNotifications = notifications.filter(
+      (notification) => notification.relatedModel === 'FarmServiceRequest' && notification.relatedId
+    );
+    await Notification.populate(serviceRequestNotifications, [
+      { path: 'relatedId.listing', select: 'title category pricingType price' },
+    ]);
+
     const total = await Notification.countDocuments({ user: req.user._id });
 
     return successResponse(res, 'Notifications retrieved', {

@@ -1,5 +1,6 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
+const { FarmServiceRequest } = require('../models/FarmServiceRequest');
 const { createNotification } = require('./notificationController');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
@@ -54,7 +55,7 @@ const getUserMessages = async (req, res, next) => {
  */
 const sendMessage = async (req, res, next) => {
   try {
-    const { receiverId, content, relatedProduct } = req.body;
+    const { receiverId, content, relatedProduct, relatedServiceRequest } = req.body;
     const cleanContent = String(content || '').trim();
 
     if (!receiverId || !cleanContent) {
@@ -71,12 +72,32 @@ const sendMessage = async (req, res, next) => {
       return errorResponse(res, 'Receiver not found', 404);
     }
 
+    if (relatedServiceRequest) {
+      const serviceRequest = await FarmServiceRequest.findById(relatedServiceRequest);
+      if (!serviceRequest) {
+        return errorResponse(res, 'Service request not found', 404);
+      }
+
+      const senderId = String(req.user._id);
+      const receiverUserId = String(receiverId);
+      const farmerId = String(serviceRequest.farmer.userId);
+      const providerId = String(serviceRequest.provider.userId);
+      const isAllowedPair =
+        (senderId === farmerId && receiverUserId === providerId) ||
+        (senderId === providerId && receiverUserId === farmerId);
+
+      if (!isAllowedPair) {
+        return errorResponse(res, 'You can only message within your own service request', 403);
+      }
+    }
+
     // Create the message
     const message = new Message({
       sender: req.user._id,
       receiver: receiverId,
       content: cleanContent,
       relatedProduct,
+      relatedServiceRequest,
     });
 
     await message.save();

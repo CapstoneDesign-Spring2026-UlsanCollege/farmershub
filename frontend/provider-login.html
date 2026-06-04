@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Login | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/provider-auth.css">
+</head>
+<body class="provider-auth-page" data-provider-auth-mode="login">
+  <main class="provider-auth-card">
+    <img class="provider-auth-logo" src="logo.png" alt="FarmersHub logo">
+    <h1>Provider Portal</h1>
+    <p>Sign in to manage farm service listings, farmer requests, quotations and provider messages.</p>
+    <form class="provider-auth-form" id="providerAuthForm">
+      <label>Email
+        <input type="email" name="email" autocomplete="email" required>
+      </label>
+      <label>Password
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="provider-button" type="submit">Sign in</button>
+      <p class="provider-status" id="providerAuthStatus" role="status" aria-live="polite"></p>
+    </form>
+    <div class="provider-auth-switch">
+      <a class="provider-secondary-button" href="provider-register.html">Create provider account</a>
+      <a class="provider-text-link" href="login/login.html">Farmer login</a>
+    </div>
+  </main>
+  <script type="module" src="assets/js/provider-auth.js"></script>
+</body>
+</html>

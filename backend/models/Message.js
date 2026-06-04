@@ -26,6 +26,10 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
     },
+    relatedServiceRequest: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'FarmServiceRequest',
+    },
     isRead: {
       type: Boolean,
       default: false,
@@ -38,5 +42,6 @@ messageSchema.index({ sender: 1, receiver: 1, createdAt: -1 });
 messageSchema.index({ sender: 1, createdAt: -1 });
 messageSchema.index({ receiver: 1, createdAt: -1 });
 messageSchema.index({ receiver: 1, isRead: 1, createdAt: -1 });
+messageSchema.index({ relatedServiceRequest: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Message', messageSchema);

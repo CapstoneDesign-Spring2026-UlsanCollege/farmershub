@@ -1,0 +1,8 @@
+@import url("./provider-shell.css");
+
+.provider-metric strong {
+  display: block;
+  color: var(--provider-green-dark);
+  font-size: 30px;
+  font-family: "Sora", sans-serif;
+}

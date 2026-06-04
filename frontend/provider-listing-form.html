@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Listing Form | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/provider-listing-form.css">
+</head>
+<body class="provider-page">
+  <header class="provider-topbar">
+    <a class="provider-brand" href="provider-dashboard.html"><img src="logo.png" alt="FarmersHub logo"><span>Provider Portal</span><strong>FarmersHub</strong></a>
+    <div class="provider-topbar-status">Create or edit a farm service listing</div>
+    <nav class="provider-topbar-actions" aria-label="Provider actions"><a class="provider-secondary-button" href="provider-listings.html">Back to Listings</a><button class="provider-secondary-button" type="button" data-provider-logout>Log out</button></nav>
+  </header>
+  <main class="provider-shell">
+    <aside class="provider-sidebar"><nav class="provider-nav" data-provider-nav aria-label="Provider navigation"><p class="provider-nav-title">Provider Portal</p><a href="provider-dashboard.html">Dashboard</a><a href="provider-listings.html">Listings</a><a href="provider-requests.html">Requests</a><a href="provider-messages.html">Messages</a><a href="provider-notifications.html">Notifications</a><a href="provider-profile.html">Profile</a><a href="provider-settings.html">Settings</a><a href="provider-help.html">Help</a></nav></aside>
+    <section class="provider-content">
+      <section class="provider-hero"><div><span class="provider-pill">Listing</span><h1 id="providerListingFormTitle">Create service listing</h1><p>Use quote-required pricing when the final cost depends on field size, distance, timing or equipment availability.</p></div></section>
+      <section class="provider-card">
+        <form class="provider-form" id="providerListingForm">
+          <label class="provider-wide">Title <input type="text" name="title" required></label>
+          <label>Category <select name="category" required></select></label>
+          <label>Listing type <select name="listingType" required><option value="rental">Rental</option><option value="service">Service</option><option value="transport">Transport</option><option value="storage">Storage</option><option value="input_supply">Input supply</option><option value="consultation">Consultation</option><option value="repair">Repair</option></select></label>
+          <label>Pricing type <select name="pricingType" required><option value="quote_required">Quote required</option><option value="fixed">Fixed</option><option value="per_hour">Per hour</option><option value="per_day">Per day</option><option value="per_acre">Per acre</option><option value="per_delivery">Per delivery</option><option value="per_unit">Per unit</option></select></label>
+          <label>Price <input type="number" name="price" min="0" step="1"></label>
+          <label>Unit label <input type="text" name="unitLabel" placeholder="hour, day, delivery, acre"></label>
+          <label>Service area <input type="text" name="serviceArea" required></label>
+          <label class="provider-wide">Availability <input type="text" name="availability" placeholder="Weekdays, seasonal, advance booking required"></label>
+          <label class="provider-wide">Description <textarea name="description" required></textarea></label>
+          <label class="provider-wide">Equipment details <textarea name="equipmentDetails"></textarea></label>
+          <label class="provider-wide">Terms summary <textarea name="termsSummary"></textarea></label>
+          <label><input type="checkbox" name="isActive" checked> Publish as active</label>
+          <div class="provider-wide provider-actions"><button class="provider-button" type="submit">Save listing</button><a class="provider-secondary-button" href="provider-listings.html">Cancel</a></div>
+          <p class="provider-status provider-wide" id="providerListingFormStatus" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="assets/js/provider-listing-form.js"></script>
+</body>
+</html>

@@ -20,11 +20,11 @@ const registerRules = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters'),
-  // Accept both 'buyer'/'farmer' (new) and 'customer' (legacy frontend)
+  // Accept both 'buyer' (legacy alias) and the supported platform roles.
   body('role')
     .optional()
-    .isIn(['buyer', 'farmer', 'customer'])
-    .withMessage("Role must be 'buyer', 'farmer', or 'customer'"),
+    .isIn(['buyer', 'farmer', 'customer', 'provider'])
+    .withMessage("Role must be 'buyer', 'farmer', 'customer', or 'provider'"),
   handleValidation,
 ];
 

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Notifications | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/provider-notifications.css">
+</head>
+<body class="provider-page">
+  <header class="provider-topbar"><a class="provider-brand" href="provider-dashboard.html"><img src="logo.png" alt="FarmersHub logo"><span>Provider Portal</span><strong>FarmersHub</strong></a><div class="provider-topbar-status">Request and message alerts</div><nav class="provider-topbar-actions" aria-label="Provider actions"><button class="provider-secondary-button" type="button" id="providerMarkNotificationsRead">Mark all read</button><button class="provider-secondary-button" type="button" data-provider-logout>Log out</button></nav></header>
+  <main class="provider-shell">
+    <aside class="provider-sidebar"><nav class="provider-nav" data-provider-nav aria-label="Provider navigation"><p class="provider-nav-title">Provider Portal</p><a href="provider-dashboard.html">Dashboard</a><a href="provider-listings.html">Listings</a><a href="provider-requests.html">Requests</a><a href="provider-messages.html">Messages</a><a href="provider-notifications.html">Notifications</a><a href="provider-profile.html">Profile</a><a href="provider-settings.html">Settings</a><a href="provider-help.html">Help</a></nav></aside>
+    <section class="provider-content"><section class="provider-hero"><div><span class="provider-pill">Notifications</span><h1>Provider updates</h1><p>Real request workflow and message notifications appear here. Payment and payout notifications are coming soon.</p></div></section><section class="provider-card"><p class="provider-status" id="providerNotificationsStatus" role="status" aria-live="polite"></p><div class="provider-list" id="providerNotificationsList" aria-live="polite"></div></section></section>
+  </main>
+  <script type="module" src="assets/js/provider-notifications.js"></script>
+</body>
+</html>
