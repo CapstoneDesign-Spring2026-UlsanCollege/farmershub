@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FarmersHub</title>
+  </head>
+  <body>
+    <script>
+      (function () {
+        var base = '/farmershub';
+        var path = window.location.pathname;
+        var next = path.indexOf(base) === 0 ? path.slice(base.length) : path;
+        window.sessionStorage.setItem('fh_spa_path', next + window.location.search + window.location.hash);
+        window.location.replace(base + '/');
+      })();
+    </script>
+  </body>
+</html>
