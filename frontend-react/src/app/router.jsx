@@ -23,7 +23,7 @@ import {
   CustomerProfilePage,
   CustomerSettingsPage,
   CustomerSocialFeedPage,
-} from '../pages/customer/CustomerPages.jsx';
+} from '../pages/customer/index.js';
 import {
   FarmerAnalyticsPage,
   FarmerCustomersPage,
@@ -44,7 +44,7 @@ import {
   FarmerServicesPage,
   FarmerSettingsPage,
   FarmerSocialFeedPage,
-} from '../pages/farmer/FarmerPages.jsx';
+} from '../pages/farmer/index.js';
 import {
   ProviderDashboardPage,
   ProviderHelpPage,
@@ -59,7 +59,7 @@ import {
   ProviderRequestDetailPage,
   ProviderRequestsPage,
   ProviderSettingsPage,
-} from '../pages/provider/ProviderPages.jsx';
+} from '../pages/provider/index.js';
 
 function HomeRedirect() {
   const { role } = useAuth();

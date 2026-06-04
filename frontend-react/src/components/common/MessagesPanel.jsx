@@ -8,7 +8,7 @@ import { EmptyState, ErrorState, LoadingState, StatusMessage } from './States.js
 
 function normalizeConversation(item = {}) {
   const messages = Array.isArray(item.messages) ? item.messages : [];
-  const other = item.otherUser || item.participant || {};
+  const other = item.otherUser || item.participant || item.user || {};
   return {
     id: String(item.otherUserId || item.id || item._id || other.id || other._id || 'conversation'),
     name: item.otherUserName || item.name || other.fullName || other.name || 'Conversation',
