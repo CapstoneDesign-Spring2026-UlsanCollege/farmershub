@@ -5,7 +5,6 @@ const FAVORITES_KEY = 'fh_favorite_products';
 
 function readJson(key, fallback) {
   try {
-    if (typeof window === 'undefined') return fallback;
     const raw = window.localStorage.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
   } catch {
@@ -14,13 +13,7 @@ function readJson(key, fallback) {
 }
 
 function writeJson(key, value) {
-  if (typeof window === 'undefined') return;
   window.localStorage.setItem(key, JSON.stringify(value));
-}
-
-function notifyCartChanged(items) {
-  if (typeof window === 'undefined') return;
-  window.dispatchEvent(new CustomEvent('fh-cart-updated', { detail: { items } }));
 }
 
 export function getCartItems() {
@@ -29,7 +22,6 @@ export function getCartItems() {
 
 export function saveCartItems(items) {
   writeJson(CART_KEY, items);
-  notifyCartChanged(items);
 }
 
 export function addProductToCart(product) {

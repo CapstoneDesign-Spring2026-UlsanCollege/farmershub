@@ -1,6 +1,6 @@
-export function PageHeader({ eyebrow, title, text, actions, className = '' }) {
+export function PageHeader({ eyebrow, title, text, actions }) {
   return (
-    <section className={`page-header ${className}`}>
+    <section className="page-header">
       <div>
         {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
         <h1>{title}</h1>
@@ -11,31 +11,21 @@ export function PageHeader({ eyebrow, title, text, actions, className = '' }) {
   );
 }
 
-export function MetricCard({ label, value, text, icon = null, tone = 'green' }) {
+export function MetricCard({ label, value, text }) {
   return (
-    <article className={`metric-card metric-card-${tone}`}>
-      {icon ? <span className="metric-icon">{icon}</span> : null}
-      <div>
-        <span>{label}</span>
-        <strong>{value}</strong>
-        {text ? <p>{text}</p> : null}
-      </div>
+    <article className="metric-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      {text ? <p>{text}</p> : null}
     </article>
   );
 }
 
-export function InfoCard({ title, text, children, className = '', actions = null }) {
+export function InfoCard({ title, text, children }) {
   return (
-    <article className={`info-card ${className}`}>
-      {title || actions ? (
-        <div className="info-card-head">
-          <div>
-            {title ? <h2>{title}</h2> : null}
-            {text ? <p>{text}</p> : null}
-          </div>
-          {actions}
-        </div>
-      ) : null}
+    <article className="info-card">
+      {title ? <h2>{title}</h2> : null}
+      {text ? <p>{text}</p> : null}
       {children}
     </article>
   );
