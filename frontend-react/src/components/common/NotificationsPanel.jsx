@@ -1,4 +1,4 @@
-import { BellRing, CheckCheck } from 'lucide-react';
+import { BellRing, CheckCheck, MessageCircle, PackageCheck, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/notificationsApi.js';
 import { useAsyncData } from '../../hooks/useAsyncData.js';
@@ -9,6 +9,14 @@ export function NotificationsPanel({ emptyText = 'Notifications will appear when
   const { data, loading, error, reload } = useAsyncData(() => getNotifications({ limit: 50 }), []);
   const [status, setStatus] = useState({ message: '', tone: 'info' });
   const notifications = asArray(data);
+
+  function iconFor(item = {}) {
+    const haystack = `${item.type || ''} ${item.title || ''}`.toLowerCase();
+    if (haystack.includes('message')) return <MessageCircle size={18} />;
+    if (haystack.includes('order') || haystack.includes('request')) return <PackageCheck size={18} />;
+    if (haystack.includes('farm') || haystack.includes('product')) return <Sprout size={18} />;
+    return <BellRing size={18} />;
+  }
 
   async function markOne(id) {
     try {
@@ -34,7 +42,7 @@ export function NotificationsPanel({ emptyText = 'Notifications will appear when
   if (error) return <ErrorState text={error} />;
 
   return (
-    <section className="info-card">
+    <section className="info-card notifications-panel">
       <div className="section-heading">
         <div>
           <h2>Notifications</h2>
@@ -49,12 +57,13 @@ export function NotificationsPanel({ emptyText = 'Notifications will appear when
       <div className="notification-list">
         {notifications.map((item) => (
           <article key={item.id || item._id} className={item.read ? 'notification-item' : 'notification-item unread'}>
-            <BellRing size={18} />
+            <span className="notification-icon">{iconFor(item)}</span>
             <div>
               <strong>{item.title || item.type || 'Notification'}</strong>
               <p>{item.message || item.body || 'FarmersHub update'}</p>
               <span>{formatDate(item.createdAt)}</span>
             </div>
+            {!item.read ? <span className="notification-unread-dot" aria-label="Unread notification" /> : null}
             {!item.read ? (
               <button className="icon-button" type="button" onClick={() => markOne(item.id || item._id)} aria-label="Mark read" title="Mark read">
                 <CheckCheck size={17} />
