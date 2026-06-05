@@ -8,13 +8,10 @@ export function ProviderRegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [status, setStatus] = useState({ message: '', tone: 'info' });
-  const [busy, setBusy] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    setBusy(true);
-    setStatus({ message: 'Creating provider account...', tone: 'info' });
     try {
       await register({
         fullName: formData.get('fullName'),
@@ -23,13 +20,11 @@ export function ProviderRegisterPage() {
         phone: formData.get('phone'),
         address: formData.get('address'),
         role: 'provider',
-      }, { expectedRole: 'provider', persistSession: true });
-      setStatus({ message: 'Provider account created. Preparing your workspace...', tone: 'success' });
-      window.setTimeout(() => navigate('/provider/onboarding', { replace: true }), 500);
+      });
+      setStatus({ message: 'Provider account created. Sign in to complete onboarding.', tone: 'success' });
+      window.setTimeout(() => navigate('/provider/login'), 800);
     } catch (error) {
       setStatus({ message: error.message || 'Unable to create provider account.', tone: 'error' });
-    } finally {
-      setBusy(false);
     }
   }
 
@@ -46,10 +41,7 @@ export function ProviderRegisterPage() {
         <label>Phone<input name="phone" /></label>
         <label>Address<input name="address" /></label>
         <label>Password<input type="password" name="password" minLength={6} required /></label>
-        <button className="primary-button" type="submit" disabled={busy}>
-          <UserPlus size={18} />
-          <span>{busy ? 'Creating' : 'Create provider account'}</span>
-        </button>
+        <button className="primary-button" type="submit"><UserPlus size={18} /><span>Create provider account</span></button>
         <StatusMessage message={status.message} tone={status.tone} />
       </form>
     </section>

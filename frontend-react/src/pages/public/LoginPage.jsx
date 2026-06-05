@@ -19,10 +19,14 @@ export function LoginPage() {
     setBusy(true);
     setStatus({ message: 'Signing in...', tone: 'info' });
     try {
-      await login({ ...form, role }, { expectedRole: role });
-      const from = location.state?.from;
-      const nextPath = from?.startsWith(`/${role}`) ? from : roleHomePath(role);
-      navigate(nextPath, { replace: true });
+      const response = await login({ ...form, role });
+      const user = response.user || response.data?.user || response.data;
+      if (user?.role && user.role !== role) {
+        setStatus({ message: `This account is registered as ${user.role}. Pick the correct role.`, tone: 'error' });
+        setBusy(false);
+        return;
+      }
+      navigate(location.state?.from || roleHomePath(user?.role || role), { replace: true });
     } catch (error) {
       setStatus({ message: error.message || 'Unable to sign in.', tone: 'error' });
     } finally {
