@@ -19,6 +19,85 @@ const CATEGORY_LABELS = {
   seed: 'Seeds',
 };
 
+const CUSTOMER_ICONS = {
+  home: '<path d="m3 11 9-8 9 8"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/>',
+  marketplace: '<path d="M4 10h16l-1.4 10H5.4L4 10Z"/><path d="m8 10 4-6 4 6"/>',
+  social: '<path d="M7 20c6 0 10-4 10-12V4C11 4 7 8 7 14v6Z"/><path d="M7 20c1-5 4-8 9-11"/>',
+  orders: '<path d="M4 7h16v13H4Z"/><path d="M8 7a4 4 0 0 1 8 0"/><path d="M9 11h6"/>',
+  messages: '<path d="M4 5h16v12H8l-4 3V5Z"/>',
+  favorites: '<path d="M12 20s-8-4.7-8-10.2A4.7 4.7 0 0 1 12 6.5a4.7 4.7 0 0 1 8 3.3C20 15.3 12 20 12 20Z"/>',
+  profile: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>',
+  settings: '<path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A7 7 0 0 0 15 6.2L14.7 4h-5.4L9 6.2a7 7 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.5.9l.3 2.2h5.4l.3-2.2a7 7 0 0 0 1.5-.9l2.4 1 2-3.4-2-1.5c.1-.3.1-.7.1-1Z"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.5 2.5 0 0 1 4.8 1c0 2-2.6 2-2.6 4"/><path d="M12 17.5v.1"/>',
+  cart: '<circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 7H6"/>',
+  notifications: '<path d="M6.5 10a5.5 5.5 0 0 1 11 0v4l2 2H4.5l2-2v-4Z"/><path d="M10 19a2.4 2.4 0 0 0 4 0"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+};
+
+function createCustomerIcon(name) {
+  const paths = CUSTOMER_ICONS[name];
+  if (!paths) return null;
+  const wrapper = document.createElement('span');
+  wrapper.className = 'customer-ui-icon';
+  wrapper.setAttribute('aria-hidden', 'true');
+  wrapper.innerHTML = `<svg viewBox="0 0 24 24" focusable="false">${paths}</svg>`;
+  return wrapper;
+}
+
+function getCustomerIconName(element) {
+  const label = String(element.getAttribute('aria-label') || element.textContent || '').toLowerCase();
+  const href = String(element.getAttribute('href') || '').toLowerCase();
+  if (label.includes('notification') || label.includes('bell')) return 'notifications';
+  if (label.includes('favorite') || label.includes('fav')) return 'favorites';
+  if (label.includes('message') || label.includes('chat') || label.includes('msg')) return 'messages';
+  if (label.includes('cart')) return 'cart';
+  if (href.includes('marketplace')) return 'marketplace';
+  if (href.includes('social-feed')) return 'social';
+  if (href.includes('orders')) return 'orders';
+  if (href.includes('favorites')) return 'favorites';
+  if (href.includes('messages')) return 'messages';
+  if (href.includes('profile')) return 'profile';
+  if (href.includes('settings')) return 'settings';
+  if (href.includes('help')) return 'help';
+  if (href.includes('customer.html')) return 'home';
+  return '';
+}
+
+function hydrateCustomerIcons(root = document) {
+  root.querySelectorAll('.customer-nav a, .customer-mobile-nav a, .buyer-menu a, .buyer-bottom-nav a').forEach((link) => {
+    if (link.querySelector('.customer-ui-icon')) return;
+    const icon = createCustomerIcon(getCustomerIconName(link));
+    if (!icon) return;
+    const mark = link.querySelector('.customer-nav-mark');
+    if (mark) {
+      mark.textContent = '';
+      mark.appendChild(icon);
+    } else {
+      Array.from(link.childNodes).forEach((node) => {
+        if (node.nodeType === 3) node.remove();
+      });
+      link.insertBefore(icon, link.firstChild);
+    }
+  });
+
+  root.querySelectorAll('.customer-icon-button, .buyer-actions a:not(.buyer-avatar)').forEach((link) => {
+    if (link.querySelector('.customer-ui-icon')) return;
+    const icon = createCustomerIcon(getCustomerIconName(link));
+    if (!icon) return;
+    Array.from(link.childNodes).forEach((node) => {
+      if (node.nodeType === 3) node.remove();
+    });
+    link.insertBefore(icon, link.firstChild);
+  });
+
+  root.querySelectorAll('.customer-search > span, .buyer-search > span').forEach((label) => {
+    if (label.querySelector('.customer-ui-icon')) return;
+    const icon = createCustomerIcon('search');
+    label.textContent = '';
+    label.appendChild(icon);
+  });
+}
+
 function readJsonStorage(key, fallback, storage = localStorage) {
   try {
     const value = storage.getItem(key);
@@ -260,6 +339,7 @@ function updateCustomerBadges(root = document) {
 function hydrateCustomerShell(root = document) {
   applyCustomerPreferences();
   updateCustomerBadges(root);
+  hydrateCustomerIcons(root);
 
   const user = getStoredUser();
   const displayName = getDisplayName(user);
@@ -368,6 +448,7 @@ export {
   getToken,
   getUserId,
   getCustomerPreferences,
+  hydrateCustomerIcons,
   hydrateCustomerShell,
   isFavorite,
   logoutCustomer,
