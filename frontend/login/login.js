@@ -304,6 +304,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setAuthMode(authMode);
   });
 
+  document.getElementById("pickProvider").addEventListener("click", () => {
+    window.location.href = authMode === "signup" ? "../provider-register.html" : "../provider-login.html";
+  });
+
   document.getElementById("pickAdmin").addEventListener("click", () => {
     selectedRole = "admin";
     roleBadge.textContent = "Admin";

@@ -172,7 +172,7 @@ select {
 
 .role-buttons {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -206,6 +206,11 @@ select {
 
 .customer-btn {
   background: linear-gradient(180deg, #ffffff, #f0f8e9);
+}
+
+.provider-btn {
+  background: linear-gradient(180deg, #ffffff, #fff4df);
+  color: #8a5700;
 }
 
 .admin-btn {
