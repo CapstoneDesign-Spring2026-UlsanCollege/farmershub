@@ -208,6 +208,40 @@ select {
   background: linear-gradient(180deg, #ffffff, #f0f8e9);
 }
 
+.provider-btn {
+  background: linear-gradient(180deg, #ffffff, #fff4df);
+  color: #8a5700;
+}
+
+.provider-btn .role-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: #a86d08;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.admin-btn {
+  background: linear-gradient(180deg, #ffffff, #edf4ff);
+  color: #174f9c;
+}
+
+.admin-btn .role-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: #174f9c;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .role-icon {
   font-size: 34px;
   line-height: 1;
