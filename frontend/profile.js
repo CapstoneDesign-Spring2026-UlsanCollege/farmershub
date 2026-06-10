@@ -919,6 +919,18 @@ function extractYouTubeId(value) {
   return null;
 }
 
+
+function removeYouTubeUrls(value) {
+  return String(value || '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?[^\s<>"']*v=[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtu\.be\/[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function createYouTubeEmbed(videoId) {
   const safeVideoId = normalizeYouTubeId(videoId);
   if (!safeVideoId) return null;
@@ -927,15 +939,66 @@ function createYouTubeEmbed(videoId) {
   wrapper.className = 'post-video youtube-embed';
 
   const iframe = document.createElement('iframe');
-  iframe.src = `https://www.youtube.com/embed/${safeVideoId}`;
+  const params = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    playsinline: '1',
+    enablejsapi: '1',
+    rel: '0',
+  });
+  const origin = window.location.origin;
+  if (origin && origin !== 'null') params.set('origin', origin);
+
+  iframe.src = `https://www.youtube.com/embed/${safeVideoId}?${params.toString()}`;
+  iframe.dataset.youtubePlayer = 'true';
   iframe.title = 'YouTube video player';
   iframe.loading = 'lazy';
   iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-  iframe.allow = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
   iframe.allowFullscreen = true;
 
   wrapper.appendChild(iframe);
   return wrapper;
+}
+
+
+let youtubeAutoplayObserver = null;
+
+function sendYouTubeCommand(iframe, command) {
+  if (!iframe?.contentWindow) return;
+
+  iframe.contentWindow.postMessage(JSON.stringify({
+    event: 'command',
+    func: command,
+    args: [],
+  }), 'https://www.youtube.com');
+}
+
+function resetYouTubeAutoplay() {
+  if (youtubeAutoplayObserver) {
+    youtubeAutoplayObserver.disconnect();
+    youtubeAutoplayObserver = null;
+  }
+}
+
+function setupYouTubeAutoplay(root) {
+  resetYouTubeAutoplay();
+
+  const frames = root.querySelectorAll('iframe[data-youtube-player="true"]');
+  if (!frames.length || !('IntersectionObserver' in window)) return;
+
+  youtubeAutoplayObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const iframe = entry.target;
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
+        sendYouTubeCommand(iframe, 'playVideo');
+      } else {
+        sendYouTubeCommand(iframe, 'pauseVideo');
+      }
+    });
+  }, { threshold: [0, 0.65] });
+
+  frames.forEach((iframe) => youtubeAutoplayObserver.observe(iframe));
 }
 
 function renderPosts(posts, state = 'loaded') {
@@ -949,6 +1012,7 @@ function renderPosts(posts, state = 'loaded') {
   setText('sidebarPostCount', state === 'error' ? '-' : String(currentPosts.length));
 
   feed.replaceChildren();
+  resetYouTubeAutoplay();
   if (state === 'loading') {
     renderStateCard(feed, 'Loading posts', 'Fetching profile activity.', 'post-card profile-post-state');
     return;
@@ -999,19 +1063,20 @@ function renderPosts(posts, state = 'loaded') {
     card.appendChild(header);
 
     const textValue = post.text || post.content || post.caption || '';
-    if (textValue) {
-      const text = document.createElement('p');
-      text.className = 'post-text';
-      text.textContent = textValue;
-      card.appendChild(text);
-    }
-
     const youtubeId = extractYouTubeId([
       textValue,
       post.youtubeUrl,
       post.videoUrl,
       post.link,
     ].filter(Boolean).join(' '));
+    const displayTextValue = youtubeId ? removeYouTubeUrls(textValue) : textValue;
+
+    if (displayTextValue) {
+      const text = document.createElement('p');
+      text.className = 'post-text';
+      text.textContent = displayTextValue;
+      card.appendChild(text);
+    }
 
     if (youtubeId) {
       const embed = createYouTubeEmbed(youtubeId);
@@ -1030,6 +1095,8 @@ function renderPosts(posts, state = 'loaded') {
 
     feed.appendChild(card);
   });
+
+  setupYouTubeAutoplay(feed);
 
   feed.querySelectorAll('.delete-post-btn').forEach((button) => {
     button.addEventListener('click', async () => {
