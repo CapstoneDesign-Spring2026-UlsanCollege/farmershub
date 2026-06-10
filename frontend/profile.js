@@ -893,6 +893,51 @@ function getPostImage(post) {
   return '';
 }
 
+
+function normalizeYouTubeId(value) {
+  const match = String(value || '').match(/^[A-Za-z0-9_-]{6,}$/);
+  return match ? match[0] : null;
+}
+
+function extractYouTubeId(value) {
+  const text = String(value || '');
+  if (!text) return null;
+
+  const patterns = [
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?[^\s<>"']*v=([A-Za-z0-9_-]{6,})/i,
+    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([A-Za-z0-9_-]{6,})/i,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/i,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    const videoId = normalizeYouTubeId(match?.[1]);
+    if (videoId) return videoId;
+  }
+
+  return null;
+}
+
+function createYouTubeEmbed(videoId) {
+  const safeVideoId = normalizeYouTubeId(videoId);
+  if (!safeVideoId) return null;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'post-video youtube-embed';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://www.youtube.com/embed/${safeVideoId}`;
+  iframe.title = 'YouTube video player';
+  iframe.loading = 'lazy';
+  iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+  iframe.allow = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  iframe.allowFullscreen = true;
+
+  wrapper.appendChild(iframe);
+  return wrapper;
+}
+
 function renderPosts(posts, state = 'loaded') {
   const feed = byId('postsFeed');
   if (!feed) return;
@@ -959,6 +1004,18 @@ function renderPosts(posts, state = 'loaded') {
       text.className = 'post-text';
       text.textContent = textValue;
       card.appendChild(text);
+    }
+
+    const youtubeId = extractYouTubeId([
+      textValue,
+      post.youtubeUrl,
+      post.videoUrl,
+      post.link,
+    ].filter(Boolean).join(' '));
+
+    if (youtubeId) {
+      const embed = createYouTubeEmbed(youtubeId);
+      if (embed) card.appendChild(embed);
     }
 
     const imageUrl = resolveMediaUrl(getPostImage(post));
