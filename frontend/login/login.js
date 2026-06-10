@@ -2,6 +2,7 @@
 let selectedRole = "";
 let authMode = "login";
 const API_BASE = getApiBase();
+const ADMIN_EMAIL = "sonam@gmail.com";
 const AUTH_STORAGE_KEYS = ['fh_token', 'farmershub_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'];
 
 function getApiBase() {
@@ -232,6 +233,12 @@ async function handleLogin(email, password) {
     return;
   }
 
+  if (user.role === "admin" && String(user.email || "").toLowerCase() !== ADMIN_EMAIL) {
+    clearSessionStorage();
+    showMessage("Admin Panel access is restricted to the configured admin account.", "error");
+    return;
+  }
+
   showMessage("Login successful! Redirecting...", "success");
   setTimeout(() => {
     if (user.role === "admin") {
@@ -295,10 +302,6 @@ document.addEventListener("DOMContentLoaded", () => {
     roleScreen.classList.add("hidden");
     formScreen.classList.remove("hidden");
     setAuthMode(authMode);
-  });
-
-  document.getElementById("pickProvider").addEventListener("click", () => {
-    window.location.href = "../provider-login.html";
   });
 
   document.getElementById("pickAdmin").addEventListener("click", () => {

@@ -1,5 +1,6 @@
 import { apiFetch, jsonHeaders } from './config/api.config.js';
 
+const ADMIN_EMAIL = 'sonam@gmail.com';
 const content = document.getElementById('adminContent');
 const statusbar = document.getElementById('adminStatusbar');
 const toast = document.getElementById('adminToast');
@@ -35,7 +36,7 @@ function redirectToLogin() {
 }
 
 function isAdminUser(user) {
-  return user?.role === 'admin';
+  return user?.role === 'admin' && String(user.email || '').toLowerCase() === ADMIN_EMAIL;
 }
 
 function escapeHtml(value) {
@@ -302,7 +303,7 @@ function usersTable(users) {
               <td>
                 <div class="admin-actions">
                   <button class="admin-button-secondary" type="button" data-action="user-detail" data-id="${escapeHtml(user.id)}">Details</button>
-                  ${user.role === 'admin' ? '' : `<button class="admin-button-danger" type="button" data-action="delete-user" data-id="${escapeHtml(user.id)}">Delete</button>`}
+                  ${user.email === ADMIN_EMAIL ? '' : `<button class="admin-button-danger" type="button" data-action="delete-user" data-id="${escapeHtml(user.id)}">Delete</button>`}
                 </div>
               </td>
             </tr>
