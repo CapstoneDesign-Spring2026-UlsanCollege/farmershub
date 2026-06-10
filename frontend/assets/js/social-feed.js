@@ -42,6 +42,112 @@ function postImages(post = {}) {
   return post.image ? [post.image] : [];
 }
 
+function normalizeYouTubeId(value) {
+  const match = String(value || '').match(/^[A-Za-z0-9_-]{6,}$/);
+  return match ? match[0] : null;
+}
+
+function extractYouTubeId(value) {
+  const text = String(value || '');
+  if (!text) return null;
+
+  const patterns = [
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?[^\s<>"']*v=([A-Za-z0-9_-]{6,})/i,
+    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([A-Za-z0-9_-]{6,})/i,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/i,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    const videoId = normalizeYouTubeId(match?.[1]);
+    if (videoId) return videoId;
+  }
+
+  return null;
+}
+
+function removeYouTubeUrls(value) {
+  return String(value || '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?[^\s<>"']*v=[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtu\.be\/[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/[A-Za-z0-9_-]{6,}[^\s<>"']*/gi, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function createYouTubeEmbed(videoId) {
+  const safeVideoId = normalizeYouTubeId(videoId);
+  if (!safeVideoId) return null;
+
+  const params = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    playsinline: '1',
+    enablejsapi: '1',
+    rel: '0',
+  });
+
+  const origin = window.location.origin;
+  if (origin && origin !== 'null') params.set('origin', origin);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'post-video youtube-embed';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://www.youtube.com/embed/${safeVideoId}?${params.toString()}`;
+  iframe.title = 'YouTube video player';
+  iframe.loading = 'lazy';
+  iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  iframe.allowFullscreen = true;
+  iframe.dataset.youtubePlayer = 'true';
+
+  wrapper.appendChild(iframe);
+  return wrapper;
+}
+
+let youtubeAutoplayObserver = null;
+
+function sendYouTubeCommand(iframe, command) {
+  if (!iframe?.contentWindow) return;
+
+  iframe.contentWindow.postMessage(JSON.stringify({
+    event: 'command',
+    func: command,
+    args: [],
+  }), 'https://www.youtube.com');
+}
+
+function resetYouTubeAutoplay() {
+  if (youtubeAutoplayObserver) {
+    youtubeAutoplayObserver.disconnect();
+    youtubeAutoplayObserver = null;
+  }
+}
+
+function setupYouTubeAutoplay(root) {
+  resetYouTubeAutoplay();
+
+  const frames = root.querySelectorAll('iframe[data-youtube-player="true"]');
+  if (!frames.length || !('IntersectionObserver' in window)) return;
+
+  youtubeAutoplayObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const iframe = entry.target;
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
+        sendYouTubeCommand(iframe, 'playVideo');
+      } else {
+        sendYouTubeCommand(iframe, 'pauseVideo');
+      }
+    });
+  }, { threshold: [0, 0.65] });
+
+  frames.forEach((iframe) => youtubeAutoplayObserver.observe(iframe));
+}
+
 function readSavedPosts() {
   try {
     return JSON.parse(localStorage.getItem(SAVED_POSTS_KEY) || '[]').map(String);
@@ -121,11 +227,24 @@ function createPostCard(post) {
   card.appendChild(header);
 
   const content = postText(post);
-  if (content) {
+  const youtubeId = extractYouTubeId([
+    content,
+    post.youtubeUrl,
+    post.videoUrl,
+    post.link,
+  ].filter(Boolean).join(' '));
+  const displayContent = youtubeId ? removeYouTubeUrls(content) : content;
+
+  if (displayContent) {
     const text = document.createElement('p');
     text.className = 'post-text';
-    text.textContent = content;
+    text.textContent = displayContent;
     card.appendChild(text);
+  }
+
+  if (youtubeId) {
+    const embed = createYouTubeEmbed(youtubeId);
+    if (embed) card.appendChild(embed);
   }
 
   const images = postImages(post);
@@ -244,6 +363,7 @@ function renderPosts() {
     return;
   }
   posts.forEach((post) => stream.appendChild(createPostCard(post)));
+  setupYouTubeAutoplay(stream);
   setStatus(`${posts.length} farmer post${posts.length === 1 ? '' : 's'} shown.`);
 }
 
