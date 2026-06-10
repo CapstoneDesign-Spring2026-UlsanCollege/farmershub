@@ -20,7 +20,6 @@ const friendRequestRoutes = require('./routes/friendRequests.routes');
 const providerRoutes = require('./routes/providers.routes');
 const farmServiceListingRoutes = require('./routes/farmServiceListings.routes');
 const serviceRequestRoutes = require('./routes/serviceRequests.routes');
-const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -113,7 +112,6 @@ app.use('/api/friend-requests', friendRequestRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/farm-service-listings', farmServiceListingRoutes);
 app.use('/api/service-requests', serviceRequestRoutes);
-app.use('/api/admin', adminRoutes);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((_req, res) => {
