@@ -2,6 +2,7 @@
 let selectedRole = "";
 let authMode = "login";
 const API_BASE = getApiBase();
+const ADMIN_EMAIL = "sonam@gmail.com";
 const AUTH_STORAGE_KEYS = ['fh_token', 'farmershub_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'];
 
 function getApiBase() {
@@ -114,9 +115,20 @@ function setRequired(ids, isRequired) {
   });
 }
 
+function getRoleLabel(role) {
+  if (role === "farmer") return "Farmer";
+  if (role === "customer") return "Customer";
+  if (role === "admin") return "Admin";
+  return "User";
+}
+
 function setAuthMode(mode) {
+  if (selectedRole === "admin") {
+    mode = "login";
+  }
   authMode = mode;
   const isSignup = mode === "signup";
+  const isAdmin = selectedRole === "admin";
   const title = document.getElementById("title");
   const btn = document.getElementById("btn");
   const loginTab = document.getElementById("loginTab");
@@ -136,11 +148,14 @@ function setAuthMode(mode) {
   signupTab?.classList.toggle("active", isSignup);
   roleLoginTab?.classList.toggle("active", !isSignup);
   roleSignupTab?.classList.toggle("active", isSignup);
+  signupTab?.classList.toggle("hidden", isAdmin);
+  roleSignupTab?.classList.toggle("hidden", isAdmin);
+  modeToggle?.classList.toggle("hidden", isAdmin);
   btn.textContent = isSignup ? "Create Account" : "Login";
   modeToggle.textContent = isSignup ? "Already have an account? Login" : "Don't have an account? Sign Up";
 
   if (selectedRole) {
-    const roleName = selectedRole === "farmer" ? "Farmer" : "Customer";
+    const roleName = getRoleLabel(selectedRole);
     title.textContent = isSignup ? `Create ${roleName} Account` : `${roleName} Login`;
   }
 
@@ -149,6 +164,11 @@ function setAuthMode(mode) {
 }
 
 async function handleSignup(email, password) {
+  if (selectedRole === "admin") {
+    showMessage("Admin account creation is disabled. Use the configured admin credentials.", "error");
+    return false;
+  }
+
   const fullName = document.getElementById("fullName").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value;
   const age = parseInt(document.getElementById("age").value, 10);
@@ -213,9 +233,19 @@ async function handleLogin(email, password) {
     return;
   }
 
+  if (user.role === "admin" && String(user.email || "").toLowerCase() !== ADMIN_EMAIL) {
+    clearSessionStorage();
+    showMessage("Admin Panel access is restricted to the configured admin account.", "error");
+    return;
+  }
+
   showMessage("Login successful! Redirecting...", "success");
   setTimeout(() => {
-    window.location.href = user.role === "customer" ? "../customer.html" : "../index.html";
+    if (user.role === "admin") {
+      window.location.href = "../admin.html";
+    } else {
+      window.location.href = user.role === "customer" ? "../customer.html" : "../index.html";
+    }
   }, 1000);
 }
 
@@ -274,10 +304,21 @@ document.addEventListener("DOMContentLoaded", () => {
     setAuthMode(authMode);
   });
 
+  document.getElementById("pickAdmin").addEventListener("click", () => {
+    selectedRole = "admin";
+    roleBadge.textContent = "Admin";
+    roleScreen.classList.add("hidden");
+    formScreen.classList.remove("hidden");
+    setAuthMode("login");
+  });
+
   document.getElementById("backToRole").addEventListener("click", () => {
+    selectedRole = "";
+    roleBadge.textContent = "";
     formScreen.classList.add("hidden");
     roleScreen.classList.remove("hidden");
     document.getElementById("msg").innerHTML = "";
+    setAuthMode("login");
   });
 
   document.getElementById("loginTab").addEventListener("click", () => setAuthMode("login"));
