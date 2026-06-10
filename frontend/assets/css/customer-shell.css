@@ -86,10 +86,7 @@ textarea:focus-visible {
   position: sticky;
   top: 22px;
   height: calc(100vh - 44px);
-  min-height: 0;
-  padding: clamp(15px, 2.4vh, 22px);
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  padding: 22px;
   border-radius: 32px;
   background: var(--customer-card);
   box-shadow: var(--customer-shadow);
@@ -100,7 +97,7 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: clamp(14px, 2.4vh, 26px);
+  margin-bottom: 26px;
   color: var(--customer-deep);
   font-family: Sora, sans-serif;
   font-size: 1.05rem;
@@ -114,15 +111,13 @@ textarea:focus-visible {
 }
 
 .customer-nav {
-  min-height: 0;
   display: grid;
-  grid-template-rows: repeat(9, minmax(38px, 46px));
-  align-content: space-between;
-  gap: clamp(4px, 0.8vh, 8px);
+  gap: 8px;
 }
 
 .customer-nav a,
 .customer-mobile-nav a {
+  min-height: 46px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -130,11 +125,6 @@ textarea:focus-visible {
   border-radius: 18px;
   color: #556857;
   font-weight: 800;
-}
-
-.customer-nav a {
-  min-height: 0;
-  height: 100%;
 }
 
 .customer-nav a:hover,
@@ -152,36 +142,17 @@ textarea:focus-visible {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
+  border-radius: 8px;
+  background: rgba(31, 122, 73, 0.08);
   color: currentColor;
-}
-
-.customer-ui-icon {
-  width: 1.25em;
-  height: 1.25em;
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-
-.customer-ui-icon svg {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.customer-nav-mark .customer-ui-icon {
-  width: 20px;
-  height: 20px;
+  font-size: 0.72rem;
+  font-weight: 900;
 }
 
 .customer-nav a[aria-current="page"] .customer-nav-mark,
 .customer-nav a.is-active .customer-nav-mark,
 .customer-mobile-nav a[aria-current="page"] .customer-nav-mark {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .customer-main {
@@ -241,16 +212,6 @@ textarea:focus-visible {
   background: transparent;
 }
 
-.customer-search > span {
-  display: grid;
-  place-items: center;
-}
-
-.customer-search > span .customer-ui-icon {
-  width: 20px;
-  height: 20px;
-}
-
 .customer-actions {
   display: flex;
   align-items: center;
@@ -271,11 +232,6 @@ textarea:focus-visible {
   background: #fff;
   box-shadow: var(--customer-shadow);
   font-weight: 900;
-}
-
-.customer-icon-button .customer-ui-icon {
-  width: 22px;
-  height: 22px;
 }
 
 .customer-avatar {
@@ -615,7 +571,6 @@ button:disabled {
   }
 
   .customer-sidebar {
-    display: block;
     position: static;
     height: auto;
     padding: 14px;
@@ -627,16 +582,12 @@ button:disabled {
 
   .customer-nav {
     display: flex;
-    min-height: auto;
-    grid-template-rows: none;
     overflow-x: auto;
     padding-bottom: 3px;
   }
 
   .customer-nav a {
     flex: 0 0 auto;
-    height: auto;
-    min-height: 46px;
   }
 
   .customer-topbar {
@@ -713,15 +664,13 @@ button:disabled {
 
   .customer-mobile-nav a {
     min-height: 64px;
-    flex-direction: column;
     justify-content: center;
-    gap: 3px;
     padding: 0;
     border-radius: 22px;
     font-size: 0.74rem;
   }
 
   .customer-mobile-nav .customer-nav-mark {
-    display: grid;
+    display: none;
   }
 }

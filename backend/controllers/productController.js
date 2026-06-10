@@ -1,5 +1,4 @@
 const Product = require('../models/Product');
-const { Order } = require('../models/Order');
 const { buildMediaUrl } = require('../services/mediaUrlService');
 const { toUploadPath } = require('../middleware/upload');
 const { createNotification } = require('./notificationController');
@@ -176,7 +175,7 @@ async function deleteProduct(req, res) {
             return res.status(404).json({ success: false, message: 'Product not found.' });
         }
 
-        if (req.user.role !== 'admin' && String(product.seller.userId) !== req.user.id) {
+        if (String(product.seller.userId) !== req.user.id) {
             return res.status(403).json({ success: false, message: 'You can only delete your own products.' });
         }
 
@@ -194,51 +193,18 @@ async function deleteProduct(req, res) {
 async function placeOrder(req, res, next) {
     try {
         const { quantity = 1, notes } = req.body;
-        const quantityNumber = Math.max(Number(quantity) || 1, 1);
 
         const product = await Product.findById(req.params.id);
         if (!product) {
             return errorResponse(res, 'Product not found', 404);
         }
 
-        if (product.stock < quantityNumber) {
+        if (product.stock < quantity) {
             return errorResponse(res, 'Insufficient stock available', 400);
         }
 
-        const unitPrice = Number((product.sellingPrice - (product.sellingPrice * (product.discount || 0) / 100)).toFixed(2));
-        const order = await Order.create({
-            orderNumber: `FH-${Date.now()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-            product: {
-                productId: product._id,
-                name: product.name,
-                unit: product.unit,
-                unitPrice,
-            },
-            customer: {
-                userId: req.user._id,
-                name: req.user.fullName,
-                email: req.user.email,
-                phone: req.user.phone || '',
-            },
-            farmer: {
-                userId: product.seller.userId,
-                name: product.seller.name,
-                email: product.seller.email,
-                phone: product.seller.phone || '',
-            },
-            quantity: quantityNumber,
-            totalAmount: unitPrice * quantityNumber,
-            notes: String(notes || '').trim(),
-            statusHistory: [{
-                status: 'pending',
-                changedBy: req.user._id,
-                note: 'Order placed by customer',
-                changedAt: new Date(),
-            }],
-        });
-
         // Create notification for the seller
-        const productDetails = `${quantityNumber} ${product.unit} of ${product.name}`;
+        const productDetails = `${quantity} ${product.unit} of ${product.name}`;
         const body = notes
             ? `${productDetails}. Notes: ${notes}`
             : productDetails;
@@ -248,8 +214,8 @@ async function placeOrder(req, res, next) {
             'order',
             'New order request',
             body,
-            order._id,
-            'Order'
+            product._id,
+            'Product'
         );
 
         // Update product stock (optional - depending on business logic)
@@ -257,9 +223,8 @@ async function placeOrder(req, res, next) {
         // await product.save();
 
         return successResponse(res, 'Order placed successfully', {
-            order,
             product: serializeProduct(product, req),
-            quantity: quantityNumber,
+            quantity,
             notes,
         });
     } catch (err) {

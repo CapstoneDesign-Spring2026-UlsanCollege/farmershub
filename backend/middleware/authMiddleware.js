@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { errorResponse } = require('../utils/apiResponse');
-const { isConfiguredAdmin } = require('../services/adminAccountService');
 
 /**
  * Verifies the JWT sent in the Authorization header.
@@ -46,15 +45,6 @@ const authorize = (...roles) => {
         403
       );
     }
-
-    if (req.user.role === 'admin' && roles.includes('admin') && !isConfiguredAdmin(req.user)) {
-      return errorResponse(
-        res,
-        'Admin privileges are restricted to the configured FarmersHub administrator account',
-        403
-      );
-    }
-
     next();
   };
 };

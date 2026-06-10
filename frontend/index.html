@@ -53,10 +53,6 @@
         <span class="nav-icon" aria-hidden="true">🔔</span>
         <span class="nav-label">Alerts</span>
       </a>
-      <a href="admin.html" class="nav-icon-link" id="navAdminPanelLink" aria-label="Admin Panel" title="Admin Panel" style="display:none;">
-        <span class="nav-icon" aria-hidden="true">AD</span>
-        <span class="nav-label">Admin Panel</span>
-      </a>
       <a href="login/login.html" class="login-btn" id="navLoginBtn">Login</a>
       <button class="login-btn" id="navLogoutBtn" style="display:none;" onclick="(function(){['fh_token','fh_user','fh_loggedIn','fh_role','currentUser'].forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k);});window.location.href='login/login.html';})()">Logout</button>
     </div>
@@ -101,13 +97,9 @@
   if (token) {
     var loginBtn = document.getElementById('navLoginBtn');
     var logoutBtn = document.getElementById('navLogoutBtn');
-    var adminLink = document.getElementById('navAdminPanelLink');
     if (loginBtn) loginBtn.style.display = 'none';
     if (logoutBtn) logoutBtn.style.display = 'inline-block';
     if (user && user.fullName && logoutBtn) logoutBtn.textContent = 'Logout (' + user.fullName.split(' ')[0] + ')';
-    if (adminLink && user && user.role === 'admin' && String(user.email || '').toLowerCase() === 'sonam@gmail.com') {
-      adminLink.style.display = 'inline-flex';
-    }
   }
 })();
 </script>

@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
-const { ADMIN_EMAIL, ensureAdminAccount } = require('../services/adminAccountService');
 
 /**
  * POST /api/auth/register
@@ -44,14 +43,9 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const normalizedEmail = String(email || '').trim().toLowerCase();
-
-    if (normalizedEmail === ADMIN_EMAIL) {
-      await ensureAdminAccount();
-    }
 
     // Include password field (excluded by default in schema)
-    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return errorResponse(res, 'Invalid email or password', 401);
     }
