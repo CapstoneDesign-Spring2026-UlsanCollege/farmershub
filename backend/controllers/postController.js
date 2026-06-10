@@ -4,8 +4,12 @@ const Profile = require('../models/Profile');
 const { buildMediaUrl } = require('../services/mediaUrlService');
 const { toUploadPath } = require('../middleware/upload');
 
-function serializePost(postDoc, req) {
+function serializePost(postDoc, req, profileMap = new Map()) {
     const imageUrls = (postDoc.imagePaths || []).map(path => buildMediaUrl(req, path));
+    const authorId = String(postDoc.author.userId);
+    const latestProfile = profileMap.get(authorId);
+    const avatarPath = latestProfile?.avatarPath || postDoc.author.avatarPath || '';
+
     return {
         id: String(postDoc._id),
         content: postDoc.content,
@@ -15,10 +19,10 @@ function serializePost(postDoc, req) {
         image: imageUrls[0] || '',
         linkedProductId: postDoc.linkedProductId ? String(postDoc.linkedProductId) : null,
         author: {
-            id: String(postDoc.author.userId),
+            id: authorId,
             role: postDoc.author.role,
             name: postDoc.author.name,
-            avatarUrl: buildMediaUrl(req, postDoc.author.avatarPath),
+            avatarUrl: buildMediaUrl(req, avatarPath),
         },
         likesCount: postDoc.likes.length,
         likes: postDoc.likes.length,
@@ -82,9 +86,19 @@ async function getPosts(req, res) {
             .skip(skip)
             .limit(pageSize);
 
+        const authorIds = [...new Set(posts
+            .map(post => String(post.author?.userId || ''))
+            .filter(Boolean))];
+
+        const profiles = authorIds.length
+            ? await Profile.find({ userId: { $in: authorIds } }).select('userId avatarPath').lean()
+            : [];
+
+        const profileMap = new Map(profiles.map(profile => [String(profile.userId), profile]));
+
         return res.json({
             success: true,
-            data: posts.map(post => serializePost(post, req)),
+            data: posts.map(post => serializePost(post, req, profileMap)),
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Failed to load posts.' });
