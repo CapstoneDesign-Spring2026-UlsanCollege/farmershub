@@ -44,6 +44,12 @@ function updateRoute() {
   } else {
     params.delete('category');
   }
+  const query = String(searchInput?.value || '').trim();
+  if (query) {
+    params.set('search', query);
+  } else {
+    params.delete('search');
+  }
   const next = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
   window.history.replaceState({}, '', next);
 }
@@ -267,9 +273,13 @@ async function loadMarketplace() {
 
 searchForm?.addEventListener('submit', (event) => {
   event.preventDefault();
+  updateRoute();
   renderProducts();
 });
 
-searchInput?.addEventListener('input', renderProducts);
+searchInput?.addEventListener('input', () => {
+  updateRoute();
+  renderProducts();
+});
 
 loadMarketplace();

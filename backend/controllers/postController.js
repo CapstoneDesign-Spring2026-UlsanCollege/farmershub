@@ -98,7 +98,7 @@ async function updatePost(req, res) {
             return res.status(404).json({ success: false, message: 'Post not found.' });
         }
 
-        if (String(post.author.userId) !== req.user.id) {
+        if (req.user.role !== 'admin' && String(post.author.userId) !== req.user.id) {
             return res.status(403).json({ success: false, message: 'You can only update your own posts.' });
         }
 
@@ -146,7 +146,7 @@ async function deletePost(req, res) {
             return res.status(404).json({ success: false, message: 'Post not found.' });
         }
 
-        if (String(post.author.userId) !== req.user.id) {
+        if (req.user.role !== 'admin' && String(post.author.userId) !== req.user.id) {
             return res.status(403).json({ success: false, message: 'You can only delete your own posts.' });
         }
 
