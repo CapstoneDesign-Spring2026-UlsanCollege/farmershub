@@ -1,21 +1,22 @@
 const User = require('../models/User');
-
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'sonam@gmail.com').trim().toLowerCase();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'sonam123!';
-const ADMIN_NAME = process.env.ADMIN_NAME || 'FarmersHub Administrator';
+const { getAdminEmail, getAdminPassword, getAdminName } = require('../config/env');
 
 function isConfiguredAdmin(user = {}) {
-  return String(user.email || '').trim().toLowerCase() === ADMIN_EMAIL && user.role === 'admin';
+  return String(user.email || '').trim().toLowerCase() === getAdminEmail() && user.role === 'admin';
 }
 
 async function ensureAdminAccount() {
-  const existing = await User.findOne({ email: ADMIN_EMAIL }).select('+password');
+  const adminEmail = getAdminEmail();
+  const adminPassword = getAdminPassword();
+  const adminName = getAdminName();
+
+  const existing = await User.findOne({ email: adminEmail }).select('+password');
 
   if (!existing) {
     return User.create({
-      fullName: ADMIN_NAME,
-      email: ADMIN_EMAIL,
-      password: ADMIN_PASSWORD,
+      fullName: adminName,
+      email: adminEmail,
+      password: adminPassword,
       role: 'admin',
       phone: '',
       address: 'FarmersHub Admin',
@@ -34,13 +35,13 @@ async function ensureAdminAccount() {
     changed = true;
   }
   if (!existing.fullName) {
-    existing.fullName = ADMIN_NAME;
+    existing.fullName = adminName;
     changed = true;
   }
 
-  const passwordMatches = await existing.comparePassword(ADMIN_PASSWORD);
+  const passwordMatches = await existing.comparePassword(adminPassword);
   if (!passwordMatches) {
-    existing.password = ADMIN_PASSWORD;
+    existing.password = adminPassword;
     changed = true;
   }
 
@@ -48,8 +49,6 @@ async function ensureAdminAccount() {
 }
 
 module.exports = {
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
   ensureAdminAccount,
   isConfiguredAdmin,
 };
