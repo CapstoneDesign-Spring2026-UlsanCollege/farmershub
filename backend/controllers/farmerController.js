@@ -40,10 +40,6 @@ async function listFarmers(req, res) {
             data: farmers.map(farmer => ({
                 id: String(farmer._id),
                 fullName: farmer.fullName,
-                email: farmer.email,
-                phone: farmer.phone,
-                address: farmer.address,
-                paymentMethod: farmer.paymentMethod,
                 location: profileMap.get(String(farmer._id))?.location || farmer.address,
                 farmName: profileMap.get(String(farmer._id))?.farmName || '',
                 farmType: profileMap.get(String(farmer._id))?.cropTypes?.join(', ') || '',
@@ -75,9 +71,6 @@ async function getFarmerById(req, res) {
             data: {
                 id: String(farmer._id),
                 fullName: farmer.fullName,
-                email: farmer.email,
-                phone: farmer.phone,
-                address: farmer.address,
                 bio: profile?.bio || '',
                 location: profile?.location || farmer.address,
                 farmName: profile?.farmName || '',

@@ -1,4 +1,4 @@
-import { API_BASE, getToken } from './config/api.config.js';
+import { API_BASE, fetchWithTimeout, getToken } from './config/api.config.js';
 import { playNotificationSound } from './notification-sounds.js';
 
 const POLL_INTERVAL_MS = 30000;
@@ -141,7 +141,7 @@ async function fetchUnreadNotifications() {
   if (!token) return [];
 
   try {
-    const response = await fetch(`${API_BASE}/notifications?limit=10`, {
+    const response = await fetchWithTimeout(`${API_BASE}/notifications?limit=10`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

@@ -40,8 +40,6 @@ function serializeProduct(productDoc, req) {
             id: String(productDoc.seller.userId),
             role: productDoc.seller.role,
             name: productDoc.seller.name,
-            email: productDoc.seller.email,
-            phone: productDoc.seller.phone,
             location: productDoc.seller.location,
         },
         createdAt: productDoc.createdAt,
@@ -53,7 +51,6 @@ function buildProductPayload(req, existing = null) {
     const body = req.body || {};
     const paymentMethods = normalizePaymentMethods(body['paymentMethods[]'] || body.paymentMethods);
     const imagePath = req.file ? toUploadPath(req.file) : existing?.imagePath || '';
-    const sellerLocation = firstValue(body.location, req.user.address || existing?.seller?.location || '');
 
     return {
         name: firstValue(body.name, existing?.name || '').trim(),
@@ -73,10 +70,10 @@ function buildProductPayload(req, existing = null) {
             userId: req.user.id,
             userModel: 'User',
             role: req.user.role,
-            name: firstValue(body.sellerName, req.user.fullName || existing?.seller?.name || '').trim(),
-            email: firstValue(body.sellerEmail, req.user.email || existing?.seller?.email || '').trim().toLowerCase(),
-            phone: firstValue(body.sellerPhone, req.user.phone || existing?.seller?.phone || '').trim(),
-            location: sellerLocation.trim(),
+            name: String(req.user.fullName || existing?.seller?.name || '').trim(),
+            email: String(req.user.email || existing?.seller?.email || '').trim().toLowerCase(),
+            phone: String(req.user.phone || existing?.seller?.phone || '').trim(),
+            location: String(req.user.address || existing?.seller?.location || '').trim(),
         },
     };
 }
@@ -194,48 +191,58 @@ async function deleteProduct(req, res) {
 async function placeOrder(req, res, next) {
     try {
         const { quantity = 1, notes } = req.body;
-        const quantityNumber = Math.max(Number(quantity) || 1, 1);
-
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            return errorResponse(res, 'Product not found', 404);
+        const quantityNumber = Number(quantity);
+        if (!Number.isFinite(quantityNumber) || quantityNumber <= 0) {
+            return errorResponse(res, 'Quantity must be a positive number', 400);
         }
 
-        if (product.stock < quantityNumber) {
-            return errorResponse(res, 'Insufficient stock available', 400);
+        const product = await Product.findOneAndUpdate(
+            { _id: req.params.id, stock: { $gte: quantityNumber } },
+            { $inc: { stock: -quantityNumber } },
+            { new: true }
+        );
+        if (!product) {
+            const exists = await Product.exists({ _id: req.params.id });
+            return errorResponse(res, exists ? 'Insufficient stock available' : 'Product not found', exists ? 400 : 404);
         }
 
         const unitPrice = Number((product.sellingPrice - (product.sellingPrice * (product.discount || 0) / 100)).toFixed(2));
-        const order = await Order.create({
-            orderNumber: `FH-${Date.now()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-            product: {
-                productId: product._id,
-                name: product.name,
-                unit: product.unit,
-                unitPrice,
-            },
-            customer: {
-                userId: req.user._id,
-                name: req.user.fullName,
-                email: req.user.email,
-                phone: req.user.phone || '',
-            },
-            farmer: {
-                userId: product.seller.userId,
-                name: product.seller.name,
-                email: product.seller.email,
-                phone: product.seller.phone || '',
-            },
-            quantity: quantityNumber,
-            totalAmount: unitPrice * quantityNumber,
-            notes: String(notes || '').trim(),
-            statusHistory: [{
-                status: 'pending',
-                changedBy: req.user._id,
-                note: 'Order placed by customer',
-                changedAt: new Date(),
-            }],
-        });
+        let order;
+        try {
+            order = await Order.create({
+                orderNumber: `FH-${Date.now()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+                product: {
+                    productId: product._id,
+                    name: product.name,
+                    unit: product.unit,
+                    unitPrice,
+                },
+                customer: {
+                    userId: req.user._id,
+                    name: req.user.fullName,
+                    email: req.user.email,
+                    phone: req.user.phone || '',
+                },
+                farmer: {
+                    userId: product.seller.userId,
+                    name: product.seller.name,
+                    email: product.seller.email,
+                    phone: product.seller.phone || '',
+                },
+                quantity: quantityNumber,
+                totalAmount: unitPrice * quantityNumber,
+                notes: String(notes || '').trim(),
+                statusHistory: [{
+                    status: 'pending',
+                    changedBy: req.user._id,
+                    note: 'Order placed by customer',
+                    changedAt: new Date(),
+                }],
+            });
+        } catch (error) {
+            await Product.updateOne({ _id: product._id }, { $inc: { stock: quantityNumber } });
+            throw error;
+        }
 
         // Create notification for the seller
         const productDetails = `${quantityNumber} ${product.unit} of ${product.name}`;
@@ -243,18 +250,18 @@ async function placeOrder(req, res, next) {
             ? `${productDetails}. Notes: ${notes}`
             : productDetails;
 
-        await createNotification(
-            product.seller.userId,
-            'order',
-            'New order request',
-            body,
-            order._id,
-            'Order'
-        );
-
-        // Update product stock (optional - depending on business logic)
-        // product.stock -= quantity;
-        // await product.save();
+        try {
+            await createNotification(
+                product.seller.userId,
+                'order',
+                'New order request',
+                body,
+                order._id,
+                'Order'
+            );
+        } catch {
+            // The order and stock reservation remain valid if notification delivery fails.
+        }
 
         return successResponse(res, 'Order placed successfully', {
             order,

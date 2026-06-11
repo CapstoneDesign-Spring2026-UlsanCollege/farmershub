@@ -35,19 +35,30 @@ app.use(
 );
 
 // ── CORS ───────────────────────────────────────────────────────────────────────
-const allowedOrigins = (
-  process.env.CLIENT_ORIGIN ||
-  'http://localhost:5000,http://127.0.0.1:5000,http://localhost:5500,http://127.0.0.1:5500,http://localhost:7778,http://127.0.0.1:7778,http://localhost:3000,http://127.0.0.1:3000'
-)
+const localOrigins = [
+  'http://localhost:5000',
+  'http://127.0.0.1:5000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://localhost:7778',
+  'http://127.0.0.1:7778',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+const configuredOrigins = String(process.env.CLIENT_ORIGIN || '')
   .split(',')
-  .map((o) => o.trim());
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set([
+  ...configuredOrigins,
+  ...(isProduction ? [] : localOrigins),
+]);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. curl, Postman) in development
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      if (/^https:\/\/.+\.github\.io$/i.test(origin)) return callback(null, true);
+      // CORS applies to browsers; tools such as curl and server-to-server calls have no origin.
+      if (!origin || allowedOrigins.has(origin)) return callback(null, true);
       callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
     credentials: true,

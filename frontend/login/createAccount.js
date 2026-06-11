@@ -20,6 +20,20 @@ function detectApiBase() {
 
 const API_BASE = detectApiBase();
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError') throw new Error('Request timed out. Please try again.');
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function clearSessionStorage() {
   ['fh_token', 'fh_user', 'fh_loggedIn', 'fh_role', 'currentUser'].forEach((key) => {
     localStorage.removeItem(key);
@@ -28,7 +42,7 @@ function clearSessionStorage() {
 }
 
 async function register(payload) {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

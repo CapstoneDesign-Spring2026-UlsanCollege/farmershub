@@ -35,27 +35,31 @@ const loginRules = [
 ];
 
 // ── Product validation chains ─────────────────────────────────────────────────
+// Field names match what buildProductPayload() reads from req.body.
+// category is normalized to lowercase by the controller, so validate lowercase.
 const createProductRules = [
-  body('title').trim().notEmpty().withMessage('Product title is required'),
-  body('price')
+  body('name').trim().notEmpty().withMessage('Product name is required'),
+  body('sellingPrice')
     .isFloat({ min: 0 })
-    .withMessage('Price must be a positive number'),
+    .withMessage('Selling price must be a non-negative number'),
   body('category')
     .optional()
+    .customSanitizer((v) => String(v).toLowerCase())
     .isIn([
-      'Vegetables', 'Fruits', 'Grains', 'Dairy', 'Poultry',
-      'Herbs', 'Organic', 'Bulk Supply', 'Farm Tools', 'Seedlings', 'Other',
+      'vegetables', 'fruits', 'grains', 'dairy', 'poultry',
+      'herbs', 'organic', 'bulk supply', 'farm tools', 'seedlings', 'other',
     ])
     .withMessage('Invalid category'),
   handleValidation,
 ];
 
 // ── Post validation chains ────────────────────────────────────────────────────
+// content/text/caption are all accepted aliases (controller reads all three).
+// Image-only posts are valid, so content is optional — length is bounded when present.
 const createPostRules = [
-  body('content')
+  body(['content', 'text', 'caption'])
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty()
-    .withMessage('Post content is required')
     .isLength({ max: 2000 })
     .withMessage('Post content cannot exceed 2000 characters'),
   handleValidation,

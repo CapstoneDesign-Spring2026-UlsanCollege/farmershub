@@ -3,6 +3,7 @@ const router = express.Router();
 const { createPost, getPosts, updatePost, toggleLike, deletePost } = require('../controllers/postController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { uploader, withUploadFolder } = require('../middleware/upload');
+const { createPostRules } = require('../middleware/validate');
 
 // GET  /api/posts            — public feed
 router.get('/', getPosts);
@@ -14,6 +15,7 @@ router.post(
   authorize('farmer'),
   withUploadFolder('posts'),
   uploader.array('images', 4),
+  ...createPostRules,
   createPost
 );
 

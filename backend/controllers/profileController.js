@@ -14,23 +14,17 @@ async function ensureProfile(user) {
     return profile;
 }
 
-async function buildProfileResponse(profileDoc, user, req) {
+async function buildProfileResponse(profileDoc, user, req, { includePrivate = false } = {}) {
     const [productCount, postCount] = await Promise.all([
         Product.countDocuments({ 'seller.userId': user.id }),
         Post.countDocuments({ 'author.userId': user.id }),
     ]);
 
-    return {
+    const data = {
         id: String(user._id || user.id || profileDoc.userId),
         userId: String(user._id || user.id || profileDoc.userId),
         fullName: user.fullName,
-        email: user.email,
         role: user.role,
-        age: user.age,
-        gender: user.gender,
-        address: user.address,
-        phone: user.phone,
-        paymentMethod: user.paymentMethod,
         bio: profileDoc.bio,
         location: profileDoc.location || user.address,
         farmName: profileDoc.farmName,
@@ -47,12 +41,23 @@ async function buildProfileResponse(profileDoc, user, req) {
             posts: postCount,
         },
     };
+
+    if (includePrivate) {
+        data.email = user.email;
+        data.age = user.age;
+        data.gender = user.gender;
+        data.address = user.address;
+        data.phone = user.phone;
+        data.paymentMethod = user.paymentMethod;
+    }
+
+    return data;
 }
 
 async function getCurrentProfile(req, res) {
     try {
         const profile = await ensureProfile(req.user);
-        const data = await buildProfileResponse(profile, req.user, req);
+        const data = await buildProfileResponse(profile, req.user, req, { includePrivate: true });
         return res.json({ success: true, data });
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Failed to load profile.' });
@@ -68,7 +73,8 @@ async function getProfileById(req, res) {
 
         const baseUser = normalizeBaseUser(foundUser);
         const profile = await ensureProfile(baseUser);
-        const data = await buildProfileResponse(profile, baseUser, req);
+        const isOwner = String(req.user?._id || req.user?.id || '') === String(foundUser._id);
+        const data = await buildProfileResponse(profile, baseUser, req, { includePrivate: isOwner });
         return res.json({ success: true, data });
     } catch (error) {
         return res.status(400).json({ success: false, message: 'Invalid profile id.' });
@@ -117,7 +123,7 @@ async function updateCurrentProfile(req, res) {
             paymentMethod: userDoc.paymentMethod,
         };
 
-        const data = await buildProfileResponse(profile, refreshedUser, req);
+        const data = await buildProfileResponse(profile, refreshedUser, req, { includePrivate: true });
         return res.json({ success: true, message: 'Profile updated successfully.', data });
     } catch (error) {
         return res.status(400).json({ success: false, message: 'Failed to update profile.' });
@@ -142,7 +148,7 @@ async function uploadAvatar(req, res) {
         profile.avatarPath = toUploadPath(req.file);
         await profile.save();
 
-        const data = await buildProfileResponse(profile, req.user, req);
+        const data = await buildProfileResponse(profile, req.user, req, { includePrivate: true });
         const userDoc = await User.findById(req.user._id || req.user.id);
         if (userDoc) {
             userDoc.avatar = { url: data.avatarUrl, publicId: req.file.filename };
@@ -165,7 +171,7 @@ async function uploadCover(req, res) {
         profile.coverPath = toUploadPath(req.file);
         await profile.save();
 
-        const data = await buildProfileResponse(profile, req.user, req);
+        const data = await buildProfileResponse(profile, req.user, req, { includePrivate: true });
         const userDoc = await User.findById(req.user._id || req.user.id);
         if (userDoc) {
             userDoc.coverImage = { url: data.coverUrl, publicId: req.file.filename };

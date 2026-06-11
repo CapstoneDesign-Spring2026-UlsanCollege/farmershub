@@ -10,6 +10,7 @@ const {
 } = require('../controllers/productController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { uploader, withUploadFolder } = require('../middleware/upload');
+const { createProductRules } = require('../middleware/validate');
 
 // GET  /api/products         — public product listing
 router.get('/', getProducts);
@@ -24,6 +25,7 @@ router.post(
   authorize('farmer'),
   withUploadFolder('products'),
   uploader.single('images'),
+  ...createProductRules,
   createProduct
 );
 

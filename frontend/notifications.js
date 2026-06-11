@@ -1,4 +1,4 @@
-import { API_BASE } from './assets/js/config/api.config.js';
+import { API_BASE, fetchWithTimeout } from './assets/js/config/api.config.js';
 import {
   hydrateNotificationSoundSelect,
   playNotificationSound,
@@ -16,7 +16,7 @@ async function fetchNotifications() {
       return [];
     }
 
-    const response = await fetch(`${API_BASE}/notifications`, {
+    const response = await fetchWithTimeout(`${API_BASE}/notifications`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ async function fetchFriendRequests() {
     const token = localStorage.getItem('fh_token');
     if (!token) return [];
 
-    const response = await fetch(`${API_BASE}/friend-requests`, {
+    const response = await fetchWithTimeout(`${API_BASE}/friend-requests`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ async function respondFriendRequest(requestId, action) {
   const token = localStorage.getItem('fh_token');
   if (!token || !requestId) return false;
 
-  const response = await fetch(`${API_BASE}/friend-requests/${requestId}/${action}`, {
+  const response = await fetchWithTimeout(`${API_BASE}/friend-requests/${requestId}/${action}`, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -103,7 +103,7 @@ async function markAsRead(notificationId) {
     const token = localStorage.getItem('fh_token');
     if (!token) return false;
 
-    const response = await fetch(`${API_BASE}/notifications/${notificationId}/read`, {
+    const response = await fetchWithTimeout(`${API_BASE}/notifications/${notificationId}/read`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -123,7 +123,7 @@ async function markAllAsRead() {
     const token = localStorage.getItem('fh_token');
     if (!token) return false;
 
-    const response = await fetch(`${API_BASE}/notifications/read-all`, {
+    const response = await fetchWithTimeout(`${API_BASE}/notifications/read-all`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -516,7 +516,7 @@ async function sendReply() {
   try {
     if (messageText && item.type === 'message' && item.recipientId) {
       const token = localStorage.getItem('fh_token');
-      const response = await fetch(`${API_BASE}/messages`, {
+      const response = await fetchWithTimeout(`${API_BASE}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,8 +1,28 @@
 import { register, login, clearSessionStorage } from './services/authService.js';
 import { setStatus } from './provider-shell.js';
 
+const PROVIDER_PAGES = new Set([
+  'provider-dashboard.html',
+  'provider-onboarding.html',
+  'provider-listings.html',
+  'provider-listing-form.html',
+  'provider-requests.html',
+  'provider-request-detail.html',
+  'provider-messages.html',
+  'provider-notifications.html',
+  'provider-profile.html',
+  'provider-settings.html',
+  'provider-help.html',
+]);
+
 function formValue(form, name) {
   return String(new FormData(form).get(name) || '').trim();
+}
+
+function getSafeNextPage() {
+  const next = new URLSearchParams(window.location.search).get('next') || '';
+  const page = next.split(/[?#]/)[0];
+  return PROVIDER_PAGES.has(page) ? page : 'provider-dashboard.html';
 }
 
 async function handleProviderAuth(event) {
@@ -43,8 +63,7 @@ async function handleProviderAuth(event) {
       throw new Error('Use a provider account for the Provider Portal.');
     }
 
-    const next = new URLSearchParams(window.location.search).get('next') || 'provider-dashboard.html';
-    window.location.href = next;
+    window.location.href = getSafeNextPage();
   } catch (error) {
     setStatus(status, error.message || 'Authentication failed.', 'error');
   } finally {

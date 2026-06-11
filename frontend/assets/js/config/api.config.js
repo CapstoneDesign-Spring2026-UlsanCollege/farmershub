@@ -5,6 +5,7 @@
 
 const PRODUCTION_API_BASE = 'https://farmershub-kkjd.onrender.com/api';
 const LOCAL_API_BASE = 'http://localhost:5000/api';
+const REQUEST_TIMEOUT_MS = 15000;
 
 function normalizeBase(url) {
   return String(url || '').replace(/\/+$/, '');
@@ -45,11 +46,47 @@ function authHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const externalSignal = options.signal;
+  let timedOut = false;
+  const abortFromExternalSignal = () => controller.abort();
+
+  if (externalSignal?.aborted) {
+    controller.abort();
+  } else {
+    externalSignal?.addEventListener('abort', abortFromExternalSignal, { once: true });
+  }
+
+  const timer = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (timedOut) throw new Error('Request timed out. Please try again.');
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
+    externalSignal?.removeEventListener('abort', abortFromExternalSignal);
+  }
+}
+
 async function apiFetch(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, options);
-  const data = await res.json();
+  const res = await fetchWithTimeout(`${API_BASE}${path}`, options);
+  const text = await res.text();
+  let data = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { message: text };
+    }
+  }
   if (!res.ok) throw new Error(data.message || 'Request failed');
   return data;
 }
 
-export { API_BASE, getToken, jsonHeaders, authHeader, apiFetch };
+export { API_BASE, getToken, jsonHeaders, authHeader, fetchWithTimeout, apiFetch };

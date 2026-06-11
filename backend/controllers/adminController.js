@@ -20,6 +20,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const { isConfiguredAdmin } = require('../services/adminAccountService');
 
 const UPLOAD_ROOT = path.resolve(__dirname, '..', 'uploads');
+const BACKUP_ROOT = path.resolve(__dirname, '..', 'private', 'backups');
 const DEFAULT_SETTINGS = {
   siteTitle: 'FarmersHub',
   siteDescription: 'Fresh marketplace connecting farmers, customers, and farm service providers.',
@@ -45,6 +46,32 @@ function getPaging(query) {
   const page = Math.max(asInt(query.page, 1), 1);
   const limit = Math.min(Math.max(asInt(query.limit, 25), 1), 100);
   return { page, limit, skip: (page - 1) * limit };
+}
+
+function getBackupDirectory() {
+  return BACKUP_ROOT;
+}
+
+function isSafeBackupFileName(fileName) {
+  const value = String(fileName || "");
+  if (!value || value.includes("%") || value.includes("/") || value.includes("\\") || value.includes("..")) {
+    return false;
+  }
+  return /^admin-backup-\d+\.json$/.test(value);
+}
+
+function resolveBackupPath(fileName) {
+  if (!isSafeBackupFileName(fileName)) {
+    throw new Error("Invalid backup file name");
+  }
+
+  const backupDir = getBackupDirectory();
+  const absolute = path.resolve(backupDir, fileName);
+  const inside = path.relative(backupDir, absolute);
+  if (!inside || inside.startsWith("..") || path.isAbsolute(inside)) {
+    throw new Error("Invalid backup path");
+  }
+  return absolute;
 }
 
 function serializeUser(user) {
@@ -804,11 +831,12 @@ async function createBackup(req, res, next) {
       collections: { users, products, posts, orders, messages, announcements, settings },
     };
 
-    const dir = path.join(UPLOAD_ROOT, 'backups');
+    const dir = getBackupDirectory();
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const fileName = `admin-backup-${Date.now()}.json`;
-    const filePath = path.join(dir, fileName);
+    const filePath = resolveBackupPath(fileName);
     fs.writeFileSync(filePath, JSON.stringify(backup, null, 2));
+    const stats = fs.statSync(filePath);
 
     await recordAdminLog(req.user, 'create_backup', 'Backup', fileName, {
       users: users.length,
@@ -818,16 +846,41 @@ async function createBackup(req, res, next) {
       messages: messages.length,
     }, req);
 
-    return successResponse(res, 'Backup created', {
-      file: `/uploads/backups/${fileName}`,
-      counts: {
-        users: users.length,
-        products: products.length,
-        posts: posts.length,
-        orders: orders.length,
-        messages: messages.length,
-      },
-    }, 201);
+      return successResponse(res, 'Backup created', {
+        fileName,
+        createdAt: backup.generatedAt,
+        size: stats.size,
+        downloadEndpoint: "/admin/backups/" + encodeURIComponent(fileName) + "/download",
+        counts: {
+          users: users.length,
+          products: products.length,
+          posts: posts.length,
+          orders: orders.length,
+          messages: messages.length,
+        },
+      }, 201);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function downloadBackup(req, res, next) {
+  try {
+    const { fileName } = req.params;
+    let filePath;
+
+    try {
+      filePath = resolveBackupPath(fileName);
+    } catch {
+      return errorResponse(res, "Invalid backup file name", 400);
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return errorResponse(res, "Backup not found", 404);
+    }
+
+    await recordAdminLog(req.user, "download_backup", "Backup", fileName, {}, req);
+    return res.download(filePath, fileName);
   } catch (err) {
     next(err);
   }
@@ -943,5 +996,6 @@ module.exports = {
   updateSettings,
   listLogs,
   createBackup,
+  downloadBackup,
   assistantQuery,
 };

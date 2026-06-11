@@ -14,8 +14,22 @@ function jsonHeaders() {
   return { "Content-Type": "application/json" };
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error.name === "AbortError") throw new Error("Request timed out. Please try again.");
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function apiFetch(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, options);
+  const res = await fetchWithTimeout(`${API_BASE}${path}`, options);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || "Request failed");
   return data;

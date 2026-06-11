@@ -22,6 +22,7 @@ const {
   updateSettings,
   listLogs,
   createBackup,
+  downloadBackup,
   assistantQuery,
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
@@ -58,6 +59,7 @@ router.patch('/settings', updateSettings);
 
 router.get('/logs', listLogs);
 router.post('/backup', createBackup);
+router.get('/backups/:fileName/download', downloadBackup);
 router.post('/assistant', assistantQuery);
 
 module.exports = router;

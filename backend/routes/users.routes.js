@@ -16,6 +16,16 @@ const { uploader, withUploadFolder } = require('../middleware/upload');
 const User = require('../models/User');
 const { successResponse } = require('../utils/apiResponse');
 
+function serializePublicUser(user) {
+  return {
+    id: String(user._id),
+    fullName: user.fullName,
+    role: user.role,
+    avatarUrl: user.avatar?.url || '',
+    createdAt: user.createdAt,
+  };
+}
+
 // ── Public role-filtered lists (used by dashboard — no auth required for browsing) ──
 // GET /api/users/farmers  — list all farmer accounts
 router.get('/farmers', async (req, res, next) => {
@@ -24,12 +34,14 @@ router.get('/farmers', async (req, res, next) => {
     const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
     const skip = (page - 1) * limit;
 
-    const farmers = await User.find({ role: 'farmer', isActive: true }, '-password')
+    const farmers = await User.find({ role: 'farmer', isActive: true })
+      .select('fullName role avatar createdAt')
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    return successResponse(res, 'Farmers list', farmers);
+    return successResponse(res, 'Farmers list', farmers.map(serializePublicUser));
   } catch (err) { next(err); }
 });
 
@@ -40,12 +52,14 @@ router.get('/customers', async (req, res, next) => {
     const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
     const skip = (page - 1) * limit;
 
-    const customers = await User.find({ role: 'customer', isActive: true }, '-password')
+    const customers = await User.find({ role: 'customer', isActive: true })
+      .select('fullName role avatar createdAt')
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    return successResponse(res, 'Customers list', customers);
+    return successResponse(res, 'Customers list', customers.map(serializePublicUser));
   } catch (err) { next(err); }
 });
 

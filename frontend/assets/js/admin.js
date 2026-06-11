@@ -1,4 +1,4 @@
-import { apiFetch, jsonHeaders } from './config/api.config.js';
+import { API_BASE, apiFetch, authHeader, jsonHeaders } from './config/api.config.js';
 
 const ADMIN_EMAIL = 'sonam@gmail.com';
 const content = document.getElementById('adminContent');
@@ -100,6 +100,37 @@ function setLoading(title = 'Loading', text = 'Fetching secure admin data.') {
 
 async function adminFetch(path, options = {}) {
   return apiFetch(path, options);
+}
+
+async function downloadBackup(fileName, downloadEndpoint) {
+  if (!fileName || !downloadEndpoint) {
+    throw new Error("Backup download details are missing.");
+  }
+
+  const response = await fetch(API_BASE + downloadEndpoint, {
+    headers: authHeader(),
+  });
+
+  if (!response.ok) {
+    let message = "Backup download failed.";
+    try {
+      const data = await response.json();
+      message = data.message || message;
+    } catch {
+      // Keep generic message when the server response is not JSON.
+    }
+    throw new Error(message);
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
 }
 
 function updateActiveNav() {
@@ -615,7 +646,7 @@ async function loadBackup() {
     ${pageTitle('Backup & Restore', 'Create an export of the current platform data. Restore is intentionally manual for safety.')}
     <section class="admin-card">
       <div class="admin-card-head"><h2>Database Backup</h2></div>
-      <p>Generate a JSON backup for users, products, posts, orders, messages, announcements, and settings. The file is stored under backend uploads.</p>
+      <p>Generate a JSON backup for users, products, posts, orders, messages, announcements, and settings. The file is stored in private backend storage and requires admin access to download.</p>
       <div class="admin-actions" style="margin-top:16px;">
         <button class="admin-button" type="button" data-action="create-backup">Create Backup</button>
       </div>
@@ -898,19 +929,29 @@ content.addEventListener('click', async (event) => {
     if (action === 'close-modal') closeModal();
     else if (action === 'user-detail') await openUserDetail(id);
     else if (action === 'delete-upload') await deleteUpload(actionButton);
-    else if (action === 'create-backup') {
-      actionButton.disabled = true;
-      const response = await adminFetch('/admin/backup', { method: 'POST', headers: jsonHeaders() });
-      document.getElementById('backupResult').innerHTML = `
-        <div class="admin-empty">
-          Backup created: <a href="${escapeHtml(response.data?.file || '#')}">${escapeHtml(response.data?.file || '')}</a>
-          <br>Users: ${formatNumber(response.data?.counts?.users)}
-          Products: ${formatNumber(response.data?.counts?.products)}
-          Orders: ${formatNumber(response.data?.counts?.orders)}
-          Messages: ${formatNumber(response.data?.counts?.messages)}
-        </div>
-      `;
-      showToast('Backup created.');
+      else if (action === "create-backup") {
+        actionButton.disabled = true;
+        const response = await adminFetch("/admin/backup", { method: "POST", headers: jsonHeaders() });
+        const backup = response.data || {};
+        document.getElementById("backupResult").innerHTML = `
+          <div class="admin-empty">
+            Backup created: ${escapeHtml(backup.fileName || "backup.json")}
+            <br>Created: ${formatDate(backup.createdAt)}
+            <br>Size: ${formatNumber(backup.size)} bytes
+            <br>Users: ${formatNumber(backup.counts?.users)}
+            Products: ${formatNumber(backup.counts?.products)}
+            Orders: ${formatNumber(backup.counts?.orders)}
+            Messages: ${formatNumber(backup.counts?.messages)}
+            <div class="admin-actions" style="margin-top:12px;">
+              <button class="admin-button-secondary" type="button" data-action="download-backup" data-file-name="${escapeHtml(backup.fileName || "")}" data-download-endpoint="${escapeHtml(backup.downloadEndpoint || "")}">Download Backup</button>
+            </div>
+          </div>
+        `;
+        showToast("Backup created.");
+      } else if (action === "download-backup") {
+        actionButton.disabled = true;
+        await downloadBackup(actionButton.dataset.fileName, actionButton.dataset.downloadEndpoint);
+        showToast("Backup downloaded.");
     } else if (action === 'assistant-chip') {
       await sendAssistantPrompt(prompt);
     } else {
@@ -919,7 +960,7 @@ content.addEventListener('click', async (event) => {
   } catch (error) {
     showToast(error.message || 'Admin action failed.', 'error');
   } finally {
-    if (actionButton.dataset.action === 'create-backup') actionButton.disabled = false;
+      if (["create-backup", "download-backup"].includes(actionButton.dataset.action)) actionButton.disabled = false;
   }
 });
 
