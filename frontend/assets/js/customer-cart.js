@@ -3,14 +3,18 @@ import {
   customerProductUrl,
   formatCurrency,
   getCartItems,
+  getToken,
   hydrateCustomerShell,
   saveCartItems,
   setStatus,
 } from './customer-shell.js';
+import { apiFetch, jsonHeaders } from './config/api.config.js';
 
 const cartList = document.getElementById('cartList');
 const clearCartBtn = document.getElementById('clearCartBtn');
 const cartStatus = document.getElementById('cartStatus');
+const checkoutBtn = document.getElementById('checkoutBtn');
+const checkoutStatus = document.getElementById('checkoutStatus');
 const itemCount = document.getElementById('cartItemCount');
 const subtotal = document.getElementById('cartSubtotal');
 const searchForm = document.getElementById('cartSearchForm');
@@ -28,6 +32,7 @@ function updateSummary(items) {
   itemCount.textContent = String(cartQuantity(items));
   subtotal.textContent = formatCurrency(cartTotal(items));
   clearCartBtn.disabled = !items.length;
+  if (checkoutBtn) checkoutBtn.disabled = !items.length;
 }
 
 function renderEmpty() {
@@ -59,7 +64,9 @@ function createImage(item) {
     image.setAttribute('role', 'img');
     image.setAttribute('aria-label', item.name);
   } else {
-    image.textContent = 'Image pending';
+    image.setAttribute('aria-hidden', 'true');
+    image.style.cssText = 'display:flex;align-items:center;justify-content:center;font-size:28px;';
+    image.textContent = '🌾';
   }
   return image;
 }
@@ -166,9 +173,62 @@ function renderCart(message = '') {
   });
 }
 
+async function checkout() {
+  const token = getToken();
+  if (!token) {
+    setStatus(checkoutStatus, 'Please log in as a customer to place an order.', 'error');
+    return;
+  }
+
+  const items = getCartItems();
+  if (!items.length) {
+    setStatus(checkoutStatus, 'Your cart is empty.', 'error');
+    return;
+  }
+
+  checkoutBtn.disabled = true;
+  setStatus(checkoutStatus, `Placing ${items.length} order${items.length === 1 ? '' : 's'}...`);
+
+  const succeeded = [];
+  const failed = [];
+
+  for (const item of items) {
+    try {
+      await apiFetch(`/products/${item.id}/order`, {
+        method: 'POST',
+        headers: jsonHeaders(),
+        body: JSON.stringify({ quantity: item.quantity }),
+      });
+      succeeded.push(item);
+    } catch (err) {
+      failed.push({ item, error: err.message });
+    }
+  }
+
+  if (succeeded.length) {
+    const succeededIds = new Set(succeeded.map((item) => item.id));
+    saveCartItems(getCartItems().filter((item) => !succeededIds.has(item.id)));
+  }
+
+  if (!failed.length) {
+    setStatus(checkoutStatus, `${succeeded.length} order${succeeded.length === 1 ? '' : 's'} placed! Farmers have been notified. View your orders.`, 'success');
+    renderCart();
+  } else if (!succeeded.length) {
+    const reasons = [...new Set(failed.map((f) => f.error))].join('; ');
+    setStatus(checkoutStatus, `Order failed: ${reasons}`, 'error');
+    checkoutBtn.disabled = false;
+  } else {
+    setStatus(checkoutStatus, `${succeeded.length} placed, ${failed.length} failed. Check stock or log in as a customer.`, 'error');
+    renderCart();
+    checkoutBtn.disabled = false;
+  }
+}
+
 clearCartBtn?.addEventListener('click', () => {
   saveAndRender([], 'Cart cleared from this device.');
 });
+
+checkoutBtn?.addEventListener('click', checkout);
 
 searchForm?.addEventListener('submit', (event) => {
   event.preventDefault();

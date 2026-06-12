@@ -1,20 +1,39 @@
-import { getFeed, likePost } from './services/postService.js';
+import { getFeed, createPost, likePost } from './services/postService.js';
+import { getToken } from './config/api.config.js';
 
 const FALLBACK_AVATAR = 'assets/images/home/farmer-fallback-1.webp';
 const SAVED_POSTS_KEY = 'fh_saved_posts';
 
 const stream = document.getElementById('postStream');
 const status = document.getElementById('feedStatus');
+const composerForm = document.getElementById('composerForm');
+const composerText = document.getElementById('composerText');
+const composerImages = document.getElementById('composerImages');
+const composerStatus = document.getElementById('composerStatus');
+const sortButton = document.getElementById('sortButton');
 const searchForm = document.getElementById('feedSearchForm');
 const searchInput = searchForm?.querySelector('input[type="search"]');
 const filterChips = Array.from(document.querySelectorAll('[data-filter-chip]'));
-const pendingActions = document.querySelectorAll('[data-pending-action]');
+
+const SORT_MODES = ['latest', 'oldest', 'popular'];
+const SORT_LABELS = { latest: 'Latest', oldest: 'Oldest', popular: 'Most Liked' };
 
 let allPosts = [];
 let activeFilter = 'all posts';
+let activeSortIndex = 0;
 
 function setStatus(message) {
   if (status) status.textContent = message;
+}
+
+function showComposerStatus(msg, autoHide = true) {
+  if (!composerStatus) return;
+  composerStatus.textContent = msg;
+  composerStatus.classList.add('is-visible');
+  if (autoHide) {
+    clearTimeout(showComposerStatus._t);
+    showComposerStatus._t = setTimeout(() => composerStatus.classList.remove('is-visible'), 3000);
+  }
 }
 
 function formatPostDate(value) {
@@ -113,7 +132,6 @@ let youtubeAutoplayObserver = null;
 
 function sendYouTubeCommand(iframe, command) {
   if (!iframe?.contentWindow) return;
-
   iframe.contentWindow.postMessage(JSON.stringify({
     event: 'command',
     func: command,
@@ -130,7 +148,6 @@ function resetYouTubeAutoplay() {
 
 function setupYouTubeAutoplay(root) {
   resetYouTubeAutoplay();
-
   const frames = root.querySelectorAll('iframe[data-youtube-player="true"]');
   if (!frames.length || !('IntersectionObserver' in window)) return;
 
@@ -201,9 +218,7 @@ function createPostCard(post) {
   const avatar = document.createElement('img');
   avatar.src = post.author?.avatarUrl || FALLBACK_AVATAR;
   avatar.alt = '';
-  avatar.addEventListener('error', () => {
-    avatar.src = FALLBACK_AVATAR;
-  }, { once: true });
+  avatar.addEventListener('error', () => { avatar.src = FALLBACK_AVATAR; }, { once: true });
 
   const identity = document.createElement('div');
   const name = document.createElement('h2');
@@ -288,6 +303,7 @@ function createPostCard(post) {
   actions.className = 'post-actions';
   actions.setAttribute('aria-label', 'Post actions');
   const id = postId(post);
+
   const like = createAction(
     `${Number(post.likesCount ?? post.likes ?? 0)} Likes`,
     '<path d="M12 20s-8-4.7-8-10.2A4.7 4.7 0 0 1 12 6.5a4.7 4.7 0 0 1 8 3.3C20 15.3 12 20 12 20Z"/>'
@@ -307,10 +323,7 @@ function createPostCard(post) {
     }
   });
 
-  const share = createAction(
-    'Share',
-    '<path d="m13 5 7 7-7 7"/><path d="M20 12H4"/>'
-  );
+  const share = createAction('Share', '<path d="m13 5 7 7-7 7"/><path d="M20 12H4"/>');
   share.addEventListener('click', async () => {
     const url = `${window.location.href.split('#')[0]}#post-${id}`;
     try {
@@ -340,17 +353,25 @@ function createPostCard(post) {
   return card;
 }
 
+function getSortedPosts(posts) {
+  const mode = SORT_MODES[activeSortIndex];
+  if (mode === 'oldest') return [...posts].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  if (mode === 'popular') return [...posts].sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
+  return [...posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
 function filteredPosts() {
   const query = String(searchInput?.value || '').trim().toLowerCase();
   return allPosts.filter((post) => {
     if (activeFilter === 'products' && !post.linkedProductId) return false;
+    if (activeFilter === 'farmers' && String(post.author?.role || '').toLowerCase() !== 'farmer') return false;
     const text = [postText(post), post.author?.name].join(' ').toLowerCase();
     return !query || text.includes(query);
   });
 }
 
 function renderPosts() {
-  const posts = filteredPosts();
+  const posts = getSortedPosts(filteredPosts());
   stream.replaceChildren();
   if (!posts.length) {
     renderState(
@@ -371,8 +392,7 @@ async function loadPosts() {
   renderState('Loading farmer posts', 'Fetching the latest updates from FarmersHub.');
   try {
     const response = await getFeed({ limit: 100 });
-    allPosts = (Array.isArray(response.data) ? response.data : [])
-      .filter((post) => String(post.author?.role || '').toLowerCase() === 'farmer');
+    allPosts = Array.isArray(response.data) ? response.data : [];
     renderPosts();
   } catch (error) {
     allPosts = [];
@@ -381,35 +401,70 @@ async function loadPosts() {
   }
 }
 
-filterChips.forEach((chip) => {
-  const filter = chip.textContent.trim().toLowerCase();
-  const supported = filter === 'all posts' || filter === 'farmers' || filter === 'products';
-  if (!supported) {
-    chip.disabled = true;
-    chip.title = 'This filter needs location or following data that is not connected yet.';
-    return;
+// Composer
+composerForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!getToken()) { showComposerStatus('Please log in to post.', false); return; }
+
+  const content = composerText?.value?.trim() || '';
+  const files = composerImages?.files || [];
+  if (!content && !files.length) return;
+
+  const submitBtn = composerForm.querySelector('[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Posting…'; }
+
+  const fd = new FormData();
+  if (content) fd.append('content', content);
+  Array.from(files).slice(0, 4).forEach((f) => fd.append('images', f));
+
+  try {
+    await createPost(fd);
+    if (composerText) composerText.value = '';
+    if (composerImages) composerImages.value = '';
+    showComposerStatus('Post shared!');
+    await loadPosts();
+  } catch (err) {
+    showComposerStatus(err.message || 'Failed to post.', false);
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Post'; }
   }
+});
+
+// Filter chips
+filterChips.forEach((chip) => {
+  const label = chip.textContent.trim().toLowerCase();
   chip.addEventListener('click', () => {
-    activeFilter = filter === 'farmers' ? 'all posts' : filter;
-    filterChips.forEach((button) => {
-      const selected = button === chip;
-      button.classList.toggle('active', selected);
-      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    if (label.includes('nearby')) {
+      showComposerStatus('Nearby filter requires location access — showing all posts.');
+      activeFilter = 'all posts';
+    } else if (label.includes('following')) {
+      showComposerStatus('Following filter coming soon — showing all posts.');
+      activeFilter = 'all posts';
+    } else {
+      activeFilter = label;
+    }
+    filterChips.forEach((c) => {
+      const selected = c === chip;
+      c.classList.toggle('active', selected);
+      c.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     renderPosts();
   });
 });
 
+// Sort
+sortButton?.addEventListener('click', () => {
+  activeSortIndex = (activeSortIndex + 1) % SORT_MODES.length;
+  const strong = sortButton.querySelector('strong');
+  if (strong) strong.textContent = SORT_LABELS[SORT_MODES[activeSortIndex]];
+  renderPosts();
+});
+
+// Search
 searchForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   renderPosts();
 });
 searchInput?.addEventListener('input', renderPosts);
-
-pendingActions.forEach((button) => {
-  button.addEventListener('click', () => {
-    setStatus('Customers can browse farmer posts here. Farmers publish updates from their profile.');
-  });
-});
 
 loadPosts();

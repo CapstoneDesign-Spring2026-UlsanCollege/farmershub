@@ -170,6 +170,55 @@
   color: var(--customer-deep);
 }
 
+.orders-list-panel {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orders-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.order-history-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-card-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.order-card-header strong {
+  font-size: 13px;
+  color: var(--customer-muted);
+}
+
+.order-card-date {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--customer-muted);
+}
+
+.order-card-product {
+  margin: 0;
+  font-size: 15px;
+  color: var(--customer-deep);
+}
+
+.order-card-total {
+  font-size: 17px;
+  color: var(--customer-green, #237443);
+}
+
 @media (max-width: 800px) {
   .orders-status-grid {
     grid-template-columns: 1fr;

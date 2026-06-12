@@ -1,6 +1,7 @@
 import {
   customerMessageUrl,
   formatCurrency,
+  formatDate,
   getCartItems,
   getToken,
   hydrateCustomerShell,
@@ -8,16 +9,36 @@ import {
 } from './customer-shell.js';
 import { apiFetch, jsonHeaders } from './config/api.config.js';
 
+const ordersStatus = document.getElementById('ordersStatus');
+const orderHistoryList = document.getElementById('orderHistoryList');
+const orderFilters = document.getElementById('orderFilters');
+const ordersListContainer = document.getElementById('ordersListContainer');
+const ordersApiStatus = document.getElementById('ordersApiStatus');
 const cartStatus = document.getElementById('ordersCartStatus');
 const cartNote = document.getElementById('ordersCartNote');
 const searchForm = document.getElementById('ordersSearchForm');
 const searchInput = document.getElementById('ordersSearchInput');
-const ordersStatus = document.getElementById('ordersStatus');
-const orderHistoryList = document.getElementById('orderHistoryList');
-const orderFilters = document.getElementById('orderFilters');
 
 let orders = [];
 let activeFilter = 'all';
+
+const STATUS_STYLES = {
+  pending:    { bg: '#fff2d8', color: '#a86f15', label: 'Pending' },
+  confirmed:  { bg: '#e8f4ff', color: '#1565c0', label: 'Confirmed' },
+  processing: { bg: '#f3e8ff', color: '#6a1ab0', label: 'Processing' },
+  shipped:    { bg: '#e0f7fa', color: '#00695c', label: 'Shipped' },
+  delivered:  { bg: '#e8f5e9', color: '#1b5e20', label: 'Delivered' },
+  cancelled:  { bg: '#fce4e4', color: '#b71c1c', label: 'Cancelled' },
+};
+
+function createStatusBadge(status) {
+  const style = STATUS_STYLES[status] || { bg: '#f5f5f5', color: '#555', label: status };
+  const span = document.createElement('span');
+  span.className = 'customer-pill';
+  span.style.cssText = `background:${style.bg};color:${style.color}`;
+  span.textContent = style.label;
+  return span;
+}
 
 function orderMatchesFilter(order) {
   if (activeFilter === 'all') return true;
@@ -26,16 +47,12 @@ function orderMatchesFilter(order) {
   return order.status === 'cancelled';
 }
 
-function formatOrderDate(value) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? 'Date unavailable'
-    : date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
 function renderOrders() {
+  const container = orderHistoryList || ordersListContainer;
+  if (!container) return;
   const filtered = orders.filter(orderMatchesFilter);
-  orderHistoryList.innerHTML = '';
+  container.innerHTML = '';
+
   if (!filtered.length) {
     const empty = document.createElement('div');
     empty.className = 'customer-state customer-empty';
@@ -43,36 +60,34 @@ function renderOrders() {
     title.textContent = orders.length ? `No ${activeFilter} orders` : 'No order history yet';
     const copy = document.createElement('p');
     copy.textContent = orders.length
-      ? 'Choose another filter to view your real order records.'
+      ? 'Choose another filter to view your order records.'
       : 'Orders placed through the marketplace will appear here.';
     const link = document.createElement('a');
     link.className = 'customer-button';
     link.href = 'customer-marketplace.html';
     link.textContent = 'Browse marketplace';
     empty.append(title, copy, link);
-    orderHistoryList.appendChild(empty);
+    container.appendChild(empty);
     return;
   }
 
   filtered.forEach((order) => {
     const card = document.createElement('article');
     card.className = 'order-history-card';
+
     const heading = document.createElement('div');
     heading.className = 'order-history-heading';
     const title = document.createElement('strong');
     title.textContent = order.product?.name || 'FarmersHub order';
-    const status = document.createElement('span');
-    status.className = `order-status order-status-${order.status || 'pending'}`;
-    status.textContent = order.status || 'pending';
-    heading.append(title, status);
+    heading.append(title, createStatusBadge(order.status));
 
     const details = document.createElement('dl');
     [
       ['Order', order.orderNumber || order.id],
       ['Farmer', order.farmer?.name || 'Farmer'],
-      ['Quantity', `${order.quantity || 0} ${order.product?.unit || ''}`.trim()],
+      ['Qty', `${order.quantity || 0} ${order.product?.unit || ''}`.trim()],
       ['Total', formatCurrency(order.totalAmount)],
-      ['Placed', formatOrderDate(order.createdAt)],
+      ['Placed', formatDate(order.createdAt)],
     ].forEach(([label, value]) => {
       const row = document.createElement('div');
       const term = document.createElement('dt');
@@ -98,53 +113,61 @@ function renderOrders() {
       message.textContent = 'Message farmer';
       actions.appendChild(message);
     }
+
     card.append(heading, details, actions);
-    orderHistoryList.appendChild(card);
+    container.appendChild(card);
   });
 }
 
 async function loadOrders() {
   hydrateCustomerShell();
   if (!getToken()) {
-    setStatus(ordersStatus, 'Log in to view your order history.', 'error');
+    const s = ordersStatus || ordersApiStatus;
+    if (s) setStatus(s, 'Log in to view your order history.', 'error');
     renderOrders();
     return;
   }
 
-  setStatus(ordersStatus, 'Loading real order history...');
+  const s = ordersStatus || ordersApiStatus;
+  if (s) setStatus(s, 'Loading real order history...');
+
   try {
     const response = await apiFetch('/orders/my', { headers: jsonHeaders() });
     orders = response.data?.orders || [];
     renderOrders();
-    setStatus(ordersStatus, orders.length ? `${orders.length} order${orders.length === 1 ? '' : 's'} loaded.` : 'No order history yet.');
+    if (s) setStatus(s, orders.length ? `${orders.length} order${orders.length === 1 ? '' : 's'} loaded.` : 'No order history yet.');
   } catch (error) {
-    orderHistoryList.innerHTML = '';
-    const state = document.createElement('div');
-    state.className = 'customer-state customer-empty';
-    const title = document.createElement('strong');
-    title.textContent = 'Order history is unavailable';
-    const copy = document.createElement('p');
-    copy.textContent = error.message || 'The real order API could not be reached.';
-    state.append(title, copy);
-    orderHistoryList.appendChild(state);
-    setStatus(ordersStatus, 'Unable to load order history.', 'error');
+    const container = orderHistoryList || ordersListContainer;
+    if (container) {
+      const state = document.createElement('div');
+      state.className = 'customer-state customer-empty';
+      const title = document.createElement('strong');
+      title.textContent = 'Order history is unavailable';
+      const copy = document.createElement('p');
+      copy.textContent = error.message || 'The order API could not be reached.';
+      state.append(title, copy);
+      container.replaceChildren(state);
+    }
+    if (s) setStatus(s, 'Unable to load order history.', 'error');
   }
 }
 
 function renderCartNote() {
-  hydrateCustomerShell();
   const items = getCartItems();
   const quantity = items.reduce((sum, item) => sum + Number(item.quantity || 1), 0);
   const subtotal = items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
 
   if (!items.length) {
-    setStatus(cartStatus, 'No local cart items.');
-    cartNote.innerHTML = '<strong>Your local cart is empty.</strong> Browse the marketplace to save products before checkout is connected.';
+    if (cartStatus) setStatus(cartStatus, 'No local cart items.');
+    if (cartNote) cartNote.innerHTML = '<strong>Your local cart is empty.</strong> Browse the marketplace to add products.';
     return;
   }
 
-  setStatus(cartStatus, `${quantity} local cart item${quantity === 1 ? '' : 's'} found.`);
-  cartNote.innerHTML = `<strong>${quantity} item${quantity === 1 ? '' : 's'} in your local cart.</strong> Estimated subtotal is ${formatCurrency(subtotal)} before delivery, payment and checkout rules. These cart items are not completed orders.`;
+  if (cartStatus) setStatus(cartStatus, `${quantity} local cart item${quantity === 1 ? '' : 's'} found.`);
+  if (cartNote) {
+    cartNote.innerHTML = `<strong>${quantity} item${quantity === 1 ? '' : 's'} in your local cart.</strong> Estimated subtotal: ${formatCurrency(subtotal)}. ` +
+      `<a href="customer-cart.html" class="customer-secondary-button" style="display:inline-flex;margin-top:8px">Go to checkout</a>`;
+  }
 }
 
 searchForm?.addEventListener('submit', (event) => {

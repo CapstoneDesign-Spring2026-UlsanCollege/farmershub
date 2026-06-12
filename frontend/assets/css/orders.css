@@ -1,3 +1,45 @@
 .workspace-state {
   border-left: 5px solid var(--fw-warning);
 }
+
+.farmer-order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.farmer-order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.farmer-order-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.farmer-order-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--fw-border);
+}
+
+@media (max-width: 640px) {
+  .farmer-order-row {
+    flex-direction: column;
+  }
+
+  .farmer-order-right {
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

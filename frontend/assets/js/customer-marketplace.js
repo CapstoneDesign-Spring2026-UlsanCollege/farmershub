@@ -220,6 +220,8 @@ function createProductCard(product) {
       productId,
       productName: getProductName(product),
     })));
+  } else if (productId) {
+    actions.appendChild(createActionLink('View to message', customerProductUrl(product)));
   } else {
     const disabledMessage = document.createElement('button');
     disabledMessage.type = 'button';

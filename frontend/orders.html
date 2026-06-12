@@ -25,14 +25,27 @@
     </aside>
     <section class="workspace-content">
       <section class="workspace-panel workspace-hero">
-        <div class="workspace-hero-copy"><p>Orders</p><h1>Order tracking</h1><p>Full order lifecycle records are not connected yet. Existing product order requests currently create notifications rather than durable Order rows.</p></div>
+        <div class="workspace-hero-copy"><p>Orders</p><h1>Order management</h1><p>Manage orders from customers. Update status to keep buyers informed of fulfilment progress.</p></div>
         <div class="workspace-hero-image"><img src="assets/images/home/service-delivery.webp" alt="Delivery support"></div>
       </section>
-      <section class="workspace-panel workspace-state">
-        <h2>No order history backend confirmed</h2>
-        <p>FarmersHub currently has product request notifications, messages and product listings. A complete Order model, order status history and fulfillment workflow were not found in the tracked backend routes during this frontend batch.</p>
-        <div class="workspace-card-actions"><a class="workspace-primary" href="notifications.html">View Order Request Alerts</a><a class="workspace-secondary" href="messages.html">Open Messages</a></div>
+      <section class="workspace-panel workspace-toolbar">
+        <div>
+          <h2>Orders</h2>
+          <p id="ordersStatus" role="status" aria-live="polite">Loading...</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="statusFilter" style="min-height:40px;padding:0 12px;border:1px solid var(--fw-border);border-radius:10px;background:#fff;color:var(--fw-text);font:inherit;font-size:13px;cursor:pointer;">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
       </section>
+      <div class="workspace-list" id="ordersList"></div>
     </section>
   </main>
   <script type="module" src="assets/js/orders.js"></script>

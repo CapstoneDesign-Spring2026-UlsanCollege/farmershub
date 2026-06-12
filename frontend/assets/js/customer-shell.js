@@ -144,7 +144,7 @@ function getInitials(name) {
 }
 
 function getProductId(product = {}) {
-  return product.id || product._id || product.productId || '';
+  return product.id || product._id || product.productId || product.product_id || '';
 }
 
 function getProductName(product = {}) {
@@ -166,24 +166,46 @@ function getProductUnit(product = {}) {
 }
 
 function getSellerId(product = {}) {
-  return product.seller?.id || product.seller?._id || product.sellerId || product.farmerId || product.userId || '';
+  return product.seller?.id || product.seller?._id || product.seller?.userId
+    || product.farmer?.id || product.farmer?._id
+    || product.createdBy?.id || product.createdBy?._id
+    || product.sellerId || product.farmerId || product.ownerId || product.userId || '';
 }
 
 function getSellerName(product = {}) {
-  return product.seller?.name || product.seller?.fullName || product.farmerName || product.sellerName || 'Local farmer';
+  return product.seller?.name || product.seller?.fullName
+    || product.farmer?.name || product.farmer?.fullName
+    || product.createdBy?.name || product.createdBy?.fullName
+    || product.farmerName || product.sellerName || 'Local farmer';
 }
 
 function getSellerLocation(product = {}) {
   return product.seller?.location || product.location || '';
 }
 
+function resolveImageUrl(url) {
+  if (!url) return '';
+  if (/^https?:\/\//.test(url) || url.startsWith('data:') || url.startsWith('blob:')) return url;
+  const base = (typeof window !== 'undefined'
+    ? (window.FARMERSHUB_API_BASE || 'https://farmershub-kkjd.onrender.com')
+    : 'https://farmershub-kkjd.onrender.com').replace(/\/api$/, '');
+  return `${base}${url.startsWith('/') ? url : '/' + url}`;
+}
+
 function getProductImage(product = {}) {
-  if (product.imageUrl) return product.imageUrl;
-  if (product.image) return product.image;
-  if (product.photoUrl) return product.photoUrl;
+  const direct = product.imageUrl || product.image || product.photoUrl
+    || product.imagePath || product.thumbnailUrl || product.coverImage || product.mediaUrl;
+  if (direct) return resolveImageUrl(direct);
   if (Array.isArray(product.images) && product.images.length) {
     const first = product.images[0];
-    return typeof first === 'string' ? first : (first.url || first.path || first.secureUrl || '');
+    const url = typeof first === 'string' ? first
+      : (first.url || first.path || first.secureUrl || first.imagePath || '');
+    if (url) return resolveImageUrl(url);
+  }
+  if (Array.isArray(product.media) && product.media.length) {
+    const first = product.media[0];
+    const url = typeof first === 'string' ? first : (first.url || first.path || '');
+    if (url) return resolveImageUrl(url);
   }
   return '';
 }
@@ -409,7 +431,8 @@ function createImageBlock(url, label = 'Product image') {
     image.setAttribute('role', 'img');
     image.setAttribute('aria-label', label);
   } else {
-    image.textContent = 'Image pending';
+    image.setAttribute('aria-hidden', 'true');
+    image.innerHTML = '<span style="font-size:28px;opacity:.3;user-select:none;">🌾</span>';
   }
   return image;
 }
