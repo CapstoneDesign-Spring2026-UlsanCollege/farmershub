@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Feed | FarmersHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/social-feed.css">
+</head>
+<body>
+  <div class="feed-app">
+    <aside class="feed-sidebar">
+      <a class="feed-brand" href="index.html" aria-label="FarmersHub farmer home">
+        <img src="logo.png" alt="FarmersHub logo">
+        <span>FarmersHub</span>
+      </a>
+
+      <nav class="feed-menu" aria-label="Farmer workspace navigation">
+        <a href="index.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="products-management.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          <span>Products</span>
+        </a>
+        <a href="orders.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4Z"/><path d="M8 7a4 4 0 0 1 8 0"/><path d="M9 11h6"/></svg>
+          <span>Orders</span>
+        </a>
+        <a href="messages.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z"/></svg>
+          <span>Messages</span>
+        </a>
+        <a href="analytics.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 16 4-4 4 4 5-5"/></svg>
+          <span>Analytics</span>
+        </a>
+        <a class="active" href="farmer-social-feed.html" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 20c6 0 10-4 10-12V4C11 4 7 8 7 14v6Z"/><path d="M7 20c1-5 4-8 9-11"/></svg>
+          <span>Social Feed</span>
+        </a>
+        <a href="settings.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A7 7 0 0 0 15 6.2L14.7 4h-5.4L9 6.2a7 7 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.5.9l.3 2.2h5.4l.3-2.2a7 7 0 0 0 1.5-.9l2.4 1 2-3.4-2-1.5c.1-.3.1-.7.1-1Z"/></svg>
+          <span>Settings</span>
+        </a>
+        <a href="help-center.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.5 2.5 0 0 1 4.8 1c0 2-2.6 2-2.6 4"/><path d="M12 17.5v.1"/></svg>
+          <span>Help Center</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="feed-main">
+      <header class="feed-topbar">
+        <form class="feed-search" id="feedSearchForm" aria-label="Community search preview">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input type="search" placeholder="Search products, farmers and community posts..." aria-label="Search community posts">
+        </form>
+
+        <div class="feed-actions" aria-label="Quick links">
+          <a href="notifications.html" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 10a5.5 5.5 0 0 1 11 0v4l2 2H4.5l2-2v-4Z"/><path d="M10 19a2.4 2.4 0 0 0 4 0"/></svg>
+          </a>
+          <a href="messages.html" aria-label="Messages">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z"/></svg>
+          </a>
+          <a class="feed-avatar" href="profile.html" aria-label="Your profile">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+          </a>
+        </div>
+      </header>
+
+      <div class="feed-layout">
+        <section class="feed-column" aria-label="Community feed">
+          <header class="feed-heading">
+            <p class="feed-kicker">Community</p>
+            <h1>Social Feed</h1>
+            <p>Share harvest updates, farm stories and product announcements with the community.</p>
+          </header>
+
+          <section class="composer-card" aria-label="Create post">
+            <form id="composerForm" novalidate>
+              <div class="composer-row">
+                <div class="composer-avatar" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+                </div>
+                <textarea id="composerText" class="composer-prompt" placeholder="Share an update with the community..." rows="2" aria-label="Post content" style="width:100%;resize:vertical;border:none;background:transparent;font:inherit;font-size:15px;outline:none;min-height:52px;"></textarea>
+              </div>
+              <div class="composer-controls">
+                <div class="composer-media">
+                  <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m5 17 5-5 4 4 3-3 3 4"/></svg>
+                    Photo
+                    <input id="composerImages" type="file" accept="image/*" multiple style="display:none;" aria-label="Add photos (up to 4)">
+                  </label>
+                </div>
+                <button class="composer-post" type="submit">Post</button>
+              </div>
+              <p class="composer-status" id="composerStatus" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <section class="feed-toolbar" aria-label="Feed viewing options">
+            <div class="feed-filters" role="group" aria-label="Post categories">
+              <button class="filter-chip active" type="button" data-filter-chip aria-pressed="true">All Posts</button>
+              <button class="filter-chip" type="button" data-filter-chip aria-pressed="false">Farmers</button>
+              <button class="filter-chip" type="button" data-filter-chip aria-pressed="false">Products</button>
+              <button class="filter-chip" type="button" data-filter-chip aria-pressed="false">Nearby</button>
+              <button class="filter-chip" type="button" data-filter-chip aria-pressed="false">Following</button>
+            </div>
+            <button class="sort-button" type="button" id="sortButton">
+              Sort by: <strong>Latest</strong>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </button>
+          </section>
+
+          <section class="preview-notice" id="feedNotice" aria-label="Live feed status">
+            <div>
+              <strong>Live farmer updates</strong>
+              <p id="feedStatus" role="status" aria-live="polite">Loading the latest posts from FarmersHub.</p>
+            </div>
+            <span>Live Feed</span>
+          </section>
+
+          <section class="post-stream" id="postStream" aria-label="Community posts" aria-live="polite"></section>
+        </section>
+
+        <aside class="feed-widgets" aria-label="Community discovery previews">
+          <section class="widget-card">
+            <div class="widget-heading">
+              <h2>Trending Crops</h2>
+              <span>Coming soon</span>
+            </div>
+            <p>Community crop trends will appear after feed activity is connected.</p>
+            <div class="pending-list" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+          </section>
+
+          <section class="widget-card">
+            <div class="widget-heading">
+              <h2>Manage Your Listings</h2>
+            </div>
+            <p>Add new products, update stock levels and keep your farm listings current.</p>
+            <a class="widget-link" href="products-management.html">Go to Products</a>
+          </section>
+
+          <section class="widget-card">
+            <div class="widget-heading">
+              <h2>Upcoming Local Markets</h2>
+              <span>Coming soon</span>
+            </div>
+            <p>Local market events will appear after event listings are connected.</p>
+          </section>
+
+          <section class="widget-card tip-card">
+            <div class="widget-heading">
+              <h2>Posting Tips</h2>
+            </div>
+            <p>Share harvest photos, announce new stock and engage with customers to boost your visibility.</p>
+          </section>
+
+          <section class="widget-card guideline-card">
+            <div class="widget-heading">
+              <h2>Community Guidelines</h2>
+            </div>
+            <p>Share respectfully, keep information accurate and support local growers.</p>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="assets/js/social-feed.js"></script>
+</body>
+</html>

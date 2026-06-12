@@ -3,6 +3,8 @@ import { getToken } from './config/api.config.js';
 
 const FALLBACK_AVATAR = 'assets/images/home/farmer-fallback-1.webp';
 const SAVED_POSTS_KEY = 'fh_saved_posts';
+const userRole = localStorage.getItem('fh_role') || '';
+const isFarmer = userRole === 'farmer';
 
 const stream = document.getElementById('postStream');
 const status = document.getElementById('feedStatus');
@@ -17,6 +19,10 @@ const filterChips = Array.from(document.querySelectorAll('[data-filter-chip]'));
 
 const SORT_MODES = ['latest', 'oldest', 'popular'];
 const SORT_LABELS = { latest: 'Latest', oldest: 'Oldest', popular: 'Most Liked' };
+
+if (composerForm && !isFarmer) {
+  composerForm.closest('.composer-card')?.classList.add('composer-hidden');
+}
 
 let allPosts = [];
 let activeFilter = 'all posts';
@@ -224,11 +230,11 @@ function createPostCard(post) {
   const name = document.createElement('h2');
   const profileLink = document.createElement('a');
   profileLink.textContent = post.author?.name || 'FarmersHub farmer';
-  profileLink.href = post.author?.id
-    ? `customer-farmer-profile.html?farmer=${encodeURIComponent(post.author.id)}`
-    : 'customer-marketplace.html';
+  profileLink.href = isFarmer
+    ? (post.author?.id ? `profile.html?id=${encodeURIComponent(post.author.id)}` : 'index.html')
+    : (post.author?.id ? `customer-farmer-profile.html?farmer=${encodeURIComponent(post.author.id)}` : 'customer-marketplace.html');
   const badge = document.createElement('span');
-  badge.textContent = 'Farmer';
+  badge.textContent = post.author?.role === 'farmer' ? 'Farmer' : 'Member';
   name.append(profileLink, badge);
 
   const meta = document.createElement('p');
@@ -293,7 +299,9 @@ function createPostCard(post) {
     note.textContent = 'Open the farmer listing connected to this update.';
     copy.append(title, note);
     const link = document.createElement('a');
-    link.href = `customer-product.html?id=${encodeURIComponent(post.linkedProductId)}`;
+    link.href = isFarmer
+      ? `products-management.html?id=${encodeURIComponent(post.linkedProductId)}`
+      : `customer-product.html?id=${encodeURIComponent(post.linkedProductId)}`;
     link.textContent = 'View Product';
     product.append(copy, link);
     card.appendChild(product);
@@ -405,6 +413,7 @@ async function loadPosts() {
 composerForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!getToken()) { showComposerStatus('Please log in to post.', false); return; }
+  if (!isFarmer) { showComposerStatus('Only farmers can post to the community feed.', false); return; }
 
   const content = composerText?.value?.trim() || '';
   const files = composerImages?.files || [];

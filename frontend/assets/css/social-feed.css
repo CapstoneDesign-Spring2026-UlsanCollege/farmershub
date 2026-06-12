@@ -881,3 +881,7 @@ input:focus-visible {
   border: 0;
   display: block;
 }
+
+.composer-hidden {
+  display: none;
+}
