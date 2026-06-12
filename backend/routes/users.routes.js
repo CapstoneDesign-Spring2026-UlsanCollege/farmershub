@@ -10,6 +10,9 @@ const {
   setDefaultMyAddress,
   changeMyPassword,
   deactivateMyAccount,
+  getFarmerStats,
+  getNotificationPreferences,
+  updateNotificationPreferences,
 } = require('../controllers/userController');
 const {
   getCurrentProfile,
@@ -73,6 +76,9 @@ router.get('/customers', async (req, res, next) => {
 // ── All routes below require authentication ───────────────────────────────────
 router.use(protect);
 
+router.get('/me/notification-preferences', getNotificationPreferences);
+router.patch('/me/notification-preferences', updateNotificationPreferences);
+router.get('/me/farm-stats', authorize('farmer'), getFarmerStats);
 router.get('/me/addresses', getMyAddresses);
 router.post('/me/addresses', createMyAddress);
 router.put('/me/addresses/:addressId', updateMyAddress);

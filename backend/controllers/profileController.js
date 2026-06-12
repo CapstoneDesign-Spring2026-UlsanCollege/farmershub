@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const Post = require('../models/Post');
+const { Order } = require('../models/Order');
 const Profile = require('../models/Profile');
 const User = require('../models/User');
 const { buildMediaUrl } = require('../services/mediaUrlService');
@@ -15,14 +16,21 @@ async function ensureProfile(user) {
 }
 
 async function buildProfileResponse(profileDoc, user, req, { includePrivate = false } = {}) {
-    const [productCount, postCount] = await Promise.all([
-        Product.countDocuments({ 'seller.userId': user.id }),
-        Post.countDocuments({ 'author.userId': user.id }),
+    const userId = user._id || user.id;
+    const isFarmer = user.role === 'farmer';
+    const orderQuery = isFarmer
+        ? { 'farmer.userId': userId }
+        : (includePrivate ? { 'customer.userId': userId } : null);
+
+    const [productCount, postCount, orderCount] = await Promise.all([
+        Product.countDocuments({ 'seller.userId': userId }),
+        Post.countDocuments({ 'author.userId': userId }),
+        orderQuery ? Order.countDocuments(orderQuery) : Promise.resolve(null),
     ]);
 
     const data = {
-        id: String(user._id || user.id || profileDoc.userId),
-        userId: String(user._id || user.id || profileDoc.userId),
+        id: String(userId || profileDoc.userId),
+        userId: String(userId || profileDoc.userId),
         fullName: user.fullName,
         role: user.role,
         bio: profileDoc.bio,
@@ -39,6 +47,7 @@ async function buildProfileResponse(profileDoc, user, req, { includePrivate = fa
         stats: {
             products: productCount,
             posts: postCount,
+            orders: orderCount,
         },
     };
 

@@ -1,6 +1,9 @@
 const User = require('../models/User');
+const { Order } = require('../models/Order');
 const path = require('path');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+
+const ALLOWED_SOUND_NAMES = ['hens', 'cat', 'silent', 'default'];
 
 const ADDRESS_FIELDS = [
   'label',
@@ -250,6 +253,70 @@ const deactivateMyAccount = async (req, res, next) => {
   }
 };
 
+const ACTIVE_ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped'];
+
+const getFarmerStats = async (req, res, next) => {
+  try {
+    const farmerId = req.user._id;
+    const [pendingCount, revenueResult] = await Promise.all([
+      Order.countDocuments({ 'farmer.userId': farmerId, status: { $in: ACTIVE_ORDER_STATUSES } }),
+      Order.aggregate([
+        { $match: { 'farmer.userId': farmerId, status: 'delivered' } },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      ]),
+    ]);
+    return successResponse(res, 'Farmer stats', {
+      pendingOrders: pendingCount,
+      deliveredRevenue: revenueResult[0]?.total || 0,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getNotificationPreferences = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('notificationPreferences');
+    const prefs = user?.notificationPreferences || {};
+    return successResponse(res, 'Notification preferences', {
+      soundEnabled: prefs.soundEnabled !== false,
+      soundName: prefs.soundName || 'default',
+      desktopEnabled: prefs.desktopEnabled !== false,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateNotificationPreferences = async (req, res, next) => {
+  try {
+    const updates = {};
+    if (req.body.soundEnabled !== undefined) {
+      updates['notificationPreferences.soundEnabled'] = Boolean(req.body.soundEnabled);
+    }
+    if (req.body.desktopEnabled !== undefined) {
+      updates['notificationPreferences.desktopEnabled'] = Boolean(req.body.desktopEnabled);
+    }
+    if (req.body.soundName !== undefined) {
+      const raw = String(req.body.soundName || '').trim().toLowerCase().slice(0, 60);
+      updates['notificationPreferences.soundName'] = ALLOWED_SOUND_NAMES.includes(raw) ? raw : 'default';
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('notificationPreferences');
+    const prefs = user?.notificationPreferences || {};
+    return successResponse(res, 'Notification preferences updated', {
+      soundEnabled: prefs.soundEnabled !== false,
+      soundName: prefs.soundName || 'default',
+      desktopEnabled: prefs.desktopEnabled !== false,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -263,4 +330,7 @@ module.exports = {
   setDefaultMyAddress,
   changeMyPassword,
   deactivateMyAccount,
+  getFarmerStats,
+  getNotificationPreferences,
+  updateNotificationPreferences,
 };

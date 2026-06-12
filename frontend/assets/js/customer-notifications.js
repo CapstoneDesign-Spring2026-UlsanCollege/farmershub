@@ -3,6 +3,7 @@ import {
   hydrateNotificationSoundSelect,
   playNotificationSound,
   saveNotificationSoundPreference,
+  syncNotificationSoundFromBackend,
 } from './notification-sounds.js';
 import {
   customerMessageUrl,
@@ -276,6 +277,7 @@ refreshBtn?.addEventListener('click', fetchNotifications);
 
 if (soundSelectEl) {
   hydrateNotificationSoundSelect(soundSelectEl);
+  syncNotificationSoundFromBackend(soundSelectEl);
   soundSelectEl.addEventListener('change', () => {
     const selected = saveNotificationSoundPreference(soundSelectEl.value);
     soundSelectEl.value = selected;

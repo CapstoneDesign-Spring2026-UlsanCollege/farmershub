@@ -2,6 +2,7 @@ import { getProducts } from './services/productService.js';
 import { getFarmers } from './services/farmerService.js';
 import { getProfile } from './services/profileService.js';
 import { getFeed } from './services/postService.js';
+import { apiFetch, jsonHeaders, getToken } from './config/api.config.js';
 
 function getStoredUser() {
   try {
@@ -88,6 +89,17 @@ function getStockLabel(product) {
   }
 
   return `Stock: ${stock}${unit ? ` ${unit}` : ''}`;
+}
+
+async function getFarmerStats() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const response = await apiFetch('/users/me/farm-stats', { headers: jsonHeaders() });
+    return response.data || null;
+  } catch {
+    return null;
+  }
 }
 
 function setText(id, value) {
@@ -297,6 +309,66 @@ function renderDiscoveredFarmers(farmers, currentUserId) {
   });
 }
 
+function renderKpis(stats) {
+  if (!stats) {
+    setText('fdRevenue', 'Unavailable');
+    setText('fdPendingOrders', 'Unavailable');
+    setText('fdEarningsTotal', 'Unavailable');
+    return;
+  }
+  setText('fdRevenue', formatWon(stats.deliveredRevenue || 0));
+  setText('fdPendingOrders', String(stats.pendingOrders || 0));
+  setText('fdEarningsTotal', formatWon(stats.deliveredRevenue || 0));
+
+  const earningsPanel = document.getElementById('fdEarnings');
+  if (earningsPanel) {
+    const unavailable = earningsPanel.querySelector('.fd-unavailable-state');
+    if (unavailable) unavailable.hidden = true;
+  }
+}
+
+function renderRecentOrders(stats) {
+  const container = document.getElementById('farmerRecentOrders');
+  if (!container) return;
+
+  if (!stats) {
+    container.innerHTML = `
+      <div class="fd-order">
+        <div>
+          <h4>Orders unavailable</h4>
+          <p>Unable to load order data right now. Try refreshing.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const pending = stats.pendingOrders || 0;
+  const revenue = stats.deliveredRevenue || 0;
+
+  if (pending === 0 && revenue === 0) {
+    container.innerHTML = `
+      <div class="fd-order">
+        <div>
+          <h4>No orders yet</h4>
+          <p>Customer orders will appear here once you start receiving them.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="fd-order">
+      <div>
+        <h4>${pending} active order${pending !== 1 ? 's' : ''}</h4>
+        <p>Delivered revenue: ${formatWon(revenue)}</p>
+        <a class="fd-link" href="orders.html">Manage orders →</a>
+      </div>
+    </div>
+  `;
+}
+
 function renderRecentPosts(posts) {
   const container = document.getElementById('farmerPostSummary');
   if (!container) return;
@@ -352,11 +424,12 @@ async function initialiseFarmerDashboard() {
 
   setOwnStoreLinks(farmerId);
 
-  const [profileResult, productsResult, farmersResult, postsResult] = await Promise.allSettled([
+  const [profileResult, productsResult, farmersResult, postsResult, statsResult] = await Promise.allSettled([
     getProfile(),
     getProducts({ farmerId, limit: 12 }),
     getFarmers({ limit: 12 }),
-    getFeed({ authorId: farmerId, limit: 5 })
+    getFeed({ authorId: farmerId, limit: 5 }),
+    getFarmerStats(),
   ]);
 
   if (profileResult.status === 'fulfilled') {
@@ -389,6 +462,10 @@ async function initialiseFarmerDashboard() {
       `;
     }
   }
+
+  const farmStats = statsResult.status === 'fulfilled' ? (statsResult.value ?? null) : null;
+  renderKpis(farmStats);
+  renderRecentOrders(farmStats);
 
   if (postsResult.status === 'fulfilled') {
     renderRecentPosts(postsResult.value.data || []);

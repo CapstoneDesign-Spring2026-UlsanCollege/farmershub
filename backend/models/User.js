@@ -85,6 +85,11 @@ const userSchema = new mongoose.Schema(
     },
     // Fix before merging to main: store accepted friendships for both users.
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    notificationPreferences: {
+      soundEnabled: { type: Boolean, default: true },
+      soundName: { type: String, trim: true, maxlength: 60, default: 'default' },
+      desktopEnabled: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );

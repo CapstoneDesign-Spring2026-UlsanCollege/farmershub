@@ -134,6 +134,7 @@ function normalizeProfile(profile = {}) {
     stats: {
       products: Number(profile.stats?.products || 0),
       posts: Number(profile.stats?.posts || 0),
+      orders: profile.stats?.orders != null ? Number(profile.stats.orders) : null,
     },
     posts: Array.isArray(profile.posts) ? profile.posts : [],
     productListings: Array.isArray(profile.productListings) ? profile.productListings : [],
@@ -566,6 +567,11 @@ function renderProfile(profile) {
   setText('sidebarPostCount', String(currentProfile.stats.posts || 0));
   if (isFarmer) {
     setText('productCount', String(currentProfile.stats.products || 0));
+  }
+  const orderCountItem = document.getElementById('profileOrderCountItem');
+  if (currentProfile.stats.orders !== null && orderCountItem) {
+    setText('profileOrderCount', String(currentProfile.stats.orders || 0));
+    orderCountItem.hidden = false;
   }
 }
 

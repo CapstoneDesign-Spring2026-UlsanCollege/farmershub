@@ -1,3 +1,5 @@
+import { apiFetch, jsonHeaders, getToken } from './config/api.config.js';
+
 const NOTIFICATION_SOUND_KEY = 'fh_notification_sound';
 const DEFAULT_NOTIFICATION_SOUND = 'hens';
 const NOTIFICATION_SOUND_MAX_MS = 3500;
@@ -33,7 +35,29 @@ function getCurrentNotificationSound() {
 function saveNotificationSoundPreference(soundName) {
   const normalizedSound = normalizeNotificationSound(soundName);
   localStorage.setItem(NOTIFICATION_SOUND_KEY, normalizedSound);
+  if (getToken()) {
+    apiFetch('/users/me/notification-preferences', {
+      method: 'PATCH',
+      headers: jsonHeaders(),
+      body: JSON.stringify({ soundName: normalizedSound }),
+    }).catch(() => {});
+  }
   return normalizedSound;
+}
+
+async function syncNotificationSoundFromBackend(selectEl) {
+  if (!getToken()) return;
+  try {
+    const response = await apiFetch('/users/me/notification-preferences', { headers: jsonHeaders() });
+    const soundName = response.data?.soundName;
+    if (soundName) {
+      const normalized = normalizeNotificationSound(soundName);
+      localStorage.setItem(NOTIFICATION_SOUND_KEY, normalized);
+      if (selectEl) selectEl.value = normalized;
+    }
+  } catch {
+    // Backend unavailable — keep localStorage value.
+  }
 }
 
 function getNotificationSoundOptions() {
@@ -86,4 +110,5 @@ export {
   hydrateNotificationSoundSelect,
   playNotificationSound,
   saveNotificationSoundPreference,
+  syncNotificationSoundFromBackend,
 };
