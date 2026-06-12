@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS = {
   maintenanceMode: false,
   announcementsEnabled: true,
 };
+const ALLOWED_ANALYTICS_PERIODS = new Set([7, 30, 90]);
 
 function toId(value) {
   return String(value?._id || value?.id || value || '');
@@ -143,20 +144,29 @@ function getStartOfToday() {
   return date;
 }
 
-function getStartOfLastSevenDays() {
+function getStartOfLastDays(days) {
   const date = getStartOfToday();
-  date.setDate(date.getDate() - 6);
+  date.setDate(date.getDate() - (days - 1));
   return date;
+}
+
+function getStartOfLastSevenDays() {
+  return getStartOfLastDays(7);
+}
+
+function getAnalyticsPeriod(query = {}) {
+  const requested = Number(query.period ?? query.range);
+  return ALLOWED_ANALYTICS_PERIODS.has(requested) ? requested : 7;
 }
 
 function dayLabel(date) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-async function chartFor(Model, match = {}) {
-  const start = getStartOfLastSevenDays();
+async function chartFor(Model, period = 7, match = {}) {
+  const start = getStartOfLastDays(period);
   const days = [];
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < period; i += 1) {
     const date = new Date(start);
     date.setDate(start.getDate() + i);
     days.push(date);
@@ -332,6 +342,7 @@ async function getRecentActivities() {
 
 async function getOverview(req, res, next) {
   try {
+    const analyticsPeriod = getAnalyticsPeriod(req.query);
     const uploads = await getUploadSummary();
     const [
       totalUsers,
@@ -356,9 +367,9 @@ async function getOverview(req, res, next) {
       Message.countDocuments(),
       Post.countDocuments(),
       Promise.all([
-        chartFor(User),
-        chartFor(Product),
-        chartFor(Order),
+        chartFor(User, analyticsPeriod),
+        chartFor(Product, analyticsPeriod),
+        chartFor(Order, analyticsPeriod),
       ]),
       getRecentActivities(),
       getTopFarmers(),
@@ -384,6 +395,7 @@ async function getOverview(req, res, next) {
         products: charts[1],
         orders: charts[2],
       },
+      analyticsPeriod,
       recentActivities,
       topFarmers,
       system: {

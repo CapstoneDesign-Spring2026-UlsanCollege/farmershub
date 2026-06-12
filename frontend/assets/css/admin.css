@@ -322,6 +322,25 @@ a {
   font-size: 18px;
 }
 
+.admin-period-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-period-button.active {
+  color: #fff;
+  border-color: var(--admin-green);
+  background: var(--admin-green);
+}
+
+.admin-chart-period {
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .admin-card-head select,
 .admin-field,
 .admin-form input,

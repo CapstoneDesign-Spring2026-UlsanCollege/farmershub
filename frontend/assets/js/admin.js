@@ -1,6 +1,6 @@
 import { API_BASE, apiFetch, authHeader, jsonHeaders } from './config/api.config.js';
 
-const ADMIN_EMAIL = 'sonam@gmail.com';
+const ADMIN_ANALYTICS_PERIODS = [7, 30, 90];
 const content = document.getElementById('adminContent');
 const statusbar = document.getElementById('adminStatusbar');
 const toast = document.getElementById('adminToast');
@@ -9,6 +9,7 @@ const assistantThread = document.getElementById('assistantThread');
 const assistantInput = document.getElementById('assistantInput');
 
 let currentSection = 'dashboard';
+let adminAnalyticsPeriod = 7;
 let lastToastTimer = null;
 
 function getStoredUser() {
@@ -36,7 +37,7 @@ function redirectToLogin() {
 }
 
 function isAdminUser(user) {
-  return user?.role === 'admin' && String(user.email || '').toLowerCase() === ADMIN_EMAIL;
+  return user?.role === 'admin';
 }
 
 function escapeHtml(value) {
@@ -81,6 +82,22 @@ function pageTitle(title, text, actions = '') {
         <p>${escapeHtml(text)}</p>
       </div>
       <div class="admin-actions">${actions}</div>
+    </div>
+  `;
+}
+
+function analyticsPeriodControls() {
+  return `
+    <div class="admin-period-controls" role="group" aria-label="Analytics time period">
+      ${ADMIN_ANALYTICS_PERIODS.map((period) => `
+        <button
+          class="admin-button-secondary admin-period-button ${period === adminAnalyticsPeriod ? 'active' : ''}"
+          type="button"
+          data-admin-period="${period}"
+          aria-pressed="${period === adminAnalyticsPeriod}">
+          ${period} Days
+        </button>
+      `).join('')}
     </div>
   `;
 }
@@ -213,8 +230,14 @@ function drawLineChart(canvasId, chart, color) {
   ctx.scale(ratio, ratio);
   ctx.clearRect(0, 0, rect.width, rect.height);
 
-  const values = chart?.values?.length ? chart.values : [0, 0, 0, 0, 0, 0, 0];
-  const labels = chart?.labels?.length ? chart.labels : ['', '', '', '', '', '', ''];
+  const sourceValues = Array.isArray(chart?.values) ? chart.values : [];
+  const sourceLabels = Array.isArray(chart?.labels) ? chart.labels : [];
+  const itemCount = Math.max(sourceValues.length, sourceLabels.length, 1);
+  const values = Array.from({ length: itemCount }, (_, index) => {
+    const value = Number(sourceValues[index]);
+    return Number.isFinite(value) ? Math.max(value, 0) : 0;
+  });
+  const labels = Array.from({ length: itemCount }, (_, index) => String(sourceLabels[index] || ''));
   const maxValue = Math.max(...values, 1);
   const padding = { left: 36, right: 12, top: 16, bottom: 34 };
   const width = rect.width - padding.left - padding.right;
@@ -248,29 +271,35 @@ function drawLineChart(canvasId, chart, color) {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  points.forEach((point) => {
+  const pointStep = Math.max(1, Math.ceil(points.length / 30));
+  points.forEach((point, index) => {
+    if (index % pointStep !== 0 && index !== points.length - 1) return;
     ctx.beginPath();
     ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
   });
 
+  const labelStep = Math.max(1, Math.ceil(labels.length / 7));
   labels.forEach((label, index) => {
+    if (index % labelStep !== 0 && index !== labels.length - 1) return;
     const x = padding.left + (width / Math.max(labels.length - 1, 1)) * index;
     ctx.fillStyle = '#6c7a70';
     ctx.fillText(label, Math.max(6, x - 18), rect.height - 12);
   });
 }
 
-async function loadDashboard() {
+async function loadDashboard({ period = adminAnalyticsPeriod } = {}) {
+  const requestedPeriod = Number(period);
+  adminAnalyticsPeriod = ADMIN_ANALYTICS_PERIODS.includes(requestedPeriod) ? requestedPeriod : 7;
   setLoading('Loading dashboard', 'Collecting users, products, orders, messages, and uploads.');
-  const response = await adminFetch('/admin/overview', { headers: jsonHeaders() });
+  const response = await adminFetch(`/admin/overview?period=${adminAnalyticsPeriod}`, { headers: jsonHeaders() });
   const data = response.data || {};
   const metrics = data.metrics || {};
 
   updateStatusbar(data.system || {});
   content.innerHTML = `
-    ${pageTitle('Dashboard Overview', 'Manage FarmersHub users, products, orders, messages, uploads, and system activity.')}
+    ${pageTitle('Dashboard Overview', 'Manage FarmersHub users, products, orders, messages, uploads, and system activity.', analyticsPeriodControls())}
     <section class="admin-grid admin-metrics">
       ${metricCard('Total Users', formatNumber(metrics.totalUsers), '+ live database', 'green')}
       ${metricCard('Farmers', formatNumber(metrics.farmers), 'producer accounts', 'gold')}
@@ -284,15 +313,15 @@ async function loadDashboard() {
     </section>
     <section class="admin-grid admin-chart-grid">
       <article class="admin-card">
-        <div class="admin-card-head"><h2>Users Over Time</h2><select disabled><option>7 Days</option></select></div>
+        <div class="admin-card-head"><h2>Users Over Time</h2><span class="admin-chart-period">${adminAnalyticsPeriod} days</span></div>
         <canvas class="admin-chart" id="usersChart"></canvas>
       </article>
       <article class="admin-card">
-        <div class="admin-card-head"><h2>Products Over Time</h2><select disabled><option>7 Days</option></select></div>
+        <div class="admin-card-head"><h2>Products Over Time</h2><span class="admin-chart-period">${adminAnalyticsPeriod} days</span></div>
         <canvas class="admin-chart" id="productsChart"></canvas>
       </article>
       <article class="admin-card">
-        <div class="admin-card-head"><h2>Orders Over Time</h2><select disabled><option>7 Days</option></select></div>
+        <div class="admin-card-head"><h2>Orders Over Time</h2><span class="admin-chart-period">${adminAnalyticsPeriod} days</span></div>
         <canvas class="admin-chart" id="ordersChart"></canvas>
       </article>
     </section>
@@ -334,7 +363,7 @@ function usersTable(users) {
               <td>
                 <div class="admin-actions">
                   <button class="admin-button-secondary" type="button" data-action="user-detail" data-id="${escapeHtml(user.id)}">Details</button>
-                  ${user.email === ADMIN_EMAIL ? '' : `<button class="admin-button-danger" type="button" data-action="delete-user" data-id="${escapeHtml(user.id)}">Delete</button>`}
+                  ${user.role === 'admin' ? '' : `<button class="admin-button-danger" type="button" data-action="delete-user" data-id="${escapeHtml(user.id)}">Delete</button>`}
                 </div>
               </td>
             </tr>
@@ -677,7 +706,7 @@ async function loadSection(section = currentSection, params = {}) {
   document.body.classList.remove('nav-open');
 
   try {
-    if (section === 'dashboard') await loadDashboard();
+    if (section === 'dashboard') await loadDashboard(params);
     else if (section === 'users') await loadUsers(params);
     else if (section === 'products') await loadProductsAndUploads(params);
     else if (section === 'orders') await loadOrders(params);
@@ -915,6 +944,12 @@ document.getElementById('adminMenuButton').addEventListener('click', () => {
 });
 
 content.addEventListener('click', async (event) => {
+  const periodButton = event.target.closest('[data-admin-period]');
+  if (periodButton) {
+    await loadSection('dashboard', { period: periodButton.dataset.adminPeriod });
+    return;
+  }
+
   const jump = event.target.closest('[data-section-jump]');
   if (jump) {
     await loadSection(jump.dataset.sectionJump);
