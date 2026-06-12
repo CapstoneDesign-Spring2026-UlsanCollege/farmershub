@@ -51,31 +51,27 @@
 
       <section class="orders-hero">
         <div>
-          <p class="customer-section-kicker">Order history status</p>
-          <h1>Track your purchases when checkout is connected.</h1>
-          <p>FarmersHub currently supports marketplace browsing, local cart storage, messages and notifications. A durable customer order history source was not confirmed in this frontend task.</p>
+          <p class="customer-section-kicker">Order history</p>
+          <h1>Track your FarmersHub purchases.</h1>
+          <p>This page shows only durable orders placed through the FarmersHub product order flow.</p>
         </div>
       </section>
 
-      <section class="orders-status-grid" aria-label="Order status">
-        <article class="customer-card orders-status-card">
-          <span class="customer-pill">Pending integration</span>
-          <h2>No customer order history connected yet</h2>
-          <p>Completed purchases, delivery tracking and checkout receipts will appear here after secure checkout and order records are connected.</p>
-          <div class="orders-actions">
-            <a class="customer-button" href="customer-marketplace.html">Browse marketplace</a>
-            <a class="customer-secondary-button" href="customer-cart.html">Open cart</a>
+      <section class="customer-panel" aria-label="Order history">
+        <div class="customer-panel-heading">
+          <div>
+            <p class="customer-section-kicker">Purchases</p>
+            <h2>My order history</h2>
           </div>
-        </article>
-        <article class="customer-card orders-status-card">
-          <span class="customer-pill">Available now</span>
-          <h2>Message farmers before ordering</h2>
-          <p>Use customer Messages to ask sellers about availability, pickup, delivery and product details before checkout support is connected.</p>
-          <div class="orders-actions">
-            <a class="customer-secondary-button" href="customer-messages.html">Open messages</a>
-            <a class="customer-secondary-button" href="customer-notifications.html">Open notifications</a>
-          </div>
-        </article>
+          <p class="customer-status" id="ordersStatus" role="status" aria-live="polite"></p>
+        </div>
+        <div class="order-filters" id="orderFilters" aria-label="Filter order history">
+          <button class="is-active" type="button" data-filter="all">All</button>
+          <button type="button" data-filter="active">Active</button>
+          <button type="button" data-filter="completed">Completed</button>
+          <button type="button" data-filter="cancelled">Cancelled</button>
+        </div>
+        <div class="order-history-list" id="orderHistoryList" aria-live="polite"></div>
       </section>
 
       <section class="customer-panel">

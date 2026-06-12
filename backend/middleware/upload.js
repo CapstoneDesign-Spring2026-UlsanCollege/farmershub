@@ -10,6 +10,16 @@ const IMAGE_EXTENSIONS = {
     'image/webp': '.webp',
     'image/gif': '.gif',
 };
+const MESSAGE_EXTENSIONS = {
+    ...IMAGE_EXTENSIONS,
+    'application/pdf': '.pdf',
+    'text/plain': '.txt',
+    'text/csv': '.csv',
+    'application/msword': '.doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+    'application/vnd.ms-excel': '.xls',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+};
 
 function ensureDir(dirPath) {
     if (!fs.existsSync(dirPath)) {
@@ -43,6 +53,32 @@ const rawUploader = multer({
     storage,
     fileFilter,
     limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+const messageStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const target = path.join(ROOT_UPLOAD_DIR, req.uploadFolder || 'messages');
+        ensureDir(target);
+        cb(null, target);
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${crypto.randomBytes(12).toString('hex')}${MESSAGE_EXTENSIONS[file.mimetype]}`);
+    },
+});
+
+function messageFileFilter(req, file, cb) {
+    if (!MESSAGE_EXTENSIONS[file.mimetype]) {
+        const error = new Error('Only images, PDFs, text files, and common office documents are allowed.');
+        error.statusCode = 415;
+        return cb(error);
+    }
+    return cb(null, true);
+}
+
+const rawMessageUploader = multer({
+    storage: messageStorage,
+    fileFilter: messageFileFilter,
+    limits: { fileSize: 5 * 1024 * 1024, files: 5 },
 });
 
 function detectImageMime(filePath) {
@@ -97,10 +133,46 @@ function validateUploadedImages(req, res, next) {
     }
 }
 
+function validateMessageUploads(req, res, next) {
+    const files = requestFiles(req);
+
+    try {
+        const invalidImage = files.find((file) => (
+            IMAGE_EXTENSIONS[file.mimetype] && detectImageMime(file.path) !== file.mimetype
+        ));
+        const invalidPdf = files.find((file) => {
+            if (file.mimetype !== 'application/pdf') return false;
+            const descriptor = fs.openSync(file.path, 'r');
+            const header = Buffer.alloc(5);
+            try {
+                fs.readSync(descriptor, header, 0, header.length, 0);
+            } finally {
+                fs.closeSync(descriptor);
+            }
+            return header.toString('ascii') !== '%PDF-';
+        });
+
+        if (!invalidImage && !invalidPdf) return next();
+
+        removeFiles(files);
+        const error = new Error('Uploaded file content does not match its allowed file type.');
+        error.statusCode = 415;
+        return next(error);
+    } catch (error) {
+        removeFiles(files);
+        error.statusCode = error.statusCode || 400;
+        return next(error);
+    }
+}
+
 const uploader = {
     single: (...args) => [rawUploader.single(...args), validateUploadedImages],
     array: (...args) => [rawUploader.array(...args), validateUploadedImages],
     fields: (...args) => [rawUploader.fields(...args), validateUploadedImages],
+};
+
+const messageUploader = {
+    array: (...args) => [rawMessageUploader.array(...args), validateMessageUploads],
 };
 
 function withUploadFolder(folder) {
@@ -120,6 +192,7 @@ function toUploadPath(file) {
 
 module.exports = {
     uploader,
+    messageUploader,
     withUploadFolder,
     toUploadPath,
 };

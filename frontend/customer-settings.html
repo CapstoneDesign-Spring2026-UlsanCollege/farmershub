@@ -64,11 +64,29 @@
           <a class="customer-button" href="customer-profile.html">Open My Profile</a>
         </article>
 
-        <article class="customer-card settings-card">
-          <span class="customer-pill">Coming soon</span>
+        <article class="customer-card settings-card settings-wide">
+          <span class="customer-pill">Available now</span>
           <h2>Delivery Addresses</h2>
-          <p>Saved delivery addresses will be available after checkout delivery management is connected.</p>
-          <button class="customer-secondary-button" type="button" disabled>Address book pending</button>
+          <p>Save delivery addresses securely to your FarmersHub account.</p>
+          <div class="address-list" id="addressList" aria-live="polite"></div>
+          <form class="settings-form" id="addressForm">
+            <input id="addressId" type="hidden">
+            <label class="customer-field"><span>Label</span><input id="addressLabel" maxlength="60" placeholder="Home, Farm, Office"></label>
+            <label class="customer-field"><span>Full name</span><input id="addressFullName" maxlength="120"></label>
+            <label class="customer-field"><span>Phone</span><input id="addressPhone" maxlength="40"></label>
+            <label class="customer-field"><span>Address line 1</span><input id="addressLine1" maxlength="180" required></label>
+            <label class="customer-field"><span>Address line 2</span><input id="addressLine2" maxlength="180"></label>
+            <label class="customer-field"><span>City</span><input id="addressCity" maxlength="100" required></label>
+            <label class="customer-field"><span>Region</span><input id="addressRegion" maxlength="100"></label>
+            <label class="customer-field"><span>Postal code</span><input id="addressPostalCode" maxlength="30"></label>
+            <label class="customer-field"><span>Country</span><input id="addressCountry" maxlength="100" value="Nepal"></label>
+            <label class="settings-toggle"><input id="addressIsDefault" type="checkbox"><span>Make this my default address</span></label>
+            <div class="settings-actions">
+              <button class="customer-button" id="addressSaveBtn" type="submit">Add address</button>
+              <button class="customer-secondary-button" id="addressCancelBtn" type="button" hidden>Cancel edit</button>
+            </div>
+          </form>
+          <p class="customer-status" id="addressStatus" role="status" aria-live="polite"></p>
         </article>
 
         <article class="customer-card settings-card">
@@ -78,13 +96,24 @@
           <a class="customer-button" href="customer-notifications.html">Open Notifications</a>
         </article>
 
-        <article class="customer-card settings-card">
-          <span class="customer-pill">Partial</span>
+        <article class="customer-card settings-card settings-wide">
+          <span class="customer-pill">Available now</span>
           <h2>Privacy &amp; Security</h2>
           <p>Manage the safety of your customer account.</p>
-          <div class="settings-disabled-list">
-            <span>Password changes: coming soon</span>
-            <span>Delete account: coming soon</span>
+          <form class="settings-form settings-security-form" id="passwordForm">
+            <h3>Change password</h3>
+            <label class="customer-field"><span>Current password</span><input id="currentPassword" type="password" autocomplete="current-password" required></label>
+            <label class="customer-field"><span>New password</span><input id="newPassword" type="password" autocomplete="new-password" minlength="6" required></label>
+            <label class="customer-field"><span>Confirm new password</span><input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" required></label>
+            <button class="customer-button" id="passwordSaveBtn" type="submit">Change password</button>
+            <p class="customer-status" id="passwordStatus" role="status" aria-live="polite"></p>
+          </form>
+          <div class="settings-danger-zone">
+            <h3>Delete account</h3>
+            <p>Account deletion deactivates your account immediately. Type DELETE to confirm.</p>
+            <label class="customer-field"><span>Confirmation</span><input id="deleteConfirmation" autocomplete="off" placeholder="DELETE"></label>
+            <button class="customer-danger-button" id="deleteAccountBtn" type="button">Delete my account</button>
+            <p class="customer-status" id="deleteAccountStatus" role="status" aria-live="polite"></p>
           </div>
           <button class="customer-danger-button" id="settingsLogoutBtn" type="button">Log out</button>
         </article>

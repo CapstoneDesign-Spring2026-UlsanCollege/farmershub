@@ -31,6 +31,13 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 400;
   }
 
+  if (err.name === 'MulterError') {
+    message = err.code === 'LIMIT_FILE_COUNT'
+      ? 'A message can include at most 5 attachments'
+      : err.message;
+    statusCode = 400;
+  }
+
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
     message = 'Invalid token';

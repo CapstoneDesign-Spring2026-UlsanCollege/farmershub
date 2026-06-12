@@ -94,6 +94,60 @@
   gap: 10px;
 }
 
+.settings-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.settings-form .settings-toggle,
+.settings-form .settings-actions,
+.settings-form h3,
+.settings-form .customer-status {
+  grid-column: 1 / -1;
+}
+
+.settings-form h3,
+.settings-danger-zone h3 {
+  margin: 0;
+  color: var(--customer-deep);
+  font-family: Sora, sans-serif;
+}
+
+.address-list {
+  display: grid;
+  gap: 12px;
+}
+
+.address-card {
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--customer-border);
+  border-radius: 20px;
+  background: #f9fcf7;
+}
+
+.address-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.address-card p {
+  overflow-wrap: anywhere;
+}
+
+.settings-danger-zone {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(176, 56, 56, 0.24);
+  border-radius: 20px;
+  background: #fff8f7;
+}
+
 @media (max-width: 840px) {
   .settings-grid {
     grid-template-columns: 1fr;
@@ -101,5 +155,9 @@
 
   .settings-wide {
     grid-column: auto;
+  }
+
+  .settings-form {
+    grid-template-columns: 1fr;
   }
 }

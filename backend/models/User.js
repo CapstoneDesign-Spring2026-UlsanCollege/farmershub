@@ -34,6 +34,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    addressBook: [{
+      label: { type: String, trim: true, maxlength: 60, default: '' },
+      fullName: { type: String, trim: true, maxlength: 120, default: '' },
+      phone: { type: String, trim: true, maxlength: 40, default: '' },
+      addressLine1: { type: String, required: true, trim: true, maxlength: 180 },
+      addressLine2: { type: String, trim: true, maxlength: 180, default: '' },
+      city: { type: String, required: true, trim: true, maxlength: 100 },
+      region: { type: String, trim: true, maxlength: 100, default: '' },
+      postalCode: { type: String, trim: true, maxlength: 30, default: '' },
+      country: { type: String, trim: true, maxlength: 100, default: 'Nepal' },
+      isDefault: { type: Boolean, default: false },
+    }],
     avatar: {
       url: { type: String, default: '' },
       publicId: { type: String, default: '' },
@@ -81,6 +93,16 @@ const userSchema = new mongoose.Schema(
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+userSchema.pre('validate', function ensureSingleDefaultAddress(next) {
+  let defaultFound = false;
+  (this.addressBook || []).forEach((address) => {
+    if (!address.isDefault) return;
+    if (defaultFound) address.isDefault = false;
+    defaultFound = true;
+  });
   next();
 });
 

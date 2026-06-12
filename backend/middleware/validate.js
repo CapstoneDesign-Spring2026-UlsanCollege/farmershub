@@ -69,11 +69,16 @@ const createPostRules = [
 const sendMessageRules = [
   body('receiverId').notEmpty().withMessage('Receiver ID is required'),
   body('content')
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty()
-    .withMessage('Message content is required')
     .isLength({ max: 1000 })
     .withMessage('Message cannot exceed 1000 characters'),
+  body().custom((_value, { req }) => {
+    if (String(req.body.content || '').trim() || (Array.isArray(req.files) && req.files.length)) {
+      return true;
+    }
+    throw new Error('Message content or an attachment is required');
+  }),
   handleValidation,
 ];
 

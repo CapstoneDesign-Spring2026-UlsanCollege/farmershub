@@ -115,6 +115,7 @@ body.messages-page {
   background: transparent;
   font: inherit;
   font-size: 14px;
+  text-decoration: none;
 }
 
 .category-switch:disabled {
@@ -555,6 +556,106 @@ body.messages-page {
   gap: 8px;
   border-top: 1px solid var(--msg-line);
   background: #fff;
+}
+
+.selected-attachments {
+  grid-column: 2 / -1;
+  min-height: 0;
+  color: var(--msg-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.message-attachments {
+  margin-top: 8px;
+  display: grid;
+  gap: 7px;
+}
+
+.message-attachments a {
+  display: grid;
+  gap: 5px;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.message-attachments img {
+  width: min(220px, 100%);
+  max-height: 160px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+.recipient-dialog {
+  width: min(520px, calc(100% - 28px));
+  padding: 0;
+  border: 1px solid var(--msg-line);
+  border-radius: 12px;
+  color: var(--msg-text);
+  background: #fff;
+}
+
+.recipient-dialog::backdrop {
+  background: rgba(16, 37, 25, 0.48);
+}
+
+.recipient-dialog-card {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.recipient-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recipient-dialog-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.recipient-dialog-heading button,
+.recipient-card {
+  border: 1px solid var(--msg-line);
+  border-radius: 8px;
+  color: var(--msg-text);
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.recipient-dialog-heading button {
+  padding: 8px 11px;
+}
+
+.recipient-list {
+  max-height: 330px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.recipient-card {
+  padding: 11px 12px;
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+
+.recipient-card:hover {
+  border-color: var(--msg-green);
+  background: var(--msg-green-light);
+}
+
+.recipient-card span {
+  color: var(--msg-muted);
+  font-size: 12px;
 }
 
 .composer-tool {

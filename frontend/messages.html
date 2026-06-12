@@ -27,9 +27,9 @@
     <input type="search" placeholder="Search products, farmers, categories...">
   </label>
 
-  <button class="category-switch" type="button" disabled title="Category navigation will be connected separately">
+  <a class="category-switch" href="farmer-services-marketplace.html">
     <span>▦</span> All Categories <span>⌄</span>
-  </button>
+  </a>
 
   <nav class="messages-user-nav" aria-label="Account navigation">
     <a href="messages.html" class="topbar-item active"><span>✉</span><small>Messages</small></a>
@@ -47,11 +47,11 @@
       <a href="index.html"><span>⌂</span> Home</a>
       <a href="farmer-services-marketplace.html"><span>▣</span> Service Marketplace</a>
       <a href="customers.html"><span>♧</span> Customers</a>
-      <button type="button" disabled title="Orders will be connected after inspecting real data"><span>▢</span> Orders</button>
+      <a href="orders.html"><span>▢</span> Orders</a>
       <a href="messages.html" class="active"><span>✉</span> Messages</a>
-      <a href="index.html"><span>▤</span> Social Feed</a>
+      <a href="social-feed.html"><span>▤</span> Social Feed</a>
       <a href="profile.html"><span>♙</span> Profile</a>
-      <button type="button" disabled title="Settings connection will be inspected later"><span>⚙</span> Settings</button>
+      <a href="settings.html"><span>⚙</span> Settings</a>
     </nav>
 
     <section class="sidebar-promo">
@@ -66,13 +66,13 @@
       <aside class="conversation-panel">
         <div class="conversation-heading">
           <h1>Messages</h1>
-          <button type="button" disabled title="Start a conversation from a farmer profile">✎</button>
+          <button type="button" id="newConversationBtn" title="Start a conversation" aria-label="Start a conversation">✎</button>
         </div>
 
         <div class="conversation-tabs">
-          <button type="button" class="active">All</button>
-          <button type="button" disabled title="Unread filtering not connected yet">Unread</button>
-          <button type="button" disabled title="Order filtering needs real order data">Orders</button>
+          <button type="button" class="active" data-filter="all">All</button>
+          <button type="button" data-filter="unread">Unread</button>
+          <button type="button" data-filter="context">Context</button>
         </div>
 
         <div class="conversation-tools">
@@ -88,7 +88,7 @@
       <section class="chat-panel" aria-live="polite">
         <header class="chat-header" id="chatHeader"></header>
 
-        <div class="order-context-note">
+        <div class="order-context-note" id="messageContext">
           <span>🛒</span>
           <p>Product or order context will appear here after real order data is connected.</p>
         </div>
@@ -96,9 +96,11 @@
         <div class="message-thread" id="messageThread"></div>
 
         <form class="message-composer" id="messageComposer">
-          <button class="composer-tool" type="button" disabled aria-label="Attachments not connected yet">＋</button>
+          <button class="composer-tool" id="attachmentBtn" type="button" aria-label="Add attachments">＋</button>
+          <input id="attachmentInput" type="file" hidden multiple accept="image/*,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx">
           <textarea id="messageInput" rows="2" placeholder="Type a message..."></textarea>
           <button class="send-message-btn" type="submit" aria-label="Send message">➤</button>
+          <div class="selected-attachments" id="selectedAttachments" aria-live="polite"></div>
         </form>
       </section>
     </section>
@@ -141,6 +143,20 @@
     </section>
   </aside>
 </div>
+
+<dialog class="recipient-dialog" id="recipientDialog">
+  <form method="dialog" class="recipient-dialog-card">
+    <div class="recipient-dialog-heading">
+      <h2>Start a conversation</h2>
+      <button type="submit" aria-label="Close">Close</button>
+    </div>
+    <label class="conversation-search">
+      <span aria-hidden="true">Search</span>
+      <input id="recipientSearch" type="search" placeholder="Search FarmersHub members">
+    </label>
+    <div class="recipient-list" id="recipientList"></div>
+  </form>
+</dialog>
 
 <script type="module" src="messages.js"></script>
 </body>

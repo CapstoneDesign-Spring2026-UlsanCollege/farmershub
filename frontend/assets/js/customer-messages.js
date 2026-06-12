@@ -1,4 +1,4 @@
-import { apiFetch, jsonHeaders } from './config/api.config.js';
+import { API_BASE, apiFetch, authHeader, jsonHeaders } from './config/api.config.js';
 import {
   getInitials,
   getStoredUser,
@@ -9,6 +9,10 @@ import {
 } from './customer-shell.js';
 
 const conversations = [];
+let activeFilter = 'all';
+let selectedFiles = [];
+let recipients = [];
+const markingRead = new Set();
 const listEl = document.getElementById('conversationList');
 const headerEl = document.getElementById('chatHeader');
 const contextEl = document.getElementById('messageContext');
@@ -18,6 +22,13 @@ const searchEl = document.getElementById('conversationSearch');
 const composerEl = document.getElementById('messageComposer');
 const inputEl = document.getElementById('messageInput');
 const statusEl = document.getElementById('messageStatus');
+const attachmentBtn = document.getElementById('attachmentBtn');
+const attachmentInput = document.getElementById('attachmentInput');
+const selectedAttachmentsEl = document.getElementById('selectedAttachments');
+const newConversationBtn = document.getElementById('newConversationBtn');
+const recipientDialog = document.getElementById('recipientDialog');
+const recipientSearch = document.getElementById('recipientSearch');
+const recipientList = document.getElementById('recipientList');
 
 const params = new URLSearchParams(window.location.search);
 let activeId = null;
@@ -42,6 +53,8 @@ function getRequestedConversation() {
     productName: params.get('productName') || '',
     messages: [],
     lastTime: 'New',
+    unread: 0,
+    hasContext: Boolean(params.get('productId')),
   };
 }
 
@@ -55,7 +68,14 @@ function upsertConversation(conversation, prepend = false) {
     }
     return;
   }
-  conversations[index] = { ...conversations[index], ...conversation };
+  const existing = conversations[index];
+  conversations[index] = {
+    ...existing,
+    ...conversation,
+    productId: conversation.productId || existing.productId,
+    productName: conversation.productName || existing.productName,
+    hasContext: Boolean(conversation.hasContext || existing.hasContext),
+  };
 }
 
 function normalizeConversation(item) {
@@ -72,6 +92,8 @@ function normalizeConversation(item) {
     productId: '',
     productName: '',
     lastTime: formatMessageTime(item.lastMessage?.createdAt || messages[0]?.createdAt),
+    unread: Number(item.unreadCount || 0),
+    hasContext: messages.some((message) => message.relatedProduct || message.relatedServiceRequest),
     messages: messages
       .slice()
       .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
@@ -82,6 +104,10 @@ function normalizeConversation(item) {
           from: senderId && currentUserId && senderId === currentUserId ? 'me' : 'them',
           text: message.content || '',
           time: formatMessageTime(message.createdAt),
+          isRead: Boolean(message.isRead),
+          attachments: Array.isArray(message.attachments) ? message.attachments : [],
+          relatedProduct: message.relatedProduct || '',
+          relatedServiceRequest: message.relatedServiceRequest || '',
         };
       }),
   };
@@ -93,24 +119,37 @@ function getActiveConversation() {
 
 function lastPreview(conversation) {
   const last = conversation.messages[conversation.messages.length - 1];
-  return last?.text || (conversation.productName ? `Product context: ${conversation.productName}` : 'No messages yet');
+  return last?.text
+    || (last?.attachments?.length ? `${last.attachments.length} attachment${last.attachments.length === 1 ? '' : 's'}` : '')
+    || (conversation.productName ? `Product context: ${conversation.productName}` : 'No messages yet');
 }
 
 function renderList() {
   const term = String(searchEl?.value || '').trim().toLowerCase();
-  const filtered = conversations.filter((conversation) => [
-    conversation.name,
-    conversation.role,
-    conversation.productName,
-    lastPreview(conversation),
-  ].join(' ').toLowerCase().includes(term));
+  const filtered = conversations.filter((conversation) => {
+    const matchesFilter = activeFilter === 'all'
+      || (activeFilter === 'unread' && conversation.unread > 0)
+      || (activeFilter === 'context' && conversation.hasContext);
+    return matchesFilter && [
+      conversation.name,
+      conversation.role,
+      conversation.productName,
+      lastPreview(conversation),
+    ].join(' ').toLowerCase().includes(term);
+  });
 
   listEl.innerHTML = '';
   if (!filtered.length) {
     const empty = document.createElement('div');
     empty.className = 'customer-state customer-empty';
     const title = document.createElement('strong');
-    title.textContent = term ? 'No conversations match your search' : 'No conversations yet';
+    title.textContent = term
+      ? 'No conversations match your search'
+      : activeFilter === 'unread'
+        ? 'No unread conversations'
+        : activeFilter === 'context'
+          ? 'No conversations with real context'
+          : 'No conversations yet';
     const copy = document.createElement('p');
     copy.textContent = getToken()
       ? 'Open a product or farmer profile to start a customer message.'
@@ -140,6 +179,61 @@ function renderList() {
     button.append(avatar, copy);
     listEl.appendChild(button);
   });
+}
+
+function attachmentUrl(value) {
+  const raw = String(value || '');
+  if (!raw.startsWith('/uploads/')) return '';
+  return new URL(raw, API_BASE).href;
+}
+
+function appendAttachments(container, attachments = []) {
+  if (!attachments.length) return;
+  const list = document.createElement('div');
+  list.className = 'message-attachments';
+  attachments.forEach((attachment) => {
+    const url = attachmentUrl(attachment.url);
+    if (!url) return;
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = attachment.originalName || attachment.filename || 'Open attachment';
+    if (String(attachment.mimeType || '').startsWith('image/')) {
+      const image = document.createElement('img');
+      image.src = url;
+      image.alt = attachment.originalName || 'Message attachment';
+      link.prepend(image);
+    }
+    list.appendChild(link);
+  });
+  if (list.childElementCount) container.appendChild(list);
+}
+
+async function markActiveConversationRead() {
+  const conversation = getActiveConversation();
+  if (!conversation || !getToken()) return;
+  const unread = conversation.messages.filter((message) => (
+    message.from === 'them' && !message.isRead && message.id && !markingRead.has(String(message.id))
+  ));
+  if (!unread.length) return;
+
+  unread.forEach((message) => markingRead.add(String(message.id)));
+  await Promise.all(unread.map(async (message) => {
+    try {
+      await apiFetch(`/messages/${encodeURIComponent(message.id)}/read`, {
+        method: 'PUT',
+        headers: jsonHeaders(),
+      });
+      message.isRead = true;
+    } catch {
+      // Leave unread so a later open can retry.
+    } finally {
+      markingRead.delete(String(message.id));
+    }
+  }));
+  conversation.unread = conversation.messages.filter((message) => message.from === 'them' && !message.isRead).length;
+  renderList();
 }
 
 function renderThread() {
@@ -172,10 +266,15 @@ function renderThread() {
   copy.append(title, role);
   headerEl.append(avatar, copy);
 
+  const hasStoredContext = conversation.messages.some((message) => message.relatedProduct || message.relatedServiceRequest);
   if (conversation.productName || conversation.productId) {
     contextEl.textContent = conversation.productName
       ? `Product context: ${conversation.productName}`
       : `Product context id: ${conversation.productId}`;
+  } else if (hasStoredContext) {
+    contextEl.textContent = 'This conversation includes real product or service-request context.';
+  } else {
+    contextEl.textContent = 'No product, order, or service-request context is attached to this conversation.';
   }
 
   composerEl.hidden = !getToken() || !conversation.recipientId;
@@ -201,11 +300,15 @@ function renderThread() {
     row.className = `message-row${message.from === 'me' ? ' is-mine' : ''}`;
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble';
-    const text = document.createElement('p');
-    text.textContent = message.text;
+    if (message.text) {
+      const text = document.createElement('p');
+      text.textContent = message.text;
+      bubble.appendChild(text);
+    }
+    appendAttachments(bubble, message.attachments);
     const time = document.createElement('time');
     time.textContent = message.time;
-    bubble.append(text, time);
+    bubble.appendChild(time);
     row.appendChild(bubble);
     threadEl.appendChild(row);
   });
@@ -241,6 +344,7 @@ async function loadConversations() {
     }
     renderList();
     renderThread();
+    markActiveConversationRead();
     setStatus(statusEl, conversations.length ? 'Conversations loaded.' : 'No real conversations returned yet.');
   } catch (error) {
     setStatus(statusEl, error.message || 'Unable to load messages.', 'error');
@@ -253,6 +357,7 @@ listEl.addEventListener('click', (event) => {
   activeId = card.dataset.id;
   renderList();
   renderThread();
+  markActiveConversationRead();
 });
 
 searchEl?.addEventListener('input', renderList);
@@ -261,11 +366,116 @@ searchForm?.addEventListener('submit', (event) => {
   renderList();
 });
 
+document.querySelector('.message-filters')?.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-filter]');
+  if (!button) return;
+  activeFilter = button.dataset.filter;
+  document.querySelectorAll('.message-filters button').forEach((item) => {
+    item.classList.toggle('is-active', item === button);
+  });
+  renderList();
+});
+
+function renderSelectedFiles() {
+  selectedAttachmentsEl.textContent = selectedFiles.length
+    ? selectedFiles.map((file) => file.name).join(', ')
+    : '';
+}
+
+attachmentBtn?.addEventListener('click', () => attachmentInput?.click());
+attachmentInput?.addEventListener('change', () => {
+  selectedFiles = Array.from(attachmentInput.files || []).slice(0, 5);
+  if ((attachmentInput.files || []).length > 5) {
+    setStatus(statusEl, 'You can attach at most 5 files.', 'error');
+  }
+  renderSelectedFiles();
+});
+
+function renderRecipientList() {
+  const term = String(recipientSearch?.value || '').trim().toLowerCase();
+  const filtered = recipients.filter((user) => String(user.fullName || '').toLowerCase().includes(term));
+  recipientList.innerHTML = '';
+  if (!filtered.length) {
+    const state = document.createElement('p');
+    state.className = 'customer-status';
+    state.textContent = 'No matching farmers found.';
+    recipientList.appendChild(state);
+    return;
+  }
+
+  filtered.forEach((user) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'recipient-card';
+    button.dataset.id = user.id || user._id;
+    const name = document.createElement('strong');
+    name.textContent = user.fullName || 'FarmersHub farmer';
+    const role = document.createElement('span');
+    role.textContent = user.role || 'farmer';
+    button.append(name, role);
+    recipientList.appendChild(button);
+  });
+}
+
+async function openRecipientDialog() {
+  recipientDialog.showModal();
+  recipientList.innerHTML = '';
+  if (!getToken()) {
+    const message = document.createElement('p');
+    message.className = 'customer-status is-error';
+    message.textContent = 'Log in before starting a conversation.';
+    recipientList.appendChild(message);
+    return;
+  }
+
+  setStatus(statusEl, 'Loading farmers...');
+  try {
+    const response = await apiFetch('/users/farmers');
+    const currentId = String(getUserId(getStoredUser()));
+    recipients = (response.data || []).filter((user) => String(user.id || user._id) !== currentId);
+    renderRecipientList();
+    setStatus(statusEl, '');
+  } catch (error) {
+    const message = document.createElement('p');
+    message.className = 'customer-status is-error';
+    message.textContent = error.message || 'Unable to load farmers.';
+    recipientList.appendChild(message);
+  }
+}
+
+newConversationBtn?.addEventListener('click', openRecipientDialog);
+recipientSearch?.addEventListener('input', renderRecipientList);
+recipientList?.addEventListener('click', (event) => {
+  const card = event.target.closest('.recipient-card');
+  if (!card) return;
+  const user = recipients.find((item) => String(item.id || item._id) === card.dataset.id);
+  if (!user) return;
+  const conversation = {
+    id: `customer-${card.dataset.id}`,
+    recipientId: card.dataset.id,
+    name: user.fullName || 'FarmersHub farmer',
+    role: user.role || 'farmer',
+    productId: '',
+    productName: '',
+    messages: [],
+    lastTime: 'New',
+    unread: 0,
+    hasContext: false,
+  };
+  const existing = conversations.find((item) => item.id === conversation.id);
+  if (!existing) upsertConversation(conversation, true);
+  activeId = conversation.id;
+  recipientDialog.close();
+  renderList();
+  renderThread();
+  inputEl.focus();
+});
+
 composerEl.addEventListener('submit', async (event) => {
   event.preventDefault();
   const conversation = getActiveConversation();
   const text = String(inputEl.value || '').trim();
-  if (!conversation || !text) return;
+  if (!conversation || (!text && !selectedFiles.length)) return;
 
   if (!getToken()) {
     setStatus(statusEl, 'Log in before sending a real message.', 'error');
@@ -288,20 +498,41 @@ composerEl.addEventListener('submit', async (event) => {
       body.relatedProduct = conversation.productId;
     }
 
-    const response = await apiFetch('/messages', {
-      method: 'POST',
-      headers: jsonHeaders(),
-      body: JSON.stringify(body),
-    });
+    let response;
+    if (selectedFiles.length) {
+      const form = new FormData();
+      Object.entries(body).forEach(([key, value]) => {
+        if (value) form.append(key, value);
+      });
+      selectedFiles.forEach((file) => form.append('attachments', file));
+      response = await apiFetch('/messages', {
+        method: 'POST',
+        headers: authHeader(),
+        body: form,
+      });
+    } else {
+      response = await apiFetch('/messages', {
+        method: 'POST',
+        headers: jsonHeaders(),
+        body: JSON.stringify(body),
+      });
+    }
     const saved = response.data || {};
     conversation.messages.push({
       id: saved._id || saved.id || Date.now(),
       from: 'me',
       text: saved.content || text,
       time: formatMessageTime(saved.createdAt),
+      isRead: Boolean(saved.isRead),
+      attachments: Array.isArray(saved.attachments) ? saved.attachments : [],
+      relatedProduct: saved.relatedProduct || '',
+      relatedServiceRequest: saved.relatedServiceRequest || '',
     });
     conversation.lastTime = 'Now';
     inputEl.value = '';
+    selectedFiles = [];
+    attachmentInput.value = '';
+    renderSelectedFiles();
     renderList();
     renderThread();
     setStatus(statusEl, 'Message sent.', 'success');

@@ -3,6 +3,13 @@ const router = express.Router();
 const {
   getAllUsers,
   deactivateUser,
+  getMyAddresses,
+  createMyAddress,
+  updateMyAddress,
+  deleteMyAddress,
+  setDefaultMyAddress,
+  changeMyPassword,
+  deactivateMyAccount,
 } = require('../controllers/userController');
 const {
   getCurrentProfile,
@@ -65,6 +72,14 @@ router.get('/customers', async (req, res, next) => {
 
 // ── All routes below require authentication ───────────────────────────────────
 router.use(protect);
+
+router.get('/me/addresses', getMyAddresses);
+router.post('/me/addresses', createMyAddress);
+router.put('/me/addresses/:addressId', updateMyAddress);
+router.delete('/me/addresses/:addressId', deleteMyAddress);
+router.patch('/me/addresses/:addressId/default', setDefaultMyAddress);
+router.patch('/me/password', changeMyPassword);
+router.delete('/me', deactivateMyAccount);
 
 // GET  /api/users/profile   — current user's profile
 router.get('/profile', getCurrentProfile);

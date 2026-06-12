@@ -1,7 +1,9 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
+const Product = require('../models/Product');
 const { FarmServiceRequest } = require('../models/FarmServiceRequest');
 const { createNotification } = require('./notificationController');
+const { toUploadPath } = require('../middleware/upload');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 /**
@@ -57,9 +59,16 @@ const sendMessage = async (req, res, next) => {
   try {
     const { receiverId, content, relatedProduct, relatedServiceRequest } = req.body;
     const cleanContent = String(content || '').trim();
+    const attachments = (req.files || []).map((file) => ({
+      url: toUploadPath(file),
+      filename: file.filename,
+      originalName: file.originalname,
+      mimeType: file.mimetype,
+      size: file.size,
+    }));
 
-    if (!receiverId || !cleanContent) {
-      return errorResponse(res, 'Receiver and content are required', 400);
+    if (!receiverId || (!cleanContent && !attachments.length)) {
+      return errorResponse(res, 'Receiver and message content or an attachment are required', 400);
     }
 
     if (String(receiverId) === String(req.user._id)) {
@@ -70,6 +79,13 @@ const sendMessage = async (req, res, next) => {
     const receiver = await User.findById(receiverId);
     if (!receiver) {
       return errorResponse(res, 'Receiver not found', 404);
+    }
+
+    if (relatedProduct) {
+      const product = await Product.findById(relatedProduct);
+      if (!product) {
+        return errorResponse(res, 'Product not found', 404);
+      }
     }
 
     if (relatedServiceRequest) {
@@ -96,6 +112,7 @@ const sendMessage = async (req, res, next) => {
       sender: req.user._id,
       receiver: receiverId,
       content: cleanContent,
+      attachments,
       relatedProduct,
       relatedServiceRequest,
     });
@@ -105,7 +122,10 @@ const sendMessage = async (req, res, next) => {
     await message.populate('receiver', 'fullName role');
 
     // Create notification for the receiver
-    const truncatedContent = cleanContent.length > 50 ? cleanContent.substring(0, 50) + '...' : cleanContent;
+    const notificationContent = cleanContent || `${attachments.length} attachment${attachments.length === 1 ? '' : 's'}`;
+    const truncatedContent = notificationContent.length > 50
+      ? notificationContent.substring(0, 50) + '...'
+      : notificationContent;
     await createNotification(
       receiverId,
       'message',
