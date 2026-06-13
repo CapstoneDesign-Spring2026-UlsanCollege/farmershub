@@ -844,7 +844,15 @@ async function createBackup(req, res, next) {
     };
 
     const dir = getBackupDirectory();
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    // Self-heal the backup directory on every request so a fresh deploy (or a
+    // manually deleted folder) never produces a raw ENOENT. mkdir recursive is
+    // idempotent; surface a clear 500 if creation itself fails (e.g. permissions).
+    try {
+      await fs.promises.mkdir(dir, { recursive: true });
+    } catch (mkdirErr) {
+      console.error('Failed to create backup directory:', mkdirErr);
+      return errorResponse(res, 'Failed to prepare backup storage directory', 500);
+    }
     const fileName = `admin-backup-${Date.now()}.json`;
     const filePath = resolveBackupPath(fileName);
     fs.writeFileSync(filePath, JSON.stringify(backup, null, 2));

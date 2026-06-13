@@ -93,6 +93,15 @@ async function createProduct(req, res) {
             data: serializeProduct(product, req),
         });
     } catch (error) {
+        // Distinguish client mistakes (validation/cast/duplicate) from real
+        // server faults so genuine outages are not hidden as 4xx and vice versa.
+        if (error.name === 'ValidationError' || error.name === 'CastError') {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+        if (error.code === 11000) {
+            return res.status(409).json({ success: false, message: 'Duplicate entry.' });
+        }
+        console.error('Failed to create product:', error);
         return res.status(500).json({ success: false, message: 'Failed to create product.' });
     }
 }

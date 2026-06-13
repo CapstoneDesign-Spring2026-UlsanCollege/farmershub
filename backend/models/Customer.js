@@ -1,3 +1,6 @@
+// TODO(cleanup): legacy model superseded by the unified User model. Only the
+// in-memory fallback in store.js still imports it, and store.js is reachable on
+// boot via server.js — delete this file together with store.js (store.js ticket).
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

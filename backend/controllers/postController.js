@@ -63,7 +63,16 @@ async function createPost(req, res) {
             data: serializePost(post, req),
         });
     } catch (error) {
-        return res.status(400).json({ success: false, message: 'Failed to create post.' });
+        // Only treat genuine client mistakes as 4xx; anything else is a real
+        // server fault and must surface as 500 so outages stay visible.
+        if (error.name === 'ValidationError' || error.name === 'CastError') {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+        if (error.code === 11000) {
+            return res.status(409).json({ success: false, message: 'Duplicate entry.' });
+        }
+        console.error('Failed to create post:', error);
+        return res.status(500).json({ success: false, message: 'Failed to create post.' });
     }
 }
 

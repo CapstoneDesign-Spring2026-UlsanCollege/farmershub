@@ -70,30 +70,6 @@ const updateProfile = async (req, res, next) => {
 };
 
 /**
- * POST /api/users/avatar
- * Uploads a profile picture for the authenticated user.
- */
-const uploadAvatar = async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return errorResponse(res, 'No file uploaded', 400);
-    }
-
-    const avatarUrl = `/uploads/${req.file.filename}`;
-
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { 'avatar.url': avatarUrl, 'avatar.publicId': req.file.filename },
-      { new: true }
-    );
-
-    return successResponse(res, 'Avatar updated', { avatar: user.avatar });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
  * GET /api/users  (admin only)
  * Returns all users with optional role filter.
  */
@@ -320,7 +296,6 @@ const updateNotificationPreferences = async (req, res, next) => {
 module.exports = {
   getProfile,
   updateProfile,
-  uploadAvatar,
   getAllUsers,
   deactivateUser,
   getMyAddresses,
