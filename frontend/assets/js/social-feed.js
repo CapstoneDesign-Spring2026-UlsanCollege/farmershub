@@ -3,7 +3,7 @@ import { getToken } from './config/api.config.js';
 
 const FALLBACK_AVATAR = 'assets/images/home/farmer-fallback-1.webp';
 const SAVED_POSTS_KEY = 'fh_saved_posts';
-const userRole = localStorage.getItem('fh_role') || '';
+const userRole = document.body?.dataset?.pageRole || localStorage.getItem('fh_role') || '';
 const isFarmer = userRole === 'farmer';
 
 const stream = document.getElementById('postStream');
