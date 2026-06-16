@@ -1,0 +1,103 @@
+.fh-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: linear-gradient(160deg, #1b5e20 0%, #2e7d32 45%, #388e3c 100%);
+  opacity: 1;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.fh-intro-overlay.fh-intro-exit {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+.fh-intro-logo-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+}
+
+.fh-intro-logo-wrap.fh-intro-glow {
+  animation: fh-intro-glow-pulse 1s ease-out 1;
+}
+
+.fh-intro-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fh-intro-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.85) 50%, transparent 65%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.fh-intro-logo-wrap.fh-intro-glow .fh-intro-sweep {
+  animation: fh-intro-sweep-move 1s ease-out 1;
+}
+
+@keyframes fh-intro-glow-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  45% { box-shadow: 0 0 36px 12px rgba(255, 255, 255, 0.55); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+@keyframes fh-intro-sweep-move {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+.fh-intro-text {
+  display: flex;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.fh-intro-letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(14px) scale(0.85);
+  animation: fh-intro-letter-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fh-intro-letter.fh-intro-space {
+  width: 0.4em;
+}
+
+@keyframes fh-intro-letter-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fh-intro-overlay,
+  .fh-intro-letter,
+  .fh-intro-logo-wrap.fh-intro-glow,
+  .fh-intro-logo-wrap.fh-intro-glow .fh-intro-sweep {
+    animation: none !important;
+    transition: none !important;
+  }
+  .fh-intro-letter {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -114,7 +114,18 @@ async function handleLoginSubmit(event) {
 
     saveSession(user, token);
     setStatus('Provider account confirmed. Opening your workspace...', 'success');
-    window.location.href = await resolveDestination();
+    const destination = await resolveDestination();
+
+    if (window.FarmersHubIntro) {
+      window.FarmersHubIntro.play({
+        logoSrc: 'logo.png',
+        text: 'FarmersHub',
+        nextUrl: destination,
+      });
+    } else {
+      window.location.href = destination;
+    }
+    return;
   } catch (error) {
     clearSessionStorage();
     setStatus(error.message || 'Unable to sign in. Please try again.', 'error');
