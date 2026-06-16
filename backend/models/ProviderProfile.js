@@ -69,6 +69,28 @@ const providerProfileSchema = new mongoose.Schema(
       trim: true,
       maxlength: 240,
     },
+    // Social-media-style profile imagery.
+    avatar: {
+      type: String,
+      default: '',
+    },
+    coverImage: {
+      type: String,
+      default: '',
+    },
+    // Equipment showcase — a gallery of photos with optional captions.
+    equipment: {
+      type: [
+        new mongoose.Schema(
+          {
+            imagePath: { type: String, required: true },
+            caption: { type: String, default: '', trim: true, maxlength: 160 },
+          },
+          { timestamps: true }
+        ),
+      ],
+      default: [],
+    },
     isOnboarded: {
       type: Boolean,
       default: false,
