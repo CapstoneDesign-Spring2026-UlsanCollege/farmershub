@@ -1,6 +1,7 @@
 import { getFeed, createPost, likePost } from './services/postService.js';
 import { getToken } from './config/api.config.js';
 import { getMyFollowing, followUser, unfollowUser } from './services/userService.js';
+import { getUpcomingMarketEvents } from './services/marketEventService.js';
 
 const FALLBACK_AVATAR = 'assets/images/home/farmer-fallback-1.webp';
 const SAVED_POSTS_KEY = 'fh_saved_posts';
@@ -20,6 +21,9 @@ const filterChips = Array.from(document.querySelectorAll('[data-filter-chip]'));
 const trendingList = document.getElementById('trendingCropsList');
 const trendingEmpty = document.getElementById('trendingCropsEmpty');
 const trendingMeta = document.getElementById('trendingCropsMeta');
+const marketsList = document.getElementById('marketsList');
+const marketsEmpty = document.getElementById('marketsEmpty');
+const marketsMeta = document.getElementById('marketsMeta');
 
 // Crop keywords used to surface "Trending Crops" from real community post text.
 const CROP_KEYWORDS = [
@@ -563,6 +567,64 @@ function renderTrendingCrops() {
   if (trendingMeta) trendingMeta.textContent = 'Live';
 }
 
+function formatMarketDate(startsAt, endsAt) {
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return '';
+  const dateOpts = { month: 'short', day: 'numeric' };
+  const timeOpts = { hour: 'numeric', minute: '2-digit' };
+  let label = `${start.toLocaleDateString([], dateOpts)} · ${start.toLocaleTimeString([], timeOpts)}`;
+  if (endsAt) {
+    const end = new Date(endsAt);
+    if (!Number.isNaN(end.getTime())) {
+      label += end.toDateString() === start.toDateString()
+        ? `–${end.toLocaleTimeString([], timeOpts)}`
+        : ` – ${end.toLocaleDateString([], dateOpts)}`;
+    }
+  }
+  return label;
+}
+
+async function loadMarketEvents() {
+  if (!marketsList || !marketsEmpty) return;
+  try {
+    const response = await getUpcomingMarketEvents({ limit: 5 });
+    const events = Array.isArray(response.data) ? response.data : [];
+    marketsList.replaceChildren();
+
+    if (!events.length) {
+      marketsList.hidden = true;
+      marketsEmpty.hidden = false;
+      marketsEmpty.textContent = 'No upcoming local markets are scheduled right now.';
+      if (marketsMeta) marketsMeta.textContent = 'Live';
+      return;
+    }
+
+    events.forEach((event) => {
+      const item = document.createElement('li');
+      item.className = 'markets-item';
+
+      const title = document.createElement('span');
+      title.className = 'markets-title';
+      title.textContent = event.title;
+
+      const meta = document.createElement('span');
+      meta.className = 'markets-meta';
+      meta.textContent = [formatMarketDate(event.startsAt, event.endsAt), event.location].filter(Boolean).join(' · ');
+
+      item.append(title, meta);
+      marketsList.appendChild(item);
+    });
+
+    marketsEmpty.hidden = true;
+    marketsList.hidden = false;
+    if (marketsMeta) marketsMeta.textContent = 'Live';
+  } catch {
+    marketsList.hidden = true;
+    marketsEmpty.hidden = false;
+    marketsEmpty.textContent = 'Local market events are unavailable right now.';
+  }
+}
+
 async function loadPosts() {
   renderState('Loading farmer posts', 'Fetching the latest updates from FarmersHub.');
   try {
@@ -653,3 +715,4 @@ searchForm?.addEventListener('submit', (event) => {
 searchInput?.addEventListener('input', renderPosts);
 
 loadFollowing().then(loadPosts);
+loadMarketEvents();
