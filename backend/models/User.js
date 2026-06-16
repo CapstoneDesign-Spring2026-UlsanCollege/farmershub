@@ -85,6 +85,8 @@ const userSchema = new mongoose.Schema(
     },
     // Fix before merging to main: store accepted friendships for both users.
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    // One-way follow relationships powering the social feed "Following" filter.
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     notificationPreferences: {
       soundEnabled: { type: Boolean, default: true },
       soundName: { type: String, trim: true, maxlength: 60, default: 'default' },

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const { Order } = require('../models/Order');
 const path = require('path');
@@ -293,11 +294,57 @@ const updateNotificationPreferences = async (req, res, next) => {
   }
 };
 
+// ── Follow / Unfollow (powers the social feed "Following" filter) ─────────────
+const followUser = async (req, res, next) => {
+  try {
+    const targetId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(targetId)) {
+      return errorResponse(res, 'Invalid user id', 400);
+    }
+    if (String(targetId) === String(req.user._id)) {
+      return errorResponse(res, 'You cannot follow your own account', 400);
+    }
+    const target = await User.findOne({ _id: targetId, isActive: true }).select('_id');
+    if (!target) return errorResponse(res, 'User not found', 404);
+
+    await User.updateOne({ _id: req.user._id }, { $addToSet: { following: target._id } });
+    return successResponse(res, 'Followed', { userId: String(target._id), following: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const unfollowUser = async (req, res, next) => {
+  try {
+    const targetId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(targetId)) {
+      return errorResponse(res, 'Invalid user id', 400);
+    }
+    await User.updateOne({ _id: req.user._id }, { $pull: { following: targetId } });
+    return successResponse(res, 'Unfollowed', { userId: String(targetId), following: false });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getMyFollowing = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('following').lean();
+    const ids = (user?.following || []).map((id) => String(id));
+    return successResponse(res, 'Following list', ids);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   getAllUsers,
   deactivateUser,
+  followUser,
+  unfollowUser,
+  getMyFollowing,
   getMyAddresses,
   createMyAddress,
   updateMyAddress,

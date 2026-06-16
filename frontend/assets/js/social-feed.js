@@ -1,5 +1,6 @@
 import { getFeed, createPost, likePost } from './services/postService.js';
 import { getToken } from './config/api.config.js';
+import { getMyFollowing, followUser, unfollowUser } from './services/userService.js';
 
 const FALLBACK_AVATAR = 'assets/images/home/farmer-fallback-1.webp';
 const SAVED_POSTS_KEY = 'fh_saved_posts';
@@ -39,6 +40,31 @@ if (composerForm && !isFarmer) {
 let allPosts = [];
 let activeFilter = 'all posts';
 let activeSortIndex = 0;
+let followingIds = new Set();
+
+function currentUserId() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('fh_user') || 'null');
+    return String(stored?.id || stored?._id || '');
+  } catch {
+    return '';
+  }
+}
+
+const myUserId = currentUserId();
+
+async function loadFollowing() {
+  if (!getToken()) {
+    followingIds = new Set();
+    return;
+  }
+  try {
+    const response = await getMyFollowing();
+    followingIds = new Set((Array.isArray(response.data) ? response.data : []).map(String));
+  } catch {
+    followingIds = new Set();
+  }
+}
 
 function setStatus(message) {
   if (status) status.textContent = message;
@@ -257,6 +283,42 @@ function createPostCard(post) {
   identity.append(name, meta);
   person.append(avatar, identity);
   header.appendChild(person);
+
+  const authorId = String(post.author?.id || '');
+  if (myUserId && authorId && authorId !== myUserId) {
+    const followBtn = document.createElement('button');
+    followBtn.type = 'button';
+    followBtn.className = 'post-follow-btn';
+    const syncFollowLabel = () => {
+      const isFollowing = followingIds.has(authorId);
+      followBtn.textContent = isFollowing ? 'Following' : 'Follow';
+      followBtn.classList.toggle('is-following', isFollowing);
+      followBtn.setAttribute('aria-pressed', isFollowing ? 'true' : 'false');
+    };
+    syncFollowLabel();
+    followBtn.addEventListener('click', async () => {
+      if (!getToken()) { setStatus('Log in to follow farmers.'); return; }
+      followBtn.disabled = true;
+      const wasFollowing = followingIds.has(authorId);
+      try {
+        if (wasFollowing) {
+          await unfollowUser(authorId);
+          followingIds.delete(authorId);
+        } else {
+          await followUser(authorId);
+          followingIds.add(authorId);
+        }
+        syncFollowLabel();
+        if (activeFilter === 'following') renderPosts();
+      } catch (error) {
+        setStatus(error.message || 'Could not update follow.');
+      } finally {
+        followBtn.disabled = false;
+      }
+    });
+    header.appendChild(followBtn);
+  }
+
   card.appendChild(header);
 
   const content = postText(post);
@@ -385,6 +447,10 @@ function filteredPosts() {
   return allPosts.filter((post) => {
     if (activeFilter === 'products' && !post.linkedProductId) return false;
     if (activeFilter === 'farmers' && String(post.author?.role || '').toLowerCase() !== 'farmer') return false;
+    if (activeFilter === 'following') {
+      const authorId = String(post.author?.id || '');
+      if (!authorId || !followingIds.has(authorId)) return false;
+    }
     const text = [postText(post), post.author?.name].join(' ').toLowerCase();
     return !query || text.includes(query);
   });
@@ -394,12 +460,21 @@ function renderPosts() {
   const posts = getSortedPosts(filteredPosts());
   stream.replaceChildren();
   if (!posts.length) {
-    renderState(
-      allPosts.length ? 'No matching posts' : 'No farmer posts yet',
-      allPosts.length
-        ? 'Try another search or select All Posts.'
-        : 'Updates will appear here after farmers publish them.'
-    );
+    if (activeFilter === 'following' && allPosts.length) {
+      renderState(
+        'No posts from people you follow',
+        getToken()
+          ? 'Use the Follow button on a post to add that farmer to this view.'
+          : 'Log in and follow farmers to see their latest posts here.'
+      );
+    } else {
+      renderState(
+        allPosts.length ? 'No matching posts' : 'No farmer posts yet',
+        allPosts.length
+          ? 'Try another search or select All Posts.'
+          : 'Updates will appear here after farmers publish them.'
+      );
+    }
     setStatus(`${posts.length} farmer posts shown.`);
     return;
   }
@@ -541,8 +616,15 @@ filterChips.forEach((chip) => {
       showComposerStatus('Nearby filter requires location access — showing all posts.');
       activeFilter = 'all posts';
     } else if (label.includes('following')) {
-      showComposerStatus('Following filter coming soon — showing all posts.');
-      activeFilter = 'all posts';
+      if (!getToken()) {
+        showComposerStatus('Log in to see posts from farmers you follow.');
+        activeFilter = 'all posts';
+      } else {
+        activeFilter = 'following';
+        if (!followingIds.size) {
+          showComposerStatus('Follow farmers with the Follow button to fill this view.');
+        }
+      }
     } else {
       activeFilter = label;
     }
@@ -570,4 +652,4 @@ searchForm?.addEventListener('submit', (event) => {
 });
 searchInput?.addEventListener('input', renderPosts);
 
-loadPosts();
+loadFollowing().then(loadPosts);
