@@ -194,7 +194,12 @@ export async function initWalletWidget(options = {}) {
       balanceEl.textContent = won(data.balance);
       lastTransactions = data.transactions || [];
     } catch (err) {
-      balanceEl.textContent = '₩0';
+      // Surface the failure instead of masking it as a ₩0 balance — a silent
+      // zero hid issues like an expired session or wrong API target.
+      balanceEl.textContent = '—';
+      pendingEl.textContent = `Couldn't load balance: ${err.message || 'please sign in again'}`;
+      console.error('[wallet] failed to load balance:', err);
+      return;
     }
     try {
       const reqRes = await getMyRechargeRequests();

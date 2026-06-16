@@ -22,7 +22,17 @@ function detectApiBase() {
     return PRODUCTION_API_BASE;
   }
 
-  // Match the login page: default to the deployed API unless explicitly overridden.
+  // When the app is served from a local backend (the dev setup serves the
+  // frontend from the same Express server), talk to that same-origin API.
+  // This keeps every page on one backend — previously only login/admin pages
+  // set this, so other pages silently hit the production API and showed stale
+  // data (e.g. a recharged wallet balance reading 0 from the wrong database).
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return normalizeBase(`${window.location.origin}/api`);
+  }
+
+  // Default to the deployed API unless explicitly overridden.
   return PRODUCTION_API_BASE;
 }
 
