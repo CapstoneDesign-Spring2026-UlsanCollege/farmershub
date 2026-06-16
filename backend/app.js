@@ -22,6 +22,7 @@ const farmServiceListingRoutes = require('./routes/farmServiceListings.routes');
 const serviceRequestRoutes = require('./routes/serviceRequests.routes');
 const adminRoutes = require('./routes/admin.routes');
 const orderRoutes = require('./routes/orders.routes');
+const marketEventRoutes = require('./routes/marketEvents.routes');
 
 const app = express();
 
@@ -127,6 +128,7 @@ app.use('/api/farm-service-listings', farmServiceListingRoutes);
 app.use('/api/service-requests', serviceRequestRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/market-events', marketEventRoutes);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((_req, res) => {

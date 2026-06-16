@@ -642,6 +642,51 @@ async function loadAnnouncements() {
   `;
 }
 
+function marketEventsList(events) {
+  if (!events.length) return emptyState('No market events scheduled yet.');
+  return `
+    <div class="admin-list">
+      ${events.map((event) => `
+        <article class="admin-list-item">
+          <span class="admin-list-icon">MK</span>
+          <div>
+            <strong>${escapeHtml(event.title)}</strong>
+            <span>${escapeHtml(event.location)} - ${formatDate(event.startsAt)}</span>
+            ${event.description ? `<p>${escapeHtml(event.description)}</p>` : ''}
+            <button class="admin-button-danger" type="button" data-action="delete-market" data-id="${escapeHtml(event.id || event._id)}">Delete</button>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function loadMarkets() {
+  setLoading('Loading market events', 'Fetching upcoming local markets.');
+  const response = await adminFetch('/market-events?includePast=true&limit=50', { headers: jsonHeaders() });
+  const events = response.data || [];
+  content.innerHTML = `
+    ${pageTitle('Local Markets', 'Publish upcoming local market events shown in the community feed widgets.')}
+    <section class="admin-grid admin-dashboard-lower">
+      <article class="admin-card">
+        <div class="admin-card-head"><h2>New Market Event</h2></div>
+        <form class="admin-form" data-admin-form="market-event">
+          <label>Title<input name="title" maxlength="140" required></label>
+          <label>Location<input name="location" maxlength="180" required></label>
+          <label>Starts<input name="startsAt" type="datetime-local" required></label>
+          <label>Ends (optional)<input name="endsAt" type="datetime-local"></label>
+          <label>Details (optional)<textarea name="description" maxlength="1000"></textarea></label>
+          <button class="admin-button" type="submit">Publish event</button>
+        </form>
+      </article>
+      <article class="admin-card">
+        <div class="admin-card-head"><h2>Scheduled Markets</h2></div>
+        ${marketEventsList(events)}
+      </article>
+    </section>
+  `;
+}
+
 async function loadLogs() {
   setLoading('Loading logs', 'Fetching admin action logs.');
   const response = await adminFetch('/admin/logs?limit=100', { headers: jsonHeaders() });
@@ -713,6 +758,7 @@ async function loadSection(section = currentSection, params = {}) {
     else if (section === 'messages') await loadMessages(params);
     else if (section === 'settings') await loadSettings();
     else if (section === 'announcements') await loadAnnouncements();
+    else if (section === 'markets') await loadMarkets();
     else if (section === 'logs') await loadLogs();
     else if (section === 'backup') await loadBackup();
     else if (section === 'assistant') await loadAssistantSection();
@@ -777,6 +823,7 @@ async function deleteByAction(action, id) {
     'delete-order': `/admin/orders/${id}`,
     'delete-message': `/admin/messages/${id}`,
     'delete-announcement': `/admin/announcements/${id}`,
+    'delete-market': `/market-events/${id}`,
   };
 
   if (!endpoints[action]) return;
@@ -853,6 +900,17 @@ async function handleAdminForm(form) {
     });
     showToast('Announcement published.');
     await loadAnnouncements();
+  }
+
+  if (type === 'market-event') {
+    const data = Object.fromEntries(new FormData(form).entries());
+    await adminFetch('/market-events', {
+      method: 'POST',
+      headers: jsonHeaders(),
+      body: JSON.stringify(data),
+    });
+    showToast('Market event published.');
+    await loadMarkets();
   }
 
   return null;

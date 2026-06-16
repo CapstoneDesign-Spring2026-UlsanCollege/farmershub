@@ -1,5 +1,12 @@
 import { getProfile, uploadAvatar, uploadCover } from './services/profileService.js';
 import { logout } from './services/authService.js';
+import { apiFetch, jsonHeaders, getToken } from './config/api.config.js';
+import {
+  hydrateNotificationSoundSelect,
+  saveNotificationSoundPreference,
+  syncNotificationSoundFromBackend,
+  playNotificationSound,
+} from './notification-sounds.js';
 
 const FALLBACK_TEXT = 'Not added yet';
 
@@ -164,6 +171,57 @@ async function loadSettings() {
   }
 }
 
+async function initNotificationPreferences() {
+  const soundEnabled = byId('prefSoundEnabled');
+  const soundSelect = byId('prefSoundSelect');
+  const soundPreview = byId('prefSoundPreview');
+  const desktopEnabled = byId('prefDesktopEnabled');
+  const status = byId('prefStatus');
+  if (!soundEnabled && !soundSelect && !desktopEnabled) return;
+
+  const setStatus = (message) => { if (status) status.textContent = message || ''; };
+
+  hydrateNotificationSoundSelect(soundSelect);
+
+  if (!getToken()) {
+    [soundEnabled, soundSelect, soundPreview, desktopEnabled].forEach((el) => { if (el) el.disabled = true; });
+    setStatus('Log in to manage notification preferences.');
+    return;
+  }
+
+  try {
+    const response = await apiFetch('/users/me/notification-preferences', { headers: jsonHeaders() });
+    const prefs = response.data || {};
+    if (soundEnabled) soundEnabled.checked = prefs.soundEnabled !== false;
+    if (desktopEnabled) desktopEnabled.checked = prefs.desktopEnabled !== false;
+    if (soundSelect && prefs.soundName) soundSelect.value = prefs.soundName;
+  } catch {
+    setStatus('Could not load saved preferences — using defaults.');
+  }
+  await syncNotificationSoundFromBackend(soundSelect);
+
+  const patch = async (body, okMessage) => {
+    try {
+      await apiFetch('/users/me/notification-preferences', {
+        method: 'PATCH',
+        headers: jsonHeaders(),
+        body: JSON.stringify(body),
+      });
+      setStatus(okMessage);
+    } catch (error) {
+      setStatus(error.message || 'Could not save preference.');
+    }
+  };
+
+  soundEnabled?.addEventListener('change', () => patch({ soundEnabled: soundEnabled.checked }, 'Notification sound preference saved.'));
+  desktopEnabled?.addEventListener('change', () => patch({ desktopEnabled: desktopEnabled.checked }, 'Desktop notification preference saved.'));
+  soundSelect?.addEventListener('change', () => {
+    saveNotificationSoundPreference(soundSelect.value);
+    setStatus('Notification sound saved.');
+  });
+  soundPreview?.addEventListener('click', () => playNotificationSound(soundSelect?.value));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const logoutButtons = [byId('logoutBtn'), byId('sectionLogoutBtn')].filter(Boolean);
   logoutButtons.forEach((button) => {
@@ -181,4 +239,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   loadSettings();
+  initNotificationPreferences();
 });

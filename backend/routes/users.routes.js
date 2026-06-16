@@ -13,6 +13,9 @@ const {
   getFarmerStats,
   getNotificationPreferences,
   updateNotificationPreferences,
+  followUser,
+  unfollowUser,
+  getMyFollowing,
 } = require('../controllers/userController');
 const {
   getCurrentProfile,
@@ -85,7 +88,12 @@ router.put('/me/addresses/:addressId', updateMyAddress);
 router.delete('/me/addresses/:addressId', deleteMyAddress);
 router.patch('/me/addresses/:addressId/default', setDefaultMyAddress);
 router.patch('/me/password', changeMyPassword);
+router.get('/me/following', getMyFollowing);
 router.delete('/me', deactivateMyAccount);
+
+// ── Follow / unfollow another user (social feed) ──────────────────────────────
+router.post('/:id/follow', followUser);
+router.delete('/:id/follow', unfollowUser);
 
 // GET  /api/users/profile   — current user's profile
 router.get('/profile', getCurrentProfile);

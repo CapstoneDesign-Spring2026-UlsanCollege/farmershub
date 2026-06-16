@@ -573,6 +573,15 @@ function renderProfile(profile) {
     setText('profileOrderCount', String(currentProfile.stats.orders || 0));
     orderCountItem.hidden = false;
   }
+
+  const glanceNote = document.getElementById('profileGlanceNote');
+  if (glanceNote && isFarmer) {
+    const reviews = Number(currentProfile.totalReviews || currentProfile.stats.reviews || 0);
+    const rating = Number(currentProfile.rating || 0);
+    glanceNote.textContent = reviews
+      ? `Rated ${rating.toFixed(1)} of 5 from ${reviews} customer review${reviews === 1 ? '' : 's'}.`
+      : 'No customer reviews yet — ratings appear once buyers review ordered products.';
+  }
 }
 
 function getProductId(product) {

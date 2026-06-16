@@ -44,4 +44,26 @@ async function deleteProduct(id) {
   });
 }
 
-export { createProduct, getProducts, getProductById, updateProduct, deleteProduct };
+async function getProductReviews(id) {
+  return apiFetch(`/products/${id}/reviews`, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+async function createProductReview(id, { rating, comment }) {
+  return apiFetch(`/products/${id}/reviews`, {
+    method: 'POST',
+    headers: jsonHeaders(),
+    body: JSON.stringify({ rating, comment }),
+  });
+}
+
+export {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  getProductReviews,
+  createProductReview,
+};

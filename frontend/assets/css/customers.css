@@ -1,3 +1,48 @@
 .customers-state {
   border-left: 5px solid var(--fw-green);
 }
+
+/* ── Real customer history (built from orders) ─────────────────────────────── */
+.customers-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.customer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border: 1px solid #e7ede4;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.customer-row-main {
+  display: grid;
+  gap: 2px;
+}
+
+.customer-row-main strong {
+  color: #1f3d2b;
+}
+
+.customer-row-main span {
+  color: #5f6f63;
+  font-size: 0.85rem;
+}
+
+.customer-row-stats {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  color: #5f6f63;
+  font-size: 0.86rem;
+}
+
+.customer-row-stats strong {
+  color: #1f3d2b;
+}

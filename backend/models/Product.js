@@ -58,6 +58,17 @@ const productSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    ratingAverage: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+    },
+    ratingCount: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
     seller: {
         userId: {
             type: mongoose.Schema.Types.ObjectId,

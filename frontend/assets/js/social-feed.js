@@ -1,5 +1,7 @@
 import { getFeed, createPost, likePost } from './services/postService.js';
 import { getToken } from './config/api.config.js';
+import { getMyFollowing, followUser, unfollowUser } from './services/userService.js';
+import { getUpcomingMarketEvents } from './services/marketEventService.js';
 
 const FALLBACK_AVATAR = 'assets/images/home/farmer-fallback-1.webp';
 const SAVED_POSTS_KEY = 'fh_saved_posts';
@@ -16,6 +18,21 @@ const sortButton = document.getElementById('sortButton');
 const searchForm = document.getElementById('feedSearchForm');
 const searchInput = searchForm?.querySelector('input[type="search"]');
 const filterChips = Array.from(document.querySelectorAll('[data-filter-chip]'));
+const trendingList = document.getElementById('trendingCropsList');
+const trendingEmpty = document.getElementById('trendingCropsEmpty');
+const trendingMeta = document.getElementById('trendingCropsMeta');
+const marketsList = document.getElementById('marketsList');
+const marketsEmpty = document.getElementById('marketsEmpty');
+const marketsMeta = document.getElementById('marketsMeta');
+
+// Crop keywords used to surface "Trending Crops" from real community post text.
+const CROP_KEYWORDS = [
+  'tomato', 'potato', 'onion', 'carrot', 'cabbage', 'spinach', 'lettuce', 'cucumber', 'pepper', 'chili', 'chilli',
+  'rice', 'wheat', 'corn', 'maize', 'barley', 'millet', 'soybean', 'lentil', 'bean', 'pea', 'garlic', 'ginger',
+  'apple', 'banana', 'mango', 'orange', 'grape', 'strawberry', 'watermelon', 'melon', 'papaya', 'peach', 'pear', 'lemon',
+  'egg', 'milk', 'cheese', 'honey', 'mushroom', 'pumpkin', 'radish', 'beetroot', 'broccoli', 'cauliflower', 'okra',
+  'coffee', 'tea', 'sugarcane', 'cotton', 'coconut', 'avocado', 'pineapple', 'guava', 'plum', 'cherry', 'kiwi',
+];
 
 const SORT_MODES = ['latest', 'oldest', 'popular'];
 const SORT_LABELS = { latest: 'Latest', oldest: 'Oldest', popular: 'Most Liked' };
@@ -27,6 +44,31 @@ if (composerForm && !isFarmer) {
 let allPosts = [];
 let activeFilter = 'all posts';
 let activeSortIndex = 0;
+let followingIds = new Set();
+
+function currentUserId() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('fh_user') || 'null');
+    return String(stored?.id || stored?._id || '');
+  } catch {
+    return '';
+  }
+}
+
+const myUserId = currentUserId();
+
+async function loadFollowing() {
+  if (!getToken()) {
+    followingIds = new Set();
+    return;
+  }
+  try {
+    const response = await getMyFollowing();
+    followingIds = new Set((Array.isArray(response.data) ? response.data : []).map(String));
+  } catch {
+    followingIds = new Set();
+  }
+}
 
 function setStatus(message) {
   if (status) status.textContent = message;
@@ -245,6 +287,42 @@ function createPostCard(post) {
   identity.append(name, meta);
   person.append(avatar, identity);
   header.appendChild(person);
+
+  const authorId = String(post.author?.id || '');
+  if (myUserId && authorId && authorId !== myUserId) {
+    const followBtn = document.createElement('button');
+    followBtn.type = 'button';
+    followBtn.className = 'post-follow-btn';
+    const syncFollowLabel = () => {
+      const isFollowing = followingIds.has(authorId);
+      followBtn.textContent = isFollowing ? 'Following' : 'Follow';
+      followBtn.classList.toggle('is-following', isFollowing);
+      followBtn.setAttribute('aria-pressed', isFollowing ? 'true' : 'false');
+    };
+    syncFollowLabel();
+    followBtn.addEventListener('click', async () => {
+      if (!getToken()) { setStatus('Log in to follow farmers.'); return; }
+      followBtn.disabled = true;
+      const wasFollowing = followingIds.has(authorId);
+      try {
+        if (wasFollowing) {
+          await unfollowUser(authorId);
+          followingIds.delete(authorId);
+        } else {
+          await followUser(authorId);
+          followingIds.add(authorId);
+        }
+        syncFollowLabel();
+        if (activeFilter === 'following') renderPosts();
+      } catch (error) {
+        setStatus(error.message || 'Could not update follow.');
+      } finally {
+        followBtn.disabled = false;
+      }
+    });
+    header.appendChild(followBtn);
+  }
+
   card.appendChild(header);
 
   const content = postText(post);
@@ -373,6 +451,10 @@ function filteredPosts() {
   return allPosts.filter((post) => {
     if (activeFilter === 'products' && !post.linkedProductId) return false;
     if (activeFilter === 'farmers' && String(post.author?.role || '').toLowerCase() !== 'farmer') return false;
+    if (activeFilter === 'following') {
+      const authorId = String(post.author?.id || '');
+      if (!authorId || !followingIds.has(authorId)) return false;
+    }
     const text = [postText(post), post.author?.name].join(' ').toLowerCase();
     return !query || text.includes(query);
   });
@@ -382,12 +464,21 @@ function renderPosts() {
   const posts = getSortedPosts(filteredPosts());
   stream.replaceChildren();
   if (!posts.length) {
-    renderState(
-      allPosts.length ? 'No matching posts' : 'No farmer posts yet',
-      allPosts.length
-        ? 'Try another search or select All Posts.'
-        : 'Updates will appear here after farmers publish them.'
-    );
+    if (activeFilter === 'following' && allPosts.length) {
+      renderState(
+        'No posts from people you follow',
+        getToken()
+          ? 'Use the Follow button on a post to add that farmer to this view.'
+          : 'Log in and follow farmers to see their latest posts here.'
+      );
+    } else {
+      renderState(
+        allPosts.length ? 'No matching posts' : 'No farmer posts yet',
+        allPosts.length
+          ? 'Try another search or select All Posts.'
+          : 'Updates will appear here after farmers publish them.'
+      );
+    }
     setStatus(`${posts.length} farmer posts shown.`);
     return;
   }
@@ -396,16 +487,156 @@ function renderPosts() {
   setStatus(`${posts.length} farmer post${posts.length === 1 ? '' : 's'} shown.`);
 }
 
+function computeTrendingCrops(posts) {
+  const counts = new Map();
+
+  const bump = (label) => {
+    const key = label.toLowerCase();
+    counts.set(key, (counts.get(key) || 0) + 1);
+  };
+
+  posts.forEach((post) => {
+    const text = postText(post).toLowerCase();
+    if (!text) return;
+    const seen = new Set();
+
+    // Curated crop keywords (matched with optional plural suffix).
+    CROP_KEYWORDS.forEach((crop) => {
+      if (seen.has(crop)) return;
+      const pattern = new RegExp(`\\b${crop}(?:es|s)?\\b`, 'i');
+      if (pattern.test(text)) {
+        seen.add(crop);
+        bump(crop);
+      }
+    });
+
+    // Hashtags so the feed can surface emerging topics beyond the dictionary.
+    const hashtags = text.match(/#([a-z][a-z0-9_]{2,20})/g) || [];
+    hashtags.forEach((tag) => {
+      const label = tag.slice(1);
+      if (seen.has(label)) return;
+      seen.add(label);
+      bump(label);
+    });
+  });
+
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+    .slice(0, 6);
+}
+
+function renderTrendingCrops() {
+  if (!trendingList || !trendingEmpty) return;
+
+  const trends = computeTrendingCrops(allPosts);
+  trendingList.replaceChildren();
+
+  if (!trends.length) {
+    trendingList.hidden = true;
+    trendingEmpty.hidden = false;
+    trendingEmpty.textContent = allPosts.length
+      ? 'No crop mentions in recent community posts yet.'
+      : 'Crop mentions across recent community posts will show up here.';
+    if (trendingMeta) trendingMeta.textContent = 'Live';
+    return;
+  }
+
+  trends.forEach((trend, index) => {
+    const item = document.createElement('li');
+    item.className = 'trending-item';
+
+    const rank = document.createElement('span');
+    rank.className = 'trending-rank';
+    rank.textContent = String(index + 1);
+
+    const name = document.createElement('span');
+    name.className = 'trending-name';
+    name.textContent = trend.name;
+
+    const count = document.createElement('span');
+    count.className = 'trending-count';
+    count.textContent = `${trend.count} post${trend.count === 1 ? '' : 's'}`;
+
+    item.append(rank, name, count);
+    trendingList.appendChild(item);
+  });
+
+  trendingEmpty.hidden = true;
+  trendingList.hidden = false;
+  if (trendingMeta) trendingMeta.textContent = 'Live';
+}
+
+function formatMarketDate(startsAt, endsAt) {
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return '';
+  const dateOpts = { month: 'short', day: 'numeric' };
+  const timeOpts = { hour: 'numeric', minute: '2-digit' };
+  let label = `${start.toLocaleDateString([], dateOpts)} · ${start.toLocaleTimeString([], timeOpts)}`;
+  if (endsAt) {
+    const end = new Date(endsAt);
+    if (!Number.isNaN(end.getTime())) {
+      label += end.toDateString() === start.toDateString()
+        ? `–${end.toLocaleTimeString([], timeOpts)}`
+        : ` – ${end.toLocaleDateString([], dateOpts)}`;
+    }
+  }
+  return label;
+}
+
+async function loadMarketEvents() {
+  if (!marketsList || !marketsEmpty) return;
+  try {
+    const response = await getUpcomingMarketEvents({ limit: 5 });
+    const events = Array.isArray(response.data) ? response.data : [];
+    marketsList.replaceChildren();
+
+    if (!events.length) {
+      marketsList.hidden = true;
+      marketsEmpty.hidden = false;
+      marketsEmpty.textContent = 'No upcoming local markets are scheduled right now.';
+      if (marketsMeta) marketsMeta.textContent = 'Live';
+      return;
+    }
+
+    events.forEach((event) => {
+      const item = document.createElement('li');
+      item.className = 'markets-item';
+
+      const title = document.createElement('span');
+      title.className = 'markets-title';
+      title.textContent = event.title;
+
+      const meta = document.createElement('span');
+      meta.className = 'markets-meta';
+      meta.textContent = [formatMarketDate(event.startsAt, event.endsAt), event.location].filter(Boolean).join(' · ');
+
+      item.append(title, meta);
+      marketsList.appendChild(item);
+    });
+
+    marketsEmpty.hidden = true;
+    marketsList.hidden = false;
+    if (marketsMeta) marketsMeta.textContent = 'Live';
+  } catch {
+    marketsList.hidden = true;
+    marketsEmpty.hidden = false;
+    marketsEmpty.textContent = 'Local market events are unavailable right now.';
+  }
+}
+
 async function loadPosts() {
   renderState('Loading farmer posts', 'Fetching the latest updates from FarmersHub.');
   try {
     const response = await getFeed({ limit: 100 });
     allPosts = Array.isArray(response.data) ? response.data : [];
     renderPosts();
+    renderTrendingCrops();
   } catch (error) {
     allPosts = [];
     renderState('Unable to load posts', error.message || 'Please try again later.');
     setStatus('The farmer feed could not be loaded.');
+    renderTrendingCrops();
   }
 }
 
@@ -447,8 +678,15 @@ filterChips.forEach((chip) => {
       showComposerStatus('Nearby filter requires location access — showing all posts.');
       activeFilter = 'all posts';
     } else if (label.includes('following')) {
-      showComposerStatus('Following filter coming soon — showing all posts.');
-      activeFilter = 'all posts';
+      if (!getToken()) {
+        showComposerStatus('Log in to see posts from farmers you follow.');
+        activeFilter = 'all posts';
+      } else {
+        activeFilter = 'following';
+        if (!followingIds.size) {
+          showComposerStatus('Follow farmers with the Follow button to fill this view.');
+        }
+      }
     } else {
       activeFilter = label;
     }
@@ -476,4 +714,5 @@ searchForm?.addEventListener('submit', (event) => {
 });
 searchInput?.addEventListener('input', renderPosts);
 
-loadPosts();
+loadFollowing().then(loadPosts);
+loadMarketEvents();

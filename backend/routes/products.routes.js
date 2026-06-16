@@ -8,6 +8,7 @@ const {
   deleteProduct,
   placeOrder,
 } = require('../controllers/productController');
+const { listProductReviews, createProductReview } = require('../controllers/reviewController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { uploader, withUploadFolder } = require('../middleware/upload');
 const { createProductRules } = require('../middleware/validate');
@@ -37,5 +38,11 @@ router.delete('/:id', protect, authorize('farmer', 'admin'), deleteProduct);
 
 // POST /api/products/:id/order — place order for product (customer only)
 router.post('/:id/order', protect, authorize('customer'), placeOrder);
+
+// GET  /api/products/:id/reviews — public product reviews + rating summary
+router.get('/:id/reviews', listProductReviews);
+
+// POST /api/products/:id/reviews — customer who ordered the product
+router.post('/:id/reviews', protect, authorize('customer'), createProductReview);
 
 module.exports = router;
