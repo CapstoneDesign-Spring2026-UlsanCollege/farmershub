@@ -321,6 +321,40 @@ body {
   font-weight: 800;
 }
 
+.settings-pref-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.settings-pref-row {
+  min-height: 48px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--fw-text);
+  font-weight: 800;
+  border: 1px solid var(--fw-border, #e2e9df);
+  border-radius: 12px;
+}
+
+.settings-pref-row select {
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 10px;
+  border: 1px solid #d7e0d3;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--fw-text);
+}
+
+.settings-pref-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+
 .settings-info-card {
   margin-bottom: 12px;
   padding: 14px;

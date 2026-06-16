@@ -154,13 +154,30 @@
           </div>
           <a class="workspace-primary" href="notifications.html">Open Notifications</a>
         </div>
-        <p class="settings-note">FarmersHub can show existing notification records. Per-account notification preference syncing and sound preferences are not connected yet.</p>
+        <p class="settings-note">Sound and desktop notification preferences sync to your account. Per-category alert toggles are coming later.</p>
+        <div class="settings-pref-list">
+          <label class="settings-pref-row">
+            <span>Notification sound</span>
+            <input type="checkbox" id="prefSoundEnabled">
+          </label>
+          <label class="settings-pref-row">
+            <span>Sound choice</span>
+            <select id="prefSoundSelect"></select>
+          </label>
+          <div class="settings-pref-row">
+            <span>Preview sound</span>
+            <button type="button" class="workspace-secondary" id="prefSoundPreview">Play</button>
+          </div>
+          <label class="settings-pref-row">
+            <span>Desktop notifications</span>
+            <input type="checkbox" id="prefDesktopEnabled">
+          </label>
+          <p class="settings-note" id="prefStatus" role="status" aria-live="polite"></p>
+        </div>
         <div class="settings-disabled-list">
           <div>Message notifications <span>Coming later</span></div>
           <div>Order request alerts <span>Coming later</span></div>
           <div>System notices <span>Coming later</span></div>
-          <div>Notification sounds <span>Coming later</span></div>
-          <div>Mute all sounds <span>Coming later</span></div>
         </div>
       </section>
 
