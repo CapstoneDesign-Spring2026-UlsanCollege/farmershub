@@ -55,6 +55,12 @@ const rawUploader = multer({
     limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+const rawMemoryUploader = multer({
+    storage: multer.memoryStorage(),
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
+
 const messageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const target = path.join(ROOT_UPLOAD_DIR, req.uploadFolder || 'messages');
@@ -81,6 +87,18 @@ const rawMessageUploader = multer({
     limits: { fileSize: 5 * 1024 * 1024, files: 5 },
 });
 
+function detectImageMimeFromHeader(header) {
+    if (header.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'image/jpeg';
+    if (header.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png';
+    if (header.subarray(0, 6).toString('ascii') === 'GIF87a' || header.subarray(0, 6).toString('ascii') === 'GIF89a') {
+        return 'image/gif';
+    }
+    if (header.subarray(0, 4).toString('ascii') === 'RIFF' && header.subarray(8, 12).toString('ascii') === 'WEBP') {
+        return 'image/webp';
+    }
+    return '';
+}
+
 function detectImageMime(filePath) {
     const descriptor = fs.openSync(filePath, 'r');
     const header = Buffer.alloc(12);
@@ -91,15 +109,7 @@ function detectImageMime(filePath) {
         fs.closeSync(descriptor);
     }
 
-    if (header.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'image/jpeg';
-    if (header.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png';
-    if (header.subarray(0, 6).toString('ascii') === 'GIF87a' || header.subarray(0, 6).toString('ascii') === 'GIF89a') {
-        return 'image/gif';
-    }
-    if (header.subarray(0, 4).toString('ascii') === 'RIFF' && header.subarray(8, 12).toString('ascii') === 'WEBP') {
-        return 'image/webp';
-    }
-    return '';
+    return detectImageMimeFromHeader(header);
 }
 
 function requestFiles(req) {
@@ -113,6 +123,22 @@ function removeFiles(files) {
     files.forEach((file) => {
         if (file?.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
     });
+}
+
+function validateUploadedImageBuffers(req, res, next) {
+    const files = requestFiles(req);
+
+    try {
+        const invalid = files.find((file) => detectImageMimeFromHeader(file.buffer) !== file.mimetype);
+        if (!invalid) return next();
+
+        const error = new Error('Uploaded file content does not match an allowed image type.');
+        error.statusCode = 415;
+        return next(error);
+    } catch (error) {
+        error.statusCode = error.statusCode || 400;
+        return next(error);
+    }
 }
 
 function validateUploadedImages(req, res, next) {
@@ -171,6 +197,13 @@ const uploader = {
     fields: (...args) => [rawUploader.fields(...args), validateUploadedImages],
 };
 
+// In-memory variant — used where the resulting buffer is persisted straight
+// into MongoDB instead of being written to the (ephemeral) local disk.
+const memoryUploader = {
+    single: (...args) => [rawMemoryUploader.single(...args), validateUploadedImageBuffers],
+    array: (...args) => [rawMemoryUploader.array(...args), validateUploadedImageBuffers],
+};
+
 const messageUploader = {
     array: (...args) => [rawMessageUploader.array(...args), validateMessageUploads],
 };
@@ -192,6 +225,7 @@ function toUploadPath(file) {
 
 module.exports = {
     uploader,
+    memoryUploader,
     messageUploader,
     withUploadFolder,
     toUploadPath,

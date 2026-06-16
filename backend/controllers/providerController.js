@@ -1,20 +1,29 @@
-const fs = require('fs');
-const path = require('path');
 const ProviderProfile = require('../models/ProviderProfile');
 const ProviderPost = require('../models/ProviderPost');
+const ProviderImage = require('../models/ProviderImage');
 const { FarmServiceListing } = require('../models/FarmServiceListing');
-const { toUploadPath } = require('../middleware/upload');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 const MAX_EQUIPMENT_IMAGES = 30;
+const IMAGE_PATH_PATTERN = /\/providers\/images\/([a-f0-9]{24})$/i;
 
-// Delete a stored "/uploads/..." file from disk; ignore if missing.
-function removeStoredFile(storedPath) {
-  if (!storedPath || typeof storedPath !== 'string') return;
-  const relative = storedPath.replace(/^\/+/, '');
-  if (!relative.startsWith('uploads/')) return;
-  const absolute = path.join(__dirname, '..', relative);
-  fs.promises.unlink(absolute).catch(() => {});
+// Persist an uploaded image buffer in its own MongoDB collection and return
+// the "/api/providers/images/<id>" path the rest of the app stores/serves.
+async function saveProviderImage(ownerUserId, kind, file) {
+  const image = await ProviderImage.create({
+    ownerUserId,
+    kind,
+    contentType: file.mimetype,
+    data: file.buffer,
+  });
+  return `/api/providers/images/${image._id}`;
+}
+
+// Delete a stored "/api/providers/images/<id>" image document; ignore if missing.
+async function removeStoredImage(storedPath) {
+  const match = typeof storedPath === 'string' ? storedPath.match(IMAGE_PATH_PATTERN) : null;
+  if (!match) return;
+  await ProviderImage.deleteOne({ _id: match[1] }).catch(() => {});
 }
 
 function asString(value, fallback = '') {
@@ -224,8 +233,8 @@ async function uploadProviderAvatar(req, res, next) {
   try {
     if (!req.file) return errorResponse(res, 'No image uploaded', 400);
     const profile = await ensureProviderProfile(req.user);
-    removeStoredFile(profile.avatar);
-    profile.avatar = toUploadPath(req.file);
+    await removeStoredImage(profile.avatar);
+    profile.avatar = await saveProviderImage(userIdOf(req.user), 'avatar', req.file);
     await profile.save();
     return successResponse(res, 'Profile picture updated', serializeProviderProfile(profile, req.user));
   } catch (err) {
@@ -238,8 +247,8 @@ async function uploadProviderCover(req, res, next) {
   try {
     if (!req.file) return errorResponse(res, 'No image uploaded', 400);
     const profile = await ensureProviderProfile(req.user);
-    removeStoredFile(profile.coverImage);
-    profile.coverImage = toUploadPath(req.file);
+    await removeStoredImage(profile.coverImage);
+    profile.coverImage = await saveProviderImage(userIdOf(req.user), 'cover', req.file);
     await profile.save();
     return successResponse(res, 'Cover image updated', serializeProviderProfile(profile, req.user));
   } catch (err) {
@@ -259,9 +268,11 @@ async function addEquipmentImages(req, res, next) {
     }
 
     const caption = asString(req.body.caption).slice(0, 160);
-    files.forEach((file) => {
-      profile.equipment.push({ imagePath: toUploadPath(file), caption });
-    });
+    const userId = userIdOf(req.user);
+    for (const file of files) {
+      const imagePath = await saveProviderImage(userId, 'equipment', file);
+      profile.equipment.push({ imagePath, caption });
+    }
     await profile.save();
     return successResponse(res, 'Equipment photos added', serializeProviderProfile(profile, req.user));
   } catch (err) {
@@ -276,7 +287,7 @@ async function deleteEquipmentImage(req, res, next) {
     const item = profile.equipment.id(req.params.imageId);
     if (!item) return errorResponse(res, 'Equipment photo not found', 404);
 
-    removeStoredFile(item.imagePath);
+    await removeStoredImage(item.imagePath);
     item.deleteOne();
     await profile.save();
     return successResponse(res, 'Equipment photo removed', serializeProviderProfile(profile, req.user));
@@ -295,14 +306,19 @@ async function createProviderPost(req, res, next) {
     }
 
     const profile = await ensureProviderProfile(req.user);
+    const userId = userIdOf(req.user);
+    const imagePaths = [];
+    for (const file of files) {
+      imagePaths.push(await saveProviderImage(userId, 'post', file));
+    }
     const post = await ProviderPost.create({
       provider: {
-        userId: userIdOf(req.user),
+        userId,
         businessName: profile.businessName,
         avatarPath: profile.avatar || '',
       },
       content,
-      imagePaths: files.map(toUploadPath),
+      imagePaths,
     });
     return successResponse(res, 'Post published', serializeProviderPost(post), 201);
   } catch (err) {
@@ -331,9 +347,23 @@ async function deleteProviderPost(req, res, next) {
     });
     if (!post) return errorResponse(res, 'Post not found', 404);
 
-    (post.imagePaths || []).forEach(removeStoredFile);
+    await Promise.all((post.imagePaths || []).map(removeStoredImage));
     await post.deleteOne();
     return successResponse(res, 'Post deleted', { id: String(post._id) });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/providers/images/:imageId — stream a stored provider image's bytes.
+async function getProviderImage(req, res, next) {
+  try {
+    const image = await ProviderImage.findById(req.params.imageId).select('data contentType');
+    if (!image) return errorResponse(res, 'Image not found', 404);
+
+    res.set('Content-Type', image.contentType);
+    res.set('Cache-Control', 'public, max-age=604800, immutable');
+    return res.send(image.data);
   } catch (err) {
     next(err);
   }
@@ -350,4 +380,5 @@ module.exports = {
   createProviderPost,
   getMyProviderPosts,
   deleteProviderPost,
+  getProviderImage,
 };
