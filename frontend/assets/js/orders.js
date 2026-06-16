@@ -33,6 +33,10 @@ const STATUS_COLORS = {
   cancelled:  '#b71c1c',
 };
 
+function notifyOrdersChanged(order) {
+  window.dispatchEvent(new CustomEvent('fh-orders-changed', { detail: { order } }));
+}
+
 function formatCurrency(value) {
   return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 })
     .format(Number(value) || 0);
@@ -113,6 +117,7 @@ function renderOrderCard(order) {
         const updatedOrder = await openDeliveryPicker(order.id);
         if (updatedOrder) {
           card.replaceWith(renderOrderCard(updatedOrder));
+          notifyOrdersChanged(updatedOrder);
         }
       });
       controls.appendChild(shipBtn);
@@ -149,8 +154,10 @@ function renderOrderCard(order) {
           headers: jsonHeaders(),
           body: JSON.stringify({ status: newStatus }),
         });
-        const updated = renderOrderCard(result.data.order);
+        const updatedOrder = result.data.order;
+        const updated = renderOrderCard(updatedOrder);
         card.replaceWith(updated);
+        notifyOrdersChanged(updatedOrder);
       } catch (err) {
         updateBtn.disabled = false;
         updateBtn.textContent = 'Update';
@@ -193,7 +200,7 @@ async function loadOrders(status = '') {
 
   try {
     const url = status ? `/orders?status=${encodeURIComponent(status)}` : '/orders';
-    const result = await apiFetch(url, { headers: jsonHeaders() });
+    const result = await apiFetch(url, { headers: jsonHeaders(), cache: 'no-store' });
     const orders = result?.data?.orders || [];
     const total = result?.data?.total ?? orders.length;
     if (ordersStatus) ordersStatus.textContent = `${total} order${total === 1 ? '' : 's'}`;

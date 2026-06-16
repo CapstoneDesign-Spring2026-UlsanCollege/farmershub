@@ -4,6 +4,10 @@ import { getProfile } from './services/profileService.js';
 import { getFeed } from './services/postService.js';
 import { apiFetch, jsonHeaders, getToken } from './config/api.config.js';
 
+const LIVE_STATS_REFRESH_MS = 15000;
+let statsRefreshTimer = null;
+let statsRefreshInFlight = false;
+
 function getStoredUser() {
   try {
     return JSON.parse(localStorage.getItem('fh_user') || 'null');
@@ -95,11 +99,34 @@ async function getFarmerStats() {
   const token = getToken();
   if (!token) return null;
   try {
-    const response = await apiFetch('/users/me/farm-stats', { headers: jsonHeaders() });
+    const response = await apiFetch('/users/me/farm-stats', { headers: jsonHeaders(), cache: 'no-store' });
     return response.data || null;
   } catch {
     return null;
   }
+}
+
+async function refreshLiveStats() {
+  if (document.body.dataset.userRole !== 'farmer' || statsRefreshInFlight) return;
+  statsRefreshInFlight = true;
+  try {
+    const stats = await getFarmerStats();
+    renderKpis(stats);
+    renderRecentOrders(stats);
+  } finally {
+    statsRefreshInFlight = false;
+  }
+}
+
+function startLiveStatsRefresh() {
+  if (statsRefreshTimer || document.body.dataset.userRole !== 'farmer') return;
+
+  window.addEventListener('fh-orders-changed', refreshLiveStats);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshLiveStats();
+  });
+  window.addEventListener('focus', refreshLiveStats);
+  statsRefreshTimer = window.setInterval(refreshLiveStats, LIVE_STATS_REFRESH_MS);
 }
 
 function setText(id, value) {
@@ -466,6 +493,7 @@ async function initialiseFarmerDashboard() {
   const farmStats = statsResult.status === 'fulfilled' ? (statsResult.value ?? null) : null;
   renderKpis(farmStats);
   renderRecentOrders(farmStats);
+  startLiveStatsRefresh();
 
   if (postsResult.status === 'fulfilled') {
     renderRecentPosts(postsResult.value.data || []);
