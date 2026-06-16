@@ -44,10 +44,13 @@ async function buildProfileResponse(profileDoc, user, req, { includePrivate = fa
         coverUrl: buildMediaUrl(req, profileDoc.coverPath),
         createdAt: profileDoc.createdAt,
         updatedAt: profileDoc.updatedAt,
+        rating: Number(user.rating || 0),
+        totalReviews: Number(user.totalReviews || 0),
         stats: {
             products: productCount,
             posts: postCount,
             orders: orderCount,
+            reviews: Number(user.totalReviews || 0),
         },
     };
 

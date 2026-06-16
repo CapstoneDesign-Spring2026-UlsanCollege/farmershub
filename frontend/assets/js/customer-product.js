@@ -1,4 +1,4 @@
-import { getProductById } from './services/productService.js';
+import { getProductById, getProductReviews, createProductReview } from './services/productService.js';
 import {
   addProductToCart,
   customerFarmerUrl,
@@ -15,6 +15,8 @@ import {
   getSellerId,
   getSellerLocation,
   getSellerName,
+  getStoredRole,
+  getToken,
   hydrateCustomerShell,
   isFavorite,
   setStatus,
@@ -107,6 +109,10 @@ function renderProduct(product) {
   const meta = document.createElement('dl');
   meta.className = 'customer-meta-list';
   addMeta(meta, 'Category', getProductCategory(product));
+  if (Number(product.ratingCount)) {
+    const reviewWord = Number(product.ratingCount) === 1 ? 'review' : 'reviews';
+    addMeta(meta, 'Rating', `${Number(product.rating).toFixed(1)} of 5 (${product.ratingCount} ${reviewWord})`);
+  }
   addMeta(meta, 'Seller', sellerName);
   addMeta(meta, 'Location', getSellerLocation(product));
   if (product.stock !== undefined && product.stock !== null && product.stock !== '') {
@@ -211,6 +217,146 @@ function renderProduct(product) {
   }
   seller.append(avatar, sellerCopy, sellerActions);
   shell.appendChild(seller);
+
+  appendReviews(product, productId);
+}
+
+function buildStars(value) {
+  const stars = document.createElement('span');
+  stars.className = 'review-stars';
+  stars.setAttribute('aria-hidden', 'true');
+  const rounded = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+  stars.textContent = '★★★★★☆☆☆☆☆'.slice(5 - rounded, 10 - rounded);
+  return stars;
+}
+
+function reviewSummaryLine(summary) {
+  const wrap = document.createElement('div');
+  wrap.className = 'reviews-summary';
+  const count = Number(summary?.count || 0);
+  const average = Number(summary?.average || 0);
+  if (!count) {
+    const none = document.createElement('p');
+    none.className = 'reviews-note';
+    none.textContent = 'No reviews yet. Customers can review after ordering.';
+    wrap.appendChild(none);
+    return wrap;
+  }
+  const score = document.createElement('strong');
+  score.className = 'reviews-score';
+  score.textContent = average.toFixed(1);
+  const metaText = document.createElement('span');
+  metaText.className = 'reviews-count';
+  metaText.textContent = `${count} review${count === 1 ? '' : 's'}`;
+  wrap.append(score, buildStars(average), metaText);
+  return wrap;
+}
+
+function reviewItem(review) {
+  const item = document.createElement('article');
+  item.className = 'review-item';
+  const head = document.createElement('div');
+  head.className = 'review-head';
+  const name = document.createElement('strong');
+  name.textContent = review.customerName || 'Customer';
+  head.append(name, buildStars(review.rating));
+  const date = document.createElement('span');
+  date.className = 'review-date';
+  date.textContent = formatDate(review.createdAt);
+  item.append(head, date);
+  if (review.comment) {
+    const comment = document.createElement('p');
+    comment.className = 'review-comment';
+    comment.textContent = review.comment;
+    item.appendChild(comment);
+  }
+  return item;
+}
+
+async function renderReviews(productId, summaryHost, listHost) {
+  summaryHost.replaceChildren();
+  listHost.replaceChildren();
+  try {
+    const response = await getProductReviews(productId);
+    const data = response.data || {};
+    summaryHost.appendChild(reviewSummaryLine(data.summary));
+    (Array.isArray(data.reviews) ? data.reviews : []).forEach((review) => {
+      listHost.appendChild(reviewItem(review));
+    });
+  } catch {
+    const fail = document.createElement('p');
+    fail.className = 'reviews-note';
+    fail.textContent = 'Reviews could not be loaded right now.';
+    summaryHost.appendChild(fail);
+  }
+}
+
+function appendReviews(product, productId) {
+  if (!productId) return;
+  const section = document.createElement('section');
+  section.className = 'customer-card product-reviews-card';
+  section.setAttribute('aria-label', 'Ratings and reviews');
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Ratings & Reviews';
+  section.appendChild(heading);
+
+  const summaryHost = document.createElement('div');
+  const listHost = document.createElement('div');
+  listHost.className = 'reviews-list';
+  section.append(summaryHost, listHost);
+
+  if (getToken() && getStoredRole() === 'customer') {
+    const form = document.createElement('form');
+    form.className = 'review-form';
+    form.innerHTML = `
+      <label>Your rating
+        <select name="rating" required>
+          <option value="5">5 - Excellent</option>
+          <option value="4">4 - Good</option>
+          <option value="3">3 - Okay</option>
+          <option value="2">2 - Poor</option>
+          <option value="1">1 - Bad</option>
+        </select>
+      </label>
+      <label>Your review (optional)
+        <textarea name="comment" rows="3" maxlength="1000" placeholder="Share how the product was..."></textarea>
+      </label>
+      <button type="submit" class="customer-button">Submit review</button>
+    `;
+    const formStatus = document.createElement('p');
+    formStatus.className = 'customer-status';
+    formStatus.setAttribute('role', 'status');
+    formStatus.setAttribute('aria-live', 'polite');
+    form.appendChild(formStatus);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const rating = Number(form.elements.rating.value);
+      const comment = String(form.elements.comment.value || '').trim();
+      const submit = form.querySelector('[type="submit"]');
+      submit.disabled = true;
+      setStatus(formStatus, 'Submitting your review...');
+      try {
+        await createProductReview(productId, { rating, comment });
+        setStatus(formStatus, 'Thanks! Your review was posted.', 'success');
+        form.remove();
+        await renderReviews(productId, summaryHost, listHost);
+      } catch (error) {
+        setStatus(formStatus, error.message || 'Could not submit review.', 'error');
+        submit.disabled = false;
+      }
+    });
+    section.appendChild(form);
+  } else if (!getToken()) {
+    const note = document.createElement('p');
+    note.className = 'reviews-note';
+    note.textContent = 'Log in as a customer who ordered this product to leave a review.';
+    section.appendChild(note);
+  }
+
+  shell.appendChild(section);
+  renderReviews(productId, summaryHost, listHost);
 }
 
 async function loadProduct() {

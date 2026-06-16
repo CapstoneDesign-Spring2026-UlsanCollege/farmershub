@@ -36,6 +36,8 @@ function serializeProduct(productDoc, req) {
         expiryDate: productDoc.expiryDate,
         imageUrl,
         paymentMethods: productDoc.paymentMethods,
+        rating: Number(productDoc.ratingAverage || 0),
+        ratingCount: Number(productDoc.ratingCount || 0),
         seller: {
             id: String(productDoc.seller.userId),
             role: productDoc.seller.role,
