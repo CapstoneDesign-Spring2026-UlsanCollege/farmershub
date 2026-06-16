@@ -1,0 +1,163 @@
+/* Shared styles for provider profile imagery, equipment gallery, and posts.
+   Uses var() fallbacks so it renders in both the provider and farmer themes. */
+
+.provider-cover {
+  height: 180px;
+  border-radius: 14px;
+  background: var(--provider-soft, #eef5e9) center/cover no-repeat;
+  border: 1px solid var(--provider-border, #dfe7da);
+}
+.provider-cover[data-empty="true"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.provider-cover[data-empty="true"]::after {
+  content: "No cover image";
+  color: var(--provider-muted, #667162);
+  font-size: 0.9rem;
+}
+
+.provider-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: -42px;
+  padding-left: 16px;
+}
+.provider-avatar {
+  width: 84px;
+  height: 84px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--provider-green, #236c3d) center/cover no-repeat;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 16px rgba(28, 45, 30, .18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.provider-media-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 38px;
+}
+.provider-media-actions label,
+.provider-upload-btn {
+  cursor: pointer;
+}
+
+/* Equipment gallery */
+.provider-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.provider-gallery-tile {
+  position: relative;
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--provider-border, #dfe7da);
+  background: #fff;
+}
+.provider-gallery-tile img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+.provider-gallery-tile figcaption {
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: var(--provider-muted, #667162);
+}
+.provider-gallery-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.provider-gallery-remove:hover { background: rgba(181, 59, 45, .9); }
+
+/* Posts */
+.provider-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.provider-post-form textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--provider-border, #dfe7da);
+  font: inherit;
+  background: #fff;
+}
+.provider-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.provider-post-actions label { cursor: pointer; }
+.provider-post-actions button { margin-left: auto; }
+
+.provider-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+}
+.provider-post {
+  border: 1px solid var(--provider-border, #dfe7da);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fff;
+}
+.provider-post-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.provider-post-delete {
+  border: none;
+  background: none;
+  color: var(--provider-danger, #b53b2d);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.provider-post-content {
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.provider-post-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.provider-post-images img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}

@@ -19,6 +19,43 @@
         <section class="provider-card"><h2>Edit profile</h2><form class="provider-form" id="providerProfileForm"><label>Business name <input type="text" name="businessName" required></label><label>Business type <input type="text" name="businessType"></label><label>Service area <input type="text" name="serviceArea" required></label><label>Location <input type="text" name="location"></label><label>Public email <input type="email" name="publicEmail"></label><label>Public phone <input type="tel" name="publicPhone"></label><label>Website <input type="url" name="website"></label><label>Contact preference <select name="contactPreference"><option value="message">Message</option><option value="phone">Phone</option><option value="email">Email</option><option value="message_or_phone">Message or phone</option></select></label><label class="provider-wide">Service categories <input type="text" name="serviceCategories" placeholder="tractor, delivery_truck, soil_testing"></label><label class="provider-wide">Operating hours <input type="text" name="operatingHours"></label><label class="provider-wide">Bio <textarea name="bio"></textarea></label><div class="provider-wide"><button class="provider-button" type="submit">Save profile</button></div></form><p class="provider-status" id="providerProfileStatus" role="status" aria-live="polite"></p></section>
         <section class="provider-card"><h2>Public preview</h2><div id="providerProfilePreview"></div><h3>Active listings</h3><div class="provider-list" id="providerProfileListings"></div></section>
       </section>
+
+      <section class="provider-card provider-media-card">
+        <h2>Profile imagery</h2>
+        <p class="provider-muted">Your photo and cover banner are shown to farmers on your public profile.</p>
+        <div class="provider-cover" id="providerCoverPreview" data-empty="true"></div>
+        <div class="provider-avatar-row">
+          <div class="provider-avatar" id="providerAvatarPreview" data-empty="true"></div>
+          <div class="provider-media-actions">
+            <label class="provider-secondary-button">Change photo<input type="file" accept="image/*" id="providerAvatarInput" hidden></label>
+            <label class="provider-secondary-button">Change cover<input type="file" accept="image/*" id="providerCoverInput" hidden></label>
+          </div>
+        </div>
+        <p class="provider-status" id="providerImageryStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="provider-card">
+        <h2>Equipment gallery</h2>
+        <p class="provider-muted">Showcase your machinery and tools — up to 30 photos.</p>
+        <label class="provider-button provider-upload-btn">Add equipment photos<input type="file" accept="image/*" id="providerEquipmentInput" multiple hidden></label>
+        <p class="provider-status" id="providerEquipmentStatus" role="status" aria-live="polite"></p>
+        <div class="provider-gallery" id="providerEquipmentGallery"></div>
+      </section>
+
+      <section class="provider-card">
+        <h2>Posts</h2>
+        <p class="provider-muted">Share updates and photos. These appear as a timeline on your profile.</p>
+        <form class="provider-post-form" id="providerPostForm">
+          <textarea name="content" placeholder="Share an update, a new piece of equipment, a completed job…" maxlength="2000"></textarea>
+          <div class="provider-post-actions">
+            <label class="provider-secondary-button">Add photos<input type="file" accept="image/*" id="providerPostImages" multiple hidden></label>
+            <span class="provider-muted" id="providerPostFileHint"></span>
+            <button class="provider-button" type="submit">Publish post</button>
+          </div>
+        </form>
+        <p class="provider-status" id="providerPostStatus" role="status" aria-live="polite"></p>
+        <div class="provider-timeline" id="providerPostTimeline"></div>
+      </section>
     </section>
   </main>
   <script type="module" src="assets/js/provider-profile.js"></script>
