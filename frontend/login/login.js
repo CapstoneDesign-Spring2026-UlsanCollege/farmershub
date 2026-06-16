@@ -248,13 +248,22 @@ async function handleLogin(email, password) {
 
 
   showMessage("Login successful! Redirecting...", "success");
-  setTimeout(() => {
-    if (user.role === "admin") {
-      window.location.href = "../admin.html";
-    } else {
-      window.location.href = user.role === "customer" ? "../customer.html" : "../index.html";
-    }
-  }, 1000);
+
+  const destination =
+    user.role === "admin" ? "../admin.html" :
+    user.role === "customer" ? "../customer.html" : "../index.html";
+
+  if (window.FarmersHubIntro) {
+    window.FarmersHubIntro.play({
+      logoSrc: "../assets/images/logorefined.png",
+      text: "FarmersHub",
+      nextUrl: destination,
+    });
+  } else {
+    setTimeout(() => {
+      window.location.href = destination;
+    }, 1000);
+  }
 }
 
 async function onSubmit(event) {
