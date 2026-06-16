@@ -23,6 +23,8 @@ const serviceRequestRoutes = require('./routes/serviceRequests.routes');
 const adminRoutes = require('./routes/admin.routes');
 const orderRoutes = require('./routes/orders.routes');
 const marketEventRoutes = require('./routes/marketEvents.routes');
+const walletRoutes = require('./routes/wallet.routes');
+const deliveryPartnerRoutes = require('./routes/deliveryPartners.routes');
 
 const app = express();
 
@@ -129,6 +131,8 @@ app.use('/api/service-requests', serviceRequestRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/market-events', marketEventRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/delivery-partners', deliveryPartnerRoutes);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((_req, res) => {

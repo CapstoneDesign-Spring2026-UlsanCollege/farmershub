@@ -12,6 +12,9 @@ const ProviderProfile = require('../models/ProviderProfile');
 const { FarmServiceListing } = require('../models/FarmServiceListing');
 const { FarmServiceRequest } = require('../models/FarmServiceRequest');
 const { Order, ORDER_STATUSES } = require('../models/Order');
+const { RechargeRequest } = require('../models/RechargeRequest');
+const walletService = require('../services/walletService');
+const { refundOrder } = require('./orderController');
 const AdminActionLog = require('../models/AdminActionLog');
 const AdminAnnouncement = require('../models/AdminAnnouncement');
 const AdminSetting = require('../models/AdminSetting');
@@ -627,6 +630,10 @@ async function updateOrder(req, res, next) {
     const order = await Order.findById(req.params.id);
     if (!order) return errorResponse(res, 'Order not found', 404);
 
+    if (status === 'cancelled') {
+      await refundOrder(order);
+    }
+
     order.status = status;
     order.statusHistory.push({
       status,
@@ -994,8 +1001,89 @@ async function assistantQuery(req, res, next) {
   }
 }
 
+function serializeRechargeRequest(request) {
+  return {
+    id: toId(request),
+    requester: toId(request.requester),
+    requesterName: request.requesterName,
+    requesterRole: request.requesterRole,
+    amount: request.amount,
+    status: request.status,
+    note: request.note,
+    reviewNote: request.reviewNote,
+    reviewedAt: request.reviewedAt,
+    createdAt: request.createdAt,
+  };
+}
+
+async function listRechargeRequests(req, res, next) {
+  try {
+    const { page, limit, skip } = getPaging(req.query);
+    const { status } = req.query;
+    const filter = {};
+    if (status && ['pending', 'approved', 'rejected'].includes(status)) filter.status = status;
+
+    const [requests, total, pendingCount] = await Promise.all([
+      RechargeRequest.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      RechargeRequest.countDocuments(filter),
+      RechargeRequest.countDocuments({ status: 'pending' }),
+    ]);
+
+    return successResponse(res, 'Recharge requests', {
+      requests: requests.map(serializeRechargeRequest),
+      pendingCount,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function reviewRechargeRequest(req, res, next) {
+  try {
+    const action = String(req.body.action || '').toLowerCase();
+    if (!['approve', 'reject'].includes(action)) {
+      return errorResponse(res, "Action must be 'approve' or 'reject'", 400);
+    }
+
+    const request = await RechargeRequest.findById(req.params.id);
+    if (!request) return errorResponse(res, 'Recharge request not found', 404);
+    if (request.status !== 'pending') {
+      return errorResponse(res, `This request was already ${request.status}`, 409);
+    }
+
+    request.status = action === 'approve' ? 'approved' : 'rejected';
+    request.reviewedBy = req.user._id;
+    request.reviewedAt = new Date();
+    request.reviewNote = String(req.body.note || '').trim().slice(0, 300);
+
+    if (action === 'approve') {
+      await walletService.credit(request.requester, request.amount, {
+        type: 'recharge',
+        description: 'Wallet recharge approved by administrator',
+        relatedId: request._id,
+        relatedModel: 'RechargeRequest',
+      });
+    }
+    await request.save();
+
+    const title = action === 'approve' ? 'Recharge approved' : 'Recharge rejected';
+    const body = action === 'approve'
+      ? `${request.amount.toLocaleString()} won has been added to your wallet.`
+      : `Your recharge request for ${request.amount.toLocaleString()} won was rejected.${request.reviewNote ? ` Note: ${request.reviewNote}` : ''}`;
+    await createNotification(request.requester, 'wallet', title, body, request._id, 'RechargeRequest');
+    await recordAdminLog(req.user, `recharge_${action}`, 'RechargeRequest', request._id, { amount: request.amount }, req);
+
+    return successResponse(res, `Recharge request ${request.status}`, serializeRechargeRequest(request));
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getOverview,
+  listRechargeRequests,
+  reviewRechargeRequest,
   listUsers,
   getUserDetails,
   deleteUser,

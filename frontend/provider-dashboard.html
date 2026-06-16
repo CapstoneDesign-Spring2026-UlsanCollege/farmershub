@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/provider-dashboard.css">
+  <link rel="stylesheet" href="assets/css/wallet.css">
 </head>
 <body class="provider-page">
   <header class="provider-topbar">
@@ -47,6 +48,10 @@
         <article class="provider-card provider-metric"><span class="provider-pill">Quoted</span><strong id="providerQuotedRequestCount">0</strong><p>Awaiting farmer decision.</p></article>
       </section>
       <section class="provider-two-column">
+        <div id="providerWallet" style="align-self:start;"></div>
+        <section class="provider-card" id="providerDeliveryPartners"></section>
+      </section>
+      <section class="provider-two-column">
         <section class="provider-card">
           <h2>Recent Listings</h2>
           <div class="provider-list" id="providerDashboardListings" aria-live="polite"></div>
@@ -59,5 +64,11 @@
     </section>
   </main>
   <script type="module" src="assets/js/provider-dashboard.js"></script>
+  <script type="module">
+    import { initWalletWidget } from './assets/js/wallet-widget.js';
+    import { initProviderDelivery } from './assets/js/provider-delivery.js';
+    initWalletWidget({ mount: '#providerWallet' });
+    initProviderDelivery({ mount: '#providerDeliveryPartners' });
+  </script>
 </body>
 </html>

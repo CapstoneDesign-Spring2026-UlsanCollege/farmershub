@@ -12,6 +12,8 @@ const {
   listOrders,
   updateOrder,
   deleteOrder,
+  listRechargeRequests,
+  reviewRechargeRequest,
   listMessages,
   deleteMessage,
   deleteConversation,
@@ -45,6 +47,9 @@ router.delete('/uploads', deleteUpload);
 router.get('/orders', listOrders);
 router.patch('/orders/:id', updateOrder);
 router.delete('/orders/:id', deleteOrder);
+
+router.get('/recharge-requests', listRechargeRequests);
+router.patch('/recharge-requests/:id', reviewRechargeRequest);
 
 router.get('/messages', listMessages);
 router.delete('/messages/conversation/:userA/:userB', deleteConversation);

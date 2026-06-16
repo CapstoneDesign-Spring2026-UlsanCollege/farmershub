@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/customer-home.css">
   <link rel="stylesheet" href="assets/css/farmer-dashboard.css">
+  <link rel="stylesheet" href="assets/css/wallet.css">
 </head>
 
 <body>
@@ -290,6 +291,7 @@
   </section>
 
   <aside class="fd-rightbar">
+    <div id="fdWallet"></div>
     <section class="fd-panel">
       <div class="fd-heading">
         <h3>Store Overview</h3>
@@ -578,5 +580,9 @@
 </template>
 <script type="module" src="assets/js/farmer-dashboard.js"></script>
 <script type="module" src="assets/js/main.js"></script>
+<script type="module">
+  import { initWalletWidget } from './assets/js/wallet-widget.js';
+  initWalletWidget({ mount: '#fdWallet' });
+</script>
 </body>
 </html>
