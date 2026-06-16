@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
-const Farmer = require('./models/Farmer');
-const Customer = require('./models/Customer');
+const User = require('./models/User');
 const Product = require('./models/Product');
 
 const memory = {
@@ -61,16 +60,8 @@ function toProductApi(product) {
   };
 }
 
-function mapRoleToModel(role) {
-  if (role === 'farmer') {
-    return Farmer;
-  }
-
-  if (role === 'customer') {
-    return Customer;
-  }
-
-  return null;
+function mapRoleToModel(_role) {
+  return User;
 }
 
 async function findByEmailAcrossRoles(email, useMemory) {
@@ -88,14 +79,9 @@ async function findByEmailAcrossRoles(email, useMemory) {
     return null;
   }
 
-  const farmer = await Farmer.findOne({ email });
-  if (farmer) {
-    return { role: 'farmer', user: farmer };
-  }
-
-  const customer = await Customer.findOne({ email });
-  if (customer) {
-    return { role: 'customer', user: customer };
+  const found = await User.findOne({ email });
+  if (found) {
+    return { role: found.role, user: found };
   }
 
   return null;
@@ -190,7 +176,7 @@ function createStore({ useMemory }) {
     }
 
     const Model = mapRoleToModel(role);
-    const records = await Model.find({}, '-password').sort({ createdAt: -1 });
+    const records = await Model.find({ role }, '-password').sort({ createdAt: -1 });
     return records.map((record) => toUserPublic(record, role));
   }
 

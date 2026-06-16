@@ -17,6 +17,7 @@ async function listFarmers(req, res) {
         }
 
         query.role = 'farmer';
+        query.isActive = true;
 
         if (location) {
             query.address = { $regex: location, $options: 'i' };

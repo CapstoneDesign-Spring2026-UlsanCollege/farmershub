@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const { FarmServiceRequest } = require('../models/FarmServiceRequest');
 const { createNotification } = require('./notificationController');
 const { toUploadPath } = require('../middleware/upload');
+const { buildMediaUrl } = require('../services/mediaUrlService');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 /**
@@ -60,7 +61,7 @@ const sendMessage = async (req, res, next) => {
     const { receiverId, content, relatedProduct, relatedServiceRequest } = req.body;
     const cleanContent = String(content || '').trim();
     const attachments = (req.files || []).map((file) => ({
-      url: toUploadPath(file),
+      url: buildMediaUrl(req, toUploadPath(file)),
       filename: file.filename,
       originalName: file.originalname,
       mimeType: file.mimetype,

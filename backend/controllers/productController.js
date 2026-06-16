@@ -119,21 +119,49 @@ async function getProducts(req, res) {
 
         if (category) query.category = String(category).toLowerCase();
         if (farmerId) query['seller.userId'] = farmerId;
-        if (search) query.$text = { $search: search };
         if (minPrice || maxPrice) {
             query.sellingPrice = {};
             if (minPrice) query.sellingPrice.$gte = Number(minPrice);
             if (maxPrice) query.sellingPrice.$lte = Number(maxPrice);
         }
 
-        const products = await Product.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(pageSize);
+        let products;
+        let total;
+        if (search) {
+            try {
+                [products, total] = await Promise.all([
+                    Product.find({ ...query, $text: { $search: search } })
+                        .sort({ score: { $meta: 'textScore' } })
+                        .skip(skip)
+                        .limit(pageSize),
+                    Product.countDocuments(query),
+                ]);
+            } catch {
+                [products, total] = await Promise.all([
+                    Product.find({ ...query, name: { $regex: search, $options: 'i' } })
+                        .sort({ createdAt: -1 })
+                        .skip(skip)
+                        .limit(pageSize),
+                    Product.countDocuments(query),
+                ]);
+            }
+        } else {
+            [products, total] = await Promise.all([
+                Product.find(query)
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(pageSize),
+                Product.countDocuments(query),
+            ]);
+        }
 
         return res.json({
             success: true,
             data: products.map(product => serializeProduct(product, req)),
+            total,
+            pages: Math.ceil(total / pageSize),
+            page: pageNumber,
+            limit: pageSize,
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Failed to load products.' });
@@ -220,40 +248,48 @@ async function placeOrder(req, res, next) {
 
         const unitPrice = Number((product.sellingPrice - (product.sellingPrice * (product.discount || 0) / 100)).toFixed(2));
         let order;
-        try {
-            order = await Order.create({
-                orderNumber: `FH-${Date.now()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-                product: {
-                    productId: product._id,
-                    name: product.name,
-                    unit: product.unit,
-                    unitPrice,
-                },
-                customer: {
-                    userId: req.user._id,
-                    name: req.user.fullName,
-                    email: req.user.email,
-                    phone: req.user.phone || '',
-                },
-                farmer: {
-                    userId: product.seller.userId,
-                    name: product.seller.name,
-                    email: product.seller.email,
-                    phone: product.seller.phone || '',
-                },
-                quantity: quantityNumber,
-                totalAmount: unitPrice * quantityNumber,
-                notes: String(notes || '').trim(),
-                statusHistory: [{
-                    status: 'pending',
-                    changedBy: req.user._id,
-                    note: 'Order placed by customer',
-                    changedAt: new Date(),
-                }],
-            });
-        } catch (error) {
-            await Product.updateOne({ _id: product._id }, { $inc: { stock: quantityNumber } });
-            throw error;
+        let attempts = 0;
+        while (!order && attempts < 3) {
+            attempts++;
+            const ts = Date.now();
+            const rand = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            try {
+                order = await Order.create({
+                    orderNumber: `FH-${ts}-${rand}`,
+                    product: {
+                        productId: product._id,
+                        name: product.name,
+                        unit: product.unit,
+                        unitPrice,
+                    },
+                    customer: {
+                        userId: req.user._id,
+                        name: req.user.fullName,
+                        email: req.user.email,
+                        phone: req.user.phone || '',
+                    },
+                    farmer: {
+                        userId: product.seller.userId,
+                        name: product.seller.name,
+                        email: product.seller.email,
+                        phone: product.seller.phone || '',
+                    },
+                    quantity: quantityNumber,
+                    totalAmount: unitPrice * quantityNumber,
+                    notes: String(notes || '').trim(),
+                    statusHistory: [{
+                        status: 'pending',
+                        changedBy: req.user._id,
+                        note: 'Order placed by customer',
+                        changedAt: new Date(),
+                    }],
+                });
+            } catch (error) {
+                if (attempts >= 3 || error.code !== 11000) {
+                    await Product.updateOne({ _id: product._id }, { $inc: { stock: quantityNumber } });
+                    throw error;
+                }
+            }
         }
 
         // Move virtual money from the customer to the farmer for this order.
