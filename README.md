@@ -2,6 +2,9 @@
 
 FarmersHub is a marketplace and community web app connecting farmers and customers through product listings, profile pages, and social-style posts.
 
+## Deployed Link
+https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/
+
 ## Project Structure
 - `frontend/`: static client app for GitHub Pages
 - `backend/`: Express API, auth, MongoDB models, upload handling
