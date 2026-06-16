@@ -6,15 +6,7 @@ function detectApiBase() {
   const runtimeOverride = normalizeBase(window.FARMERSHUB_API_BASE);
   if (runtimeOverride) return runtimeOverride;
 
-  if (window.location.protocol === 'file:') {
-    return 'https://farmershub-kkjd.onrender.com/api';
-  }
-
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  }
-
+  // Always use the deployed backend so every page shares one database.
   return 'https://farmershub-kkjd.onrender.com/api';
 }
 

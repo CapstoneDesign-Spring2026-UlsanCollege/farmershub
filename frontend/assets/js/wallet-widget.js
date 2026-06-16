@@ -23,6 +23,7 @@ function txLabel(tx) {
     order_payment: tx.direction === 'debit' ? 'Order payment' : 'Order received',
     order_refund: 'Order refund',
     delivery_fee: tx.direction === 'debit' ? 'Delivery fee paid' : 'Delivery earnings',
+    service_payment: tx.direction === 'debit' ? 'Service payment' : 'Service earnings',
     adjustment: 'Adjustment',
   };
   return tx.description || map[tx.type] || tx.type;

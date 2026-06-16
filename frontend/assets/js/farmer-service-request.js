@@ -41,7 +41,9 @@ function renderSubmittedRequest(request) {
     accept.addEventListener('click', async () => {
       try {
         await acceptServiceRequestQuote(request.id);
-        setStatus('farmerServiceRequestStatus', 'Quote accepted.');
+        // Accepting pays the provider from the farmer's wallet — refresh balance.
+        window.dispatchEvent(new CustomEvent('fh-wallet-changed'));
+        setStatus('farmerServiceRequestStatus', 'Quote accepted and paid.');
         await loadExistingRequest(request.id);
       } catch (error) {
         setStatus('farmerServiceRequestStatus', error.message || 'Unable to accept quote.', 'error');

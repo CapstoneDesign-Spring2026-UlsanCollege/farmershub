@@ -36,8 +36,14 @@ async function reload() {
       accept.className = 'farmer-service-secondary-button';
       accept.textContent = 'Accept quote';
       accept.addEventListener('click', async () => {
-        await acceptServiceRequestQuote(request.id);
-        await reload();
+        try {
+          await acceptServiceRequestQuote(request.id);
+          // Accepting pays the provider from the farmer's wallet — refresh balance.
+          window.dispatchEvent(new CustomEvent('fh-wallet-changed'));
+          await reload();
+        } catch (error) {
+          setStatus('farmerServiceRequestsStatus', error.message || 'Unable to accept quote.', 'error');
+        }
       });
       actions.appendChild(accept);
     }

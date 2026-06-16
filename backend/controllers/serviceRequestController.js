@@ -2,6 +2,7 @@ const { FarmServiceListing } = require('../models/FarmServiceListing');
 const { FarmServiceRequest } = require('../models/FarmServiceRequest');
 const { createNotification } = require('./notificationController');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const walletService = require('../services/walletService');
 
 function userIdOf(user) {
   return String(user?._id || user?.id || '');
@@ -261,13 +262,33 @@ async function acceptServiceRequestQuote(req, res, next) {
       return errorResponse(res, 'Only quoted requests can be accepted', 400);
     }
 
+    const quotedAmount = asNumber(request.quote && request.quote.amount, 0);
+    if (quotedAmount <= 0) {
+      return errorResponse(res, 'This request has no valid quoted amount to accept', 400);
+    }
+
+    // Accepting the quote is the purchase: move the quoted amount from the
+    // farmer to the provider before marking the request accepted, mirroring how
+    // orders and delivery fees are charged on commit. If the transfer fails
+    // (e.g. insufficient funds) the request stays 'quoted' so it can be retried.
+    await walletService.transfer(req.user._id, request.provider.userId, quotedAmount, {
+      type: 'service_payment',
+      debitDescription: `Service — ${request.provider.businessName || 'provider'} (request ${request._id})`,
+      creditDescription: `Service — ${request.farmer.name || 'farmer'} (request ${request._id})`,
+      fromCounterparty: walletService.counterpartyFrom(req.user),
+      toCounterparty: { userId: request.provider.userId, name: request.provider.businessName || request.provider.name, role: 'provider' },
+      relatedId: request._id,
+      relatedModel: 'FarmServiceRequest',
+      insufficientMessage: 'Your wallet balance is too low to accept this quote. Recharge your wallet and try again.',
+    });
+
     request.status = 'accepted';
     await request.save();
     await request.populate('listing', 'title category listingType pricingType price');
     await notify(
       request.provider.userId,
       'Service quote accepted',
-      `${request.farmer.name} accepted your quote for ${request.listing.title}.`,
+      `${request.farmer.name} accepted and paid your quote for ${request.listing.title}.`,
       request._id
     );
 
