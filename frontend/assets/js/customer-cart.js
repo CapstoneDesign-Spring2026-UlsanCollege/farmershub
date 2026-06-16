@@ -208,6 +208,8 @@ async function checkout() {
   if (succeeded.length) {
     const succeededIds = new Set(succeeded.map((item) => item.id));
     saveCartItems(getCartItems().filter((item) => !succeededIds.has(item.id)));
+    // Each placed order debits the customer's wallet, so refresh the balance card.
+    window.dispatchEvent(new CustomEvent('fh-wallet-changed'));
   }
 
   if (!failed.length) {

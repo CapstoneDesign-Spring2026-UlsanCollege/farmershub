@@ -4,7 +4,6 @@
  */
 
 const PRODUCTION_API_BASE = 'https://farmershub-kkjd.onrender.com/api';
-const LOCAL_API_BASE = 'http://localhost:5000/api';
 const REQUEST_TIMEOUT_MS = 15000;
 
 function normalizeBase(url) {
@@ -17,22 +16,13 @@ function detectApiBase() {
   const runtimeOverride = normalizeBase(window.FARMERSHUB_API_BASE);
   if (runtimeOverride) return runtimeOverride;
 
-  // Support local development when opening static files directly (file://).
-  if (window.location.protocol === 'file:') {
-    return PRODUCTION_API_BASE;
-  }
-
-  // When the app is served from a local backend (the dev setup serves the
-  // frontend from the same Express server), talk to that same-origin API.
-  // This keeps every page on one backend — previously only login/admin pages
-  // set this, so other pages silently hit the production API and showed stale
-  // data (e.g. a recharged wallet balance reading 0 from the wrong database).
-  const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return normalizeBase(`${window.location.origin}/api`);
-  }
-
-  // Default to the deployed API unless explicitly overridden.
+  // The live backend is the deployed Render instance, not a local server.
+  // Every page must talk to that one remote backend so all pages share a
+  // single database — even in dev when the frontend is opened from localhost
+  // (the local Express server only serves static files). Previously localhost
+  // pages hit the local same-origin API, landing on a different database and
+  // showing stale data (e.g. a recharged wallet balance reading 0).
+  // Override with window.FARMERSHUB_API_BASE if you really do run a local API.
   return PRODUCTION_API_BASE;
 }
 

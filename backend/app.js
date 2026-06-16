@@ -28,6 +28,14 @@ const deliveryPartnerRoutes = require('./routes/deliveryPartners.routes');
 
 const app = express();
 
+// Render (and most PaaS hosts) put the app behind a reverse proxy, so the
+// client IP arrives in X-Forwarded-For. Trust the first proxy hop so
+// express-rate-limit keys on the real client IP instead of collapsing every
+// user into the proxy's single IP bucket (which made the whole app share one
+// rate-limit budget and return 429 for everyone). Use the number 1 rather than
+// `true` to avoid express-rate-limit's permissive-trust-proxy validation error.
+app.set('trust proxy', 1);
+
 // ── Security headers ───────────────────────────────────────────────────────────
 const isProduction = process.env.NODE_ENV === 'production';
 app.use(
@@ -72,9 +80,15 @@ app.use(
 // ── Global rate limiter ────────────────────────────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+  // A single dashboard load fans out into ~10-15 GETs (products, profile,
+  // notifications, wallet balance + recharge requests, feed, …), so 200 was
+  // exhausted after only a handful of page loads. 1000/15min leaves ample
+  // headroom for normal use while still capping abuse.
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  // CORS preflight requests shouldn't burn the budget.
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Too many requests — please try again later' },
 });
 app.use('/api', limiter);

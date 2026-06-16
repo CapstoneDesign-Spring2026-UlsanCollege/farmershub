@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Categories of money movement, used for labelling and filtering the ledger.
-const TX_TYPES = ['recharge', 'order_payment', 'order_refund', 'delivery_fee', 'adjustment'];
+const TX_TYPES = ['recharge', 'order_payment', 'order_refund', 'delivery_fee', 'service_payment', 'adjustment'];
 
 /**
  * Immutable ledger entry. A transfer between two accounts produces two entries
@@ -55,7 +55,7 @@ const walletTransactionSchema = new mongoose.Schema(
     },
     relatedModel: {
       type: String,
-      enum: ['Order', 'RechargeRequest', 'DeliveryPartner'],
+      enum: ['Order', 'RechargeRequest', 'DeliveryPartner', 'FarmServiceRequest'],
     },
   },
   { timestamps: true }
