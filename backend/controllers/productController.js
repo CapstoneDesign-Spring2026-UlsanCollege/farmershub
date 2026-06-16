@@ -3,6 +3,7 @@ const { Order } = require('../models/Order');
 const { buildMediaUrl } = require('../services/mediaUrlService');
 const { toUploadPath } = require('../middleware/upload');
 const { createNotification } = require('./notificationController');
+const walletService = require('../services/walletService');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 function firstValue(value, fallback = '') {
@@ -252,6 +253,36 @@ async function placeOrder(req, res, next) {
             });
         } catch (error) {
             await Product.updateOne({ _id: product._id }, { $inc: { stock: quantityNumber } });
+            throw error;
+        }
+
+        // Move virtual money from the customer to the farmer for this order.
+        try {
+            const { transferId } = await walletService.transfer(
+                req.user._id,
+                product.seller.userId,
+                order.totalAmount,
+                {
+                    type: 'order_payment',
+                    debitDescription: `Order ${order.orderNumber} — ${product.name}`,
+                    creditDescription: `Order ${order.orderNumber} — ${product.name}`,
+                    fromCounterparty: walletService.counterpartyFrom(req.user),
+                    toCounterparty: { userId: product.seller.userId, name: product.seller.name, role: 'farmer' },
+                    relatedId: order._id,
+                    relatedModel: 'Order',
+                    insufficientMessage: 'Your wallet balance is too low for this order. Recharge your wallet and try again.',
+                }
+            );
+            order.paymentStatus = 'paid';
+            order.paymentTransferId = transferId;
+            await order.save();
+        } catch (error) {
+            // Payment failed (usually insufficient funds): undo the order and restore stock.
+            await Order.deleteOne({ _id: order._id });
+            await Product.updateOne({ _id: product._id }, { $inc: { stock: quantityNumber } });
+            if (error.statusCode === 400) {
+                return errorResponse(res, error.message, 400);
+            }
             throw error;
         }
 

@@ -61,6 +61,22 @@ const orderSchema = new mongoose.Schema(
       enum: ORDER_STATUSES,
       default: 'pending',
     },
+    // Wallet payment state for the customer -> farmer transfer.
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'paid', 'refunded'],
+      default: 'unpaid',
+    },
+    paymentTransferId: { type: String, default: '', trim: true },
+    // Delivery partner the farmer assigned when shipping the order.
+    delivery: {
+      partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+      providerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      providerName: { type: String, default: '', trim: true },
+      partnerName: { type: String, default: '', trim: true },
+      fee: { type: Number, default: 0, min: 0 },
+      assignedAt: { type: Date },
+    },
     statusHistory: [
       {
         status: { type: String, enum: ORDER_STATUSES },

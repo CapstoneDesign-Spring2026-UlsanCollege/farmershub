@@ -1,17 +1,23 @@
 import { apiFetch, jsonHeaders } from './config/api.config.js';
+import { openDeliveryPicker } from './delivery-picker.js';
 
 const ordersStatus = document.getElementById('ordersStatus');
 const ordersList = document.getElementById('ordersList');
 const statusFilter = document.getElementById('statusFilter');
 
+// Shipping happens through the delivery-partner picker, not the status dropdown,
+// so 'shipped' is intentionally absent here.
 const NEXT_STATUSES = {
   pending:    ['confirmed', 'cancelled'],
   confirmed:  ['processing', 'cancelled'],
-  processing: ['shipped', 'cancelled'],
+  processing: ['cancelled'],
   shipped:    ['delivered'],
   delivered:  [],
   cancelled:  [],
 };
+
+// Statuses from which a farmer may ship the order by assigning a delivery partner.
+const SHIPPABLE_STATUSES = ['confirmed', 'processing'];
 
 const STATUS_LABELS = {
   pending: 'Pending', confirmed: 'Confirmed', processing: 'Processing',
@@ -84,10 +90,38 @@ function renderOrderCard(order) {
     card.appendChild(notes);
   }
 
+  if (order.delivery && order.delivery.partnerName) {
+    const del = document.createElement('p');
+    del.style.cssText = 'margin:6px 0 0;font-size:13px;color:var(--fw-muted);';
+    del.textContent = `Delivery: ${order.delivery.partnerName} (${formatCurrency(order.delivery.fee || 0)}) via ${order.delivery.providerName || 'provider'}`;
+    card.appendChild(del);
+  }
+
   const nextStatuses = NEXT_STATUSES[order.status] || [];
-  if (nextStatuses.length) {
+  const canShip = SHIPPABLE_STATUSES.includes(order.status);
+  if (nextStatuses.length || canShip) {
     const controls = document.createElement('div');
     controls.className = 'farmer-order-controls';
+
+    if (canShip) {
+      const shipBtn = document.createElement('button');
+      shipBtn.type = 'button';
+      shipBtn.className = 'workspace-primary';
+      shipBtn.textContent = 'Ship (choose delivery)';
+      shipBtn.style.cssText = 'min-height:36px;font-size:13px;';
+      shipBtn.addEventListener('click', async () => {
+        const updatedOrder = await openDeliveryPicker(order.id);
+        if (updatedOrder) {
+          card.replaceWith(renderOrderCard(updatedOrder));
+        }
+      });
+      controls.appendChild(shipBtn);
+    }
+
+    if (!nextStatuses.length) {
+      card.appendChild(controls);
+      return card;
+    }
 
     const select = document.createElement('select');
     select.style.cssText = 'min-height:36px;padding:0 10px;border:1px solid var(--fw-border);border-radius:10px;background:#fff;color:var(--fw-text);font:inherit;font-size:13px;cursor:pointer;';

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="customer.css">
+  <link rel="stylesheet" href="assets/css/wallet.css">
 </head>
 <body>
   <div class="buyer-app">
@@ -60,6 +61,8 @@
           </div>
         </div>
       </section>
+
+      <div id="customerWallet" style="margin-bottom:18px;max-width:420px;"></div>
 
       <section class="feature-grid" aria-label="Customer benefits">
         <article>
@@ -190,5 +193,9 @@
   </template>
 
   <script type="module" src="customer.js"></script>
+  <script type="module">
+    import { initWalletWidget } from './assets/js/wallet-widget.js';
+    initWalletWidget({ mount: '#customerWallet' });
+  </script>
 </body>
 </html>

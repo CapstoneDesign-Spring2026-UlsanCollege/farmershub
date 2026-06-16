@@ -64,6 +64,7 @@ async function seed() {
         address: '123 Main Street, Denver, CO',
         phone: '+1 (555) 200-3000',
         paymentMethod: 'card',
+        walletBalance: 300000,
     });
     console.log('Created customer:', customer.email);
 

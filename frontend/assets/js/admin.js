@@ -539,6 +539,69 @@ async function loadOrders(params = {}) {
   `;
 }
 
+function rechargesTable(requests) {
+  if (!requests.length) return emptyState('No recharge requests found.');
+  return `
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Requester</th><th>Role</th><th>Amount</th><th>Note</th><th>Status</th><th>Requested</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          ${requests.map((req) => `
+            <tr>
+              <td>${escapeHtml(req.requesterName || '')}</td>
+              <td>${escapeHtml(req.requesterRole || '')}</td>
+              <td>${money(req.amount)}</td>
+              <td>${escapeHtml(req.note || '')}</td>
+              <td>${escapeHtml(req.status)}</td>
+              <td>${formatDate(req.createdAt)}</td>
+              <td>
+                ${req.status === 'pending' ? `
+                  <button class="admin-button" type="button" data-action="approve-recharge" data-id="${escapeHtml(req.id)}">Approve</button>
+                  <button class="admin-button-danger" type="button" data-action="reject-recharge" data-id="${escapeHtml(req.id)}">Reject</button>
+                ` : `<small>${req.reviewedAt ? formatDate(req.reviewedAt) : ''}${req.reviewNote ? ` · ${escapeHtml(req.reviewNote)}` : ''}</small>`}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function loadRecharges(params = {}) {
+  setLoading('Loading recharge requests', 'Fetching wallet top-up requests.');
+  const query = new URLSearchParams({ limit: 100, ...params }).toString();
+  const response = await adminFetch(`/admin/recharge-requests?${query}`, { headers: jsonHeaders() });
+  const requests = response.data?.requests || [];
+  const pendingCount = response.data?.pendingCount ?? 0;
+  const statuses = ['all', 'pending', 'approved', 'rejected'];
+  content.innerHTML = `
+    ${pageTitle('Wallet Recharges', `Approve or reject virtual money top-up requests. ${pendingCount} pending.`)}
+    <section class="admin-card">
+      <form class="admin-filters" data-admin-form="recharges">
+        <select class="admin-field" name="status">
+          ${statuses.map((status) => `<option value="${status}" ${params.status === status ? 'selected' : ''}>${status}</option>`).join('')}
+        </select>
+        <span></span>
+        <button class="admin-button" type="submit">Filter</button>
+      </form>
+      ${rechargesTable(requests)}
+    </section>
+  `;
+}
+
+async function reviewRecharge(id, action) {
+  await adminFetch(`/admin/recharge-requests/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: jsonHeaders(),
+    body: JSON.stringify({ action, note: action === 'approve' ? 'Approved from Admin Panel' : 'Rejected from Admin Panel' }),
+  });
+  showToast(`Recharge ${action === 'approve' ? 'approved' : 'rejected'}.`);
+  await loadRecharges();
+}
+
 function messagesTable(messages) {
   if (!messages.length) return emptyState('No messages found.');
   return `
@@ -755,6 +818,7 @@ async function loadSection(section = currentSection, params = {}) {
     else if (section === 'users') await loadUsers(params);
     else if (section === 'products') await loadProductsAndUploads(params);
     else if (section === 'orders') await loadOrders(params);
+    else if (section === 'recharges') await loadRecharges(params);
     else if (section === 'messages') await loadMessages(params);
     else if (section === 'settings') await loadSettings();
     else if (section === 'announcements') await loadAnnouncements();
@@ -874,6 +938,7 @@ async function handleAdminForm(form) {
   if (type === 'users') return loadUsers(formParams(form));
   if (type === 'products') return loadProductsAndUploads(formParams(form));
   if (type === 'orders') return loadOrders(formParams(form));
+  if (type === 'recharges') return loadRecharges(formParams(form));
   if (type === 'messages') return loadMessages(formParams(form));
 
   if (type === 'settings') {
@@ -1047,6 +1112,10 @@ content.addEventListener('click', async (event) => {
         showToast("Backup downloaded.");
     } else if (action === 'assistant-chip') {
       await sendAssistantPrompt(prompt);
+    } else if (action === 'approve-recharge') {
+      await reviewRecharge(id, 'approve');
+    } else if (action === 'reject-recharge') {
+      if (window.confirm('Reject this recharge request?')) await reviewRecharge(id, 'reject');
     } else {
       await deleteByAction(action, id);
     }

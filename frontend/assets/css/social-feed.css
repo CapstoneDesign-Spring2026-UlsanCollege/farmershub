@@ -76,13 +76,15 @@ svg {
   top: 22px;
   height: calc(100vh - 44px);
   min-height: 0;
-  padding: clamp(15px, 2.4vh, 22px);
+  padding: 16px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  border-radius: 32px;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
+  /* Match the dashboard workspace panels so navigating Dashboard -> Social Feed
+     does not visually jump between a floating bubble and a flat card. */
+  border-radius: 18px;
+  border: 1px solid rgba(31, 122, 77, 0.12);
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(15, 34, 23, 0.06);
 }
 
 .feed-brand {
@@ -104,23 +106,23 @@ svg {
 
 .feed-menu {
   min-height: 0;
-  display: grid;
-  grid-template-rows: repeat(9, minmax(38px, 46px));
-  align-content: space-between;
-  gap: clamp(4px, 0.8vh, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
 }
 
 .feed-menu a {
-  min-height: 0;
-  height: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 14px;
-  border-radius: 18px;
+  gap: 11px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 11px;
   color: #556857;
-  font-weight: 800;
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 160ms ease, color 160ms ease;
 }
 
 .feed-menu a svg {
@@ -128,14 +130,14 @@ svg {
   height: 20px;
 }
 
-.feed-menu a:hover,
-.feed-menu a.active {
-  background: linear-gradient(135deg, var(--green), var(--green-light));
-  color: var(--white);
+.feed-menu a:hover {
+  background: rgba(31, 122, 77, 0.1);
+  color: #1f7a4d;
 }
 
-.feed-menu a:hover {
-  transform: translateX(2px);
+.feed-menu a.active {
+  background: #2e9d63;
+  color: #fff;
 }
 
 .feed-main {

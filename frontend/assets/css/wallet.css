@@ -1,0 +1,172 @@
+/* Virtual wallet widget — balance card, recharge modal and ledger.
+   Scoped with the fh-wallet- prefix so it drops cleanly into every role shell. */
+
+.fh-wallet-card {
+  background: linear-gradient(135deg, #1f7a4d 0%, #2e9d63 100%);
+  color: #fff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 24px rgba(31, 122, 77, 0.22);
+}
+
+.fh-wallet-card__label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.fh-wallet-card__balance {
+  margin: 6px 0 2px;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.fh-wallet-card__hint {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  opacity: 0.8;
+}
+
+.fh-wallet-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fh-wallet-btn {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 9px 16px;
+  transition: transform 0.08s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.fh-wallet-btn:active { transform: translateY(1px); }
+.fh-wallet-btn[disabled] { opacity: 0.6; cursor: default; }
+
+.fh-wallet-btn--primary { background: #fff; color: #1f7a4d; }
+.fh-wallet-btn--primary:hover { background: #eafff3; }
+
+.fh-wallet-btn--ghost {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+.fh-wallet-btn--ghost:hover { background: rgba(255, 255, 255, 0.28); }
+
+.fh-wallet-pending {
+  margin-top: 14px;
+  font-size: 12.5px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.fh-wallet-pending:empty { display: none; }
+
+/* ── Ledger list (used inside the modal) ───────────────────────────────────── */
+.fh-wallet-tx { list-style: none; margin: 0; padding: 0; }
+.fh-wallet-tx__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef1ee;
+  font-size: 13.5px;
+}
+.fh-wallet-tx__desc { color: #213527; }
+.fh-wallet-tx__meta { color: #7b8a80; font-size: 12px; }
+.fh-wallet-tx__amt { font-weight: 700; white-space: nowrap; }
+.fh-wallet-tx__amt--credit { color: #1f7a4d; }
+.fh-wallet-tx__amt--debit { color: #c2410c; }
+.fh-wallet-empty { color: #7b8a80; font-size: 13.5px; padding: 12px 0; }
+
+/* ── Modal ─────────────────────────────────────────────────────────────────── */
+.fh-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 34, 23, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 1000;
+}
+.fh-modal-backdrop.is-open { display: flex; }
+
+.fh-modal {
+  background: #fff;
+  border-radius: 18px;
+  width: min(440px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(15, 34, 23, 0.32);
+}
+.fh-modal__title { margin: 0 0 4px; font-size: 20px; color: #14321f; }
+.fh-modal__subtitle { margin: 0 0 18px; font-size: 13.5px; color: #6c7a70; }
+
+.fh-field { margin-bottom: 14px; }
+.fh-field label { display: block; font-size: 13px; font-weight: 600; color: #2c4434; margin-bottom: 6px; }
+.fh-field input, .fh-field select, .fh-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d4ddd6;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: #1c2e22;
+}
+.fh-field input:focus, .fh-field select:focus, .fh-field textarea:focus {
+  outline: none;
+  border-color: #2e9d63;
+  box-shadow: 0 0 0 3px rgba(46, 157, 99, 0.15);
+}
+
+.fh-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.fh-chip {
+  border: 1px solid #cfe6d8;
+  background: #f1faf4;
+  color: #1f7a4d;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fh-chip:hover { background: #e2f5ea; }
+
+.fh-modal__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.fh-modal__status { font-size: 13px; margin: 4px 0 0; min-height: 18px; }
+.fh-modal__status.is-error { color: #c2410c; }
+.fh-modal__status.is-ok { color: #1f7a4d; }
+
+.fh-btn {
+  border: none; cursor: pointer; font: inherit; font-weight: 700; font-size: 14px;
+  border-radius: 10px; padding: 10px 18px;
+}
+.fh-btn--primary { background: #2e9d63; color: #fff; }
+.fh-btn--primary:hover { background: #268354; }
+.fh-btn--primary[disabled] { opacity: 0.6; cursor: default; }
+.fh-btn--muted { background: #eef1ee; color: #41524a; }
+.fh-btn--muted:hover { background: #e3e8e3; }
+
+/* Delivery partner option cards inside the choose-partner modal */
+.fh-partner { display: grid; gap: 4px; margin: 0; }
+.fh-partner-option {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  border: 1px solid #d4ddd6; border-radius: 12px; padding: 12px 14px; cursor: pointer;
+  margin-bottom: 10px; transition: border-color 0.12s ease, background 0.12s ease;
+}
+.fh-partner-option:hover { border-color: #2e9d63; background: #f6fdf9; }
+.fh-partner-option.is-selected { border-color: #2e9d63; background: #eafff3; }
+.fh-partner-option__name { font-weight: 700; color: #1c2e22; }
+.fh-partner-option__meta { font-size: 12.5px; color: #6c7a70; }
+.fh-partner-option__fee { font-weight: 700; color: #1f7a4d; white-space: nowrap; }

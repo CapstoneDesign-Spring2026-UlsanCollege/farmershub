@@ -71,6 +71,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Virtual wallet balance, stored in Korean won (integer). Credited via
+    // admin-approved recharge requests and moved between accounts on orders/deliveries.
+    walletBalance: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     farmName: { type: String, trim: true },
     farmLocation: { type: String, trim: true },
     farmSizeAcres: { type: Number },
