@@ -16,6 +16,18 @@ const sortButton = document.getElementById('sortButton');
 const searchForm = document.getElementById('feedSearchForm');
 const searchInput = searchForm?.querySelector('input[type="search"]');
 const filterChips = Array.from(document.querySelectorAll('[data-filter-chip]'));
+const trendingList = document.getElementById('trendingCropsList');
+const trendingEmpty = document.getElementById('trendingCropsEmpty');
+const trendingMeta = document.getElementById('trendingCropsMeta');
+
+// Crop keywords used to surface "Trending Crops" from real community post text.
+const CROP_KEYWORDS = [
+  'tomato', 'potato', 'onion', 'carrot', 'cabbage', 'spinach', 'lettuce', 'cucumber', 'pepper', 'chili', 'chilli',
+  'rice', 'wheat', 'corn', 'maize', 'barley', 'millet', 'soybean', 'lentil', 'bean', 'pea', 'garlic', 'ginger',
+  'apple', 'banana', 'mango', 'orange', 'grape', 'strawberry', 'watermelon', 'melon', 'papaya', 'peach', 'pear', 'lemon',
+  'egg', 'milk', 'cheese', 'honey', 'mushroom', 'pumpkin', 'radish', 'beetroot', 'broccoli', 'cauliflower', 'okra',
+  'coffee', 'tea', 'sugarcane', 'cotton', 'coconut', 'avocado', 'pineapple', 'guava', 'plum', 'cherry', 'kiwi',
+];
 
 const SORT_MODES = ['latest', 'oldest', 'popular'];
 const SORT_LABELS = { latest: 'Latest', oldest: 'Oldest', popular: 'Most Liked' };
@@ -396,16 +408,98 @@ function renderPosts() {
   setStatus(`${posts.length} farmer post${posts.length === 1 ? '' : 's'} shown.`);
 }
 
+function computeTrendingCrops(posts) {
+  const counts = new Map();
+
+  const bump = (label) => {
+    const key = label.toLowerCase();
+    counts.set(key, (counts.get(key) || 0) + 1);
+  };
+
+  posts.forEach((post) => {
+    const text = postText(post).toLowerCase();
+    if (!text) return;
+    const seen = new Set();
+
+    // Curated crop keywords (matched with optional plural suffix).
+    CROP_KEYWORDS.forEach((crop) => {
+      if (seen.has(crop)) return;
+      const pattern = new RegExp(`\\b${crop}(?:es|s)?\\b`, 'i');
+      if (pattern.test(text)) {
+        seen.add(crop);
+        bump(crop);
+      }
+    });
+
+    // Hashtags so the feed can surface emerging topics beyond the dictionary.
+    const hashtags = text.match(/#([a-z][a-z0-9_]{2,20})/g) || [];
+    hashtags.forEach((tag) => {
+      const label = tag.slice(1);
+      if (seen.has(label)) return;
+      seen.add(label);
+      bump(label);
+    });
+  });
+
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+    .slice(0, 6);
+}
+
+function renderTrendingCrops() {
+  if (!trendingList || !trendingEmpty) return;
+
+  const trends = computeTrendingCrops(allPosts);
+  trendingList.replaceChildren();
+
+  if (!trends.length) {
+    trendingList.hidden = true;
+    trendingEmpty.hidden = false;
+    trendingEmpty.textContent = allPosts.length
+      ? 'No crop mentions in recent community posts yet.'
+      : 'Crop mentions across recent community posts will show up here.';
+    if (trendingMeta) trendingMeta.textContent = 'Live';
+    return;
+  }
+
+  trends.forEach((trend, index) => {
+    const item = document.createElement('li');
+    item.className = 'trending-item';
+
+    const rank = document.createElement('span');
+    rank.className = 'trending-rank';
+    rank.textContent = String(index + 1);
+
+    const name = document.createElement('span');
+    name.className = 'trending-name';
+    name.textContent = trend.name;
+
+    const count = document.createElement('span');
+    count.className = 'trending-count';
+    count.textContent = `${trend.count} post${trend.count === 1 ? '' : 's'}`;
+
+    item.append(rank, name, count);
+    trendingList.appendChild(item);
+  });
+
+  trendingEmpty.hidden = true;
+  trendingList.hidden = false;
+  if (trendingMeta) trendingMeta.textContent = 'Live';
+}
+
 async function loadPosts() {
   renderState('Loading farmer posts', 'Fetching the latest updates from FarmersHub.');
   try {
     const response = await getFeed({ limit: 100 });
     allPosts = Array.isArray(response.data) ? response.data : [];
     renderPosts();
+    renderTrendingCrops();
   } catch (error) {
     allPosts = [];
     renderState('Unable to load posts', error.message || 'Please try again later.');
     setStatus('The farmer feed could not be loaded.');
+    renderTrendingCrops();
   }
 }
 

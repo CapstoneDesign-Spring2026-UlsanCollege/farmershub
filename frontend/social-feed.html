@@ -133,15 +133,13 @@
         </section>
 
         <aside class="feed-widgets" aria-label="Community discovery previews">
-          <section class="widget-card">
+          <section class="widget-card" id="trendingCropsWidget">
             <div class="widget-heading">
               <h2>Trending Crops</h2>
-              <span>Coming soon</span>
+              <span id="trendingCropsMeta">Live</span>
             </div>
-            <p>Community crop trends will appear after feed activity is connected.</p>
-            <div class="pending-list" aria-hidden="true">
-              <span></span><span></span><span></span>
-            </div>
+            <p id="trendingCropsEmpty">Crop mentions across recent community posts will show up here.</p>
+            <ol class="trending-list" id="trendingCropsList" hidden></ol>
           </section>
 
           <section class="widget-card">
