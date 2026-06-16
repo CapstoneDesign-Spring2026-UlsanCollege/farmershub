@@ -3,7 +3,10 @@
 FarmersHub is a marketplace and community web app connecting farmers and customers through product listings, profile pages, and social-style posts.
 
 ## Deployed Link
-https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/
+https://shorturl.at/TBg5q
+
+## QR Code for the Deployed Link
+<img width="300" height="300" alt="exported_qrcode_image" src="https://github.com/user-attachments/assets/2d665944-43bf-4203-b563-6d0197a59cae" />
 
 ## Project Structure
 - `frontend/`: static client app for GitHub Pages
