@@ -1,8 +1,8 @@
-import { apiFetch, jsonHeaders } from '../config/api.config.js';
+import { apiFetch, jsonHeaders, authHeader } from '../config/api.config.js';
 
 // ── Provider: manage own delivery options ────────────────────────────────────
 async function getMyDeliveryPartners() {
-  return apiFetch('/delivery-partners/mine');
+  return apiFetch('/delivery-partners/mine', { headers: authHeader() });
 }
 
 async function createDeliveryPartner(payload) {
@@ -22,12 +22,12 @@ async function updateDeliveryPartner(id, payload) {
 }
 
 async function deleteDeliveryPartner(id) {
-  return apiFetch(`/delivery-partners/${id}`, { method: 'DELETE' });
+  return apiFetch(`/delivery-partners/${id}`, { method: 'DELETE', headers: authHeader() });
 }
 
 // ── Farmer: browse active options when shipping an order ──────────────────────
 async function getAvailableDeliveryPartners() {
-  return apiFetch('/delivery-partners/available');
+  return apiFetch('/delivery-partners/available', { headers: authHeader() });
 }
 
 export {
