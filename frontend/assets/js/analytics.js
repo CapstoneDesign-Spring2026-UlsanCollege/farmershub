@@ -1,6 +1,9 @@
 import { apiFetch, jsonHeaders } from './config/api.config.js';
 
 const panel = document.getElementById('analyticsContent');
+const LIVE_ANALYTICS_REFRESH_MS = 15000;
+let analyticsRefreshTimer = null;
+let analyticsRefreshInFlight = false;
 
 const ACTIVE_STATUSES = ['pending', 'confirmed', 'processing', 'shipped'];
 const STATUS_LABELS = {
@@ -142,19 +145,35 @@ function render(metrics) {
 }
 
 async function load() {
+  if (analyticsRefreshInFlight) return;
   if (!panel) return;
   if (!localStorage.getItem('fh_token')) {
     panel.innerHTML = state('Please log in', 'Log in as a farmer to view analytics built from your orders.');
     return;
   }
   panel.innerHTML = '<div class="workspace-state"><p>Loading analytics…</p></div>';
+  analyticsRefreshInFlight = true;
   try {
-    const response = await apiFetch('/orders?limit=100', { headers: jsonHeaders() });
+    const response = await apiFetch('/orders?limit=100', { headers: jsonHeaders(), cache: 'no-store' });
     const orders = response?.data?.orders || [];
     render(computeMetrics(orders));
   } catch (error) {
     panel.innerHTML = state('Unable to load analytics', error.message || 'Please try again later.');
+  } finally {
+    analyticsRefreshInFlight = false;
   }
 }
 
+function startLiveAnalyticsRefresh() {
+  if (analyticsRefreshTimer) return;
+
+  window.addEventListener('fh-orders-changed', load);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) load();
+  });
+  window.addEventListener('focus', load);
+  analyticsRefreshTimer = window.setInterval(load, LIVE_ANALYTICS_REFRESH_MS);
+}
+
 load();
+startLiveAnalyticsRefresh();

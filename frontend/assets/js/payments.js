@@ -3,6 +3,10 @@ import { apiFetch, jsonHeaders } from './config/api.config.js';
 const paymentsStatus = document.getElementById('paymentsStatus');
 const paymentsStats = document.getElementById('paymentsStats');
 const paymentsList = document.getElementById('paymentsList');
+const LIVE_PAYMENTS_REFRESH_MS = 15000;
+
+let paymentsRefreshTimer = null;
+let paymentsRefreshInFlight = false;
 
 const STATUS_LABELS = {
   pending: 'Pending', confirmed: 'Confirmed', processing: 'Processing',
@@ -30,9 +34,9 @@ function formatDate(iso) {
 
 function renderStats(orders) {
   if (!paymentsStats) return;
-  const earned = orders.filter((o) => o.status === 'delivered').reduce((s, o) => s + o.totalAmount, 0);
-  const pendingAmt = orders.filter((o) => !['delivered', 'cancelled'].includes(o.status)).reduce((s, o) => s + o.totalAmount, 0);
-  const cancelledAmt = orders.filter((o) => o.status === 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
+  const earned = orders.filter((o) => o.status === 'delivered').reduce((s, o) => s + Number(o.totalAmount || 0), 0);
+  const pendingAmt = orders.filter((o) => !['delivered', 'cancelled'].includes(o.status)).reduce((s, o) => s + Number(o.totalAmount || 0), 0);
+  const cancelledAmt = orders.filter((o) => o.status === 'cancelled').reduce((s, o) => s + Number(o.totalAmount || 0), 0);
 
   const stats = [
     { label: 'Earned (Delivered)', value: formatCurrency(earned), color: '#1b5e20', bg: '#e8f5e9' },
@@ -105,6 +109,7 @@ function renderOrdersTable(orders) {
 }
 
 async function loadPayments() {
+  if (paymentsRefreshInFlight) return;
   const token = localStorage.getItem('fh_token');
   if (!token) {
     if (paymentsStatus) paymentsStatus.textContent = 'Please log in to view payments.';
@@ -112,9 +117,10 @@ async function loadPayments() {
   }
 
   if (paymentsStatus) paymentsStatus.textContent = 'Loading...';
+  paymentsRefreshInFlight = true;
 
   try {
-    const result = await apiFetch('/orders', { headers: jsonHeaders() });
+    const result = await apiFetch('/orders', { headers: jsonHeaders(), cache: 'no-store' });
     const orders = result?.data?.orders || [];
     const total = result?.data?.total ?? orders.length;
 
@@ -124,7 +130,21 @@ async function loadPayments() {
     renderOrdersTable(orders);
   } catch (err) {
     if (paymentsStatus) paymentsStatus.textContent = `Error: ${err.message}`;
+  } finally {
+    paymentsRefreshInFlight = false;
   }
 }
 
+function startLivePaymentsRefresh() {
+  if (paymentsRefreshTimer) return;
+
+  window.addEventListener('fh-orders-changed', loadPayments);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) loadPayments();
+  });
+  window.addEventListener('focus', loadPayments);
+  paymentsRefreshTimer = window.setInterval(loadPayments, LIVE_PAYMENTS_REFRESH_MS);
+}
+
 loadPayments();
+startLivePaymentsRefresh();
