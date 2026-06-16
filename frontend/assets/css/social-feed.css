@@ -140,6 +140,26 @@ svg {
   color: #fff;
 }
 
+/* Section label matching the farmer workspace sidebar on the dashboard. */
+.feed-nav-heading {
+  margin: 0 0 6px;
+  padding: 5px 10px 8px;
+  color: #7b8a80;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The farmer feed nav uses emoji icons (like the dashboard); reserve a uniform
+   slot so labels line up. The customer feed keeps its SVG icons untouched. */
+.feed-sidebar--farmer .feed-menu a span {
+  width: 22px;
+  flex: none;
+  text-align: center;
+  font-size: 15px;
+}
+
 .feed-main {
   min-width: 0;
   display: grid;
