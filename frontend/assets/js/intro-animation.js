@@ -1,10 +1,25 @@
 (function () {
+  // Capture immediately — document.currentScript is only valid during sync execution
+  var _scriptSrc = (document.currentScript && document.currentScript.src) ||
+    (function () {
+      var s = document.querySelector('script[src*="intro-animation.js"]');
+      return s ? s.src : '';
+    })();
+
+  function resolveAssetPath(path) {
+    if (!_scriptSrc) return path;
+    var base = _scriptSrc.replace(/assets\/js\/intro-animation\.js.*$/, '');
+    return new URL(path, base).href;
+  }
+
   function ensureStylesheet() {
     var existing = document.getElementById('fh-intro-styles');
     if (existing) {
       return existing.dataset.loaded === 'true' ? Promise.resolve() : new Promise(function (resolve) {
         existing.addEventListener('load', resolve, { once: true });
-        setTimeout(resolve, 200);
+        existing.addEventListener('error', resolve, { once: true });
+        // Long timeout fallback only — prefer event
+        setTimeout(resolve, 1000);
       });
     }
     return new Promise(function (resolve) {
@@ -18,14 +33,9 @@
       }, { once: true });
       link.addEventListener('error', resolve, { once: true });
       document.head.appendChild(link);
-      setTimeout(resolve, 200);
+      // Fallback in case browser fires neither event (very unlikely, but safe)
+      setTimeout(resolve, 1000);
     });
-  }
-
-  function resolveAssetPath(path) {
-    var script = document.currentScript || document.querySelector('script[src*="intro-animation.js"]');
-    if (!script) return path;
-    return new URL(path, script.src.replace(/assets\/js\/intro-animation\.js.*$/, '')).href;
   }
 
   function buildLetters(container, text) {
