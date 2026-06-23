@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmersHub</title>
+
+  <!-- Sora wordmark font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Hero (revealed after the intro plays) -->
+  <main class="hero" id="hero">
+
+    <!-- Looping farm video background. Plays muted; falls back to the
+         poster image when motion is reduced (play() is gated in script.js). -->
+    <video
+      class="scene-video"
+      muted
+      loop
+      playsinline
+      poster="farm.jpg"
+      aria-hidden="true"
+    >
+      <source src="farm.mp4" type="video/mp4" />
+    </video>
+
+    <!-- Scrim keeps the hero text readable over the video -->
+    <div class="hero__scrim" aria-hidden="true"></div>
+
+    <div class="hero__inner">
+      <div class="hero__badge">
+        <img class="hero__logo" src="logo.png" alt="FarmersHub logo" />
+      </div>
+      <h1 class="hero__title">FarmersHub</h1>
+      <p class="hero__tagline">
+        Fresh from the farm to your hands — connecting growers and buyers, directly.
+      </p>
+      <button class="hero__cta" type="button">Get Started</button>
+    </div>
+  </main>
+
+  <!--
+    The intro overlay is built in script.js (letters + timings created in JS,
+    just like v1) and appended to <body> on load.
+  -->
+  <script src="script.js"></script>
+</body>
+</html>

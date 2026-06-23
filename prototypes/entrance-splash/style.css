@@ -1,0 +1,307 @@
+/* ==========================================================================
+   FarmersHub v2 — splash / entrance page
+   Plain vanilla CSS. Palette + timings live in :root so the intro and the
+   hero stay visually in sync and are easy to tweak.
+   ========================================================================== */
+
+:root {
+  /* Brand palette (greens from the v1 intro gradient) */
+  --green-900: #1b5e20;
+  --green-800: #2e7d32;
+  --green-700: #388e3c;
+  --green-600: #43a047;
+  --ink: #14321a;
+  --white: #ffffff;
+
+  --brand-gradient: linear-gradient(
+    160deg,
+    var(--green-900) 0%,
+    var(--green-800) 45%,
+    var(--green-700) 100%
+  );
+
+  /* Intro timings (mirrored in script.js — keep the two in step) */
+  --letter-stagger: 45ms;       /* delay between each wordmark letter   */
+  --letter-duration: 0.5s;      /* per-letter rise + scale-in           */
+  --exit-duration: 0.5s;        /* overlay fade + scale-up on exit      */
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Badge size, shared by intro + hero */
+  --badge-size: 140px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--brand-gradient);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  /* Fallback colour shown only if the video fails to load. */
+  background: var(--green-700);
+}
+
+/* Looping farm video fills the hero, behind everything else. */
+.scene-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Soft scrim for text contrast over the photo. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 62% 48% at 50% 44%,
+      rgba(0, 0, 0, 0.42) 0%,
+      rgba(0, 0, 0, 0.2) 45%,
+      rgba(0, 0, 0, 0.05) 75%
+    ),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.32));
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 32rem;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 1.75rem);
+}
+
+.hero__badge {
+  width: var(--badge-size);
+  height: var(--badge-size);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 18px 45px -12px rgba(0, 0, 0, 0.45);
+}
+
+.hero__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 8vw, 3.75rem);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+}
+
+.hero__tagline {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 28rem;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+}
+
+.hero__cta {
+  margin-top: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: clamp(1rem, 3vw, 1.125rem);
+  color: var(--green-900);
+  background: var(--white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.85em 2.25em;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.hero__cta:hover {
+  transform: translateY(-2px);
+  background: #f3fff4;
+  box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.55);
+}
+
+.hero__cta:active {
+  transform: translateY(0);
+}
+
+.hero__cta:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Intro overlay (built in script.js)
+   ========================================================================== */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 4vw, 1.75rem);
+  background: var(--brand-gradient);
+  opacity: 1;
+  transition: opacity var(--exit-duration) ease,
+    transform var(--exit-duration) ease;
+}
+
+.intro.is-exiting {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+/* --- logo badge with shine sweep + glow pulse --- */
+
+.intro__badge {
+  position: relative;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+}
+
+.intro__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.intro__sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.85) 50%,
+    transparent 65%
+  );
+}
+
+/* Glow + sweep fire together when the badge gets .is-glowing */
+.intro__badge.is-glowing {
+  animation: badge-glow 1s ease-out 1;
+}
+
+.intro__badge.is-glowing .intro__sweep {
+  animation: badge-sweep 1s ease-out 1;
+}
+
+@keyframes badge-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  45% {
+    box-shadow: 0 0 36px 12px rgba(255, 255, 255, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes badge-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* --- letter-by-letter wordmark --- */
+
+.intro__word {
+  display: flex;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
+  letter-spacing: 0.02em;
+  color: var(--white);
+}
+
+.intro__letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(14px) scale(0.85);
+  animation: letter-in var(--letter-duration) var(--ease-out-expo) forwards;
+}
+
+.intro__letter--space {
+  width: 0.4em;
+}
+
+@keyframes letter-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   Reduced motion — skip the intro; the video stays paused on its poster
+   (play() is gated in script.js), so no further CSS is needed for it.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .intro__letter,
+  .intro__badge.is-glowing,
+  .intro__badge.is-glowing .intro__sweep {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .intro__letter {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero__cta {
+    transition: none;
+  }
+}
