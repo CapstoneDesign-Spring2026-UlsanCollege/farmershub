@@ -17,6 +17,13 @@ Pushed to: `rebuild` branch under `prototypes/entrance-splash/`.
   button) over a **looping farm video** background. Reduced-motion supported. Details in `REPORT.md`.
 - **Background explored 4 ways**; chose the looping video. Parked alternatives in `_variants/`
   (`vector-farm-scene/`, `photo-kenburns/`, `video-wheat/`).
+- **Login page (UI only)** — ✅ approved & pushed (commit `9cdccbf`). Clicking **Get Started** reveals a
+  frosted-glass login card over the same, still-playing video + scrim (hero content eases out, card eases
+  in with the shared `cubic-bezier(0.16,1,0.3,1)` easing). Card: logo badge + "Welcome back", email +
+  password fields (leading icons, visual show/hide eye toggle), Remember me / Forgot password row,
+  full-width green Log in, "or" divider, Continue with Google, Sign up footer, and a "← Back" pill (Esc
+  also returns to the hero). **No auth / validation / backend** — submit is `preventDefault()` only.
+  Responsive to 360px; `prefers-reduced-motion` switches views instantly. Spec in `LOGIN_PROMPT.md`.
 
 ## Conventions to keep
 - Vanilla only, double-click to open, **no framework / no build**.
@@ -26,10 +33,11 @@ Pushed to: `rebuild` branch under `prototypes/entrance-splash/`.
 
 ## Current live state
 - Green intro overlay → hero with the user-supplied looping video (`farm.mp4`).
+- **Get Started** opens the login view over the same video; **← Back** / **Esc** returns to the hero.
 - `farm.jpg` is the poster / reduced-motion still. `logo.png` is the v1 logo.
 
 ## Next up
-1. **Login page UI** — appears when **Get Started** is clicked, same video background, attractive but
-   **UI only** (no auth logic). Spec in `LOGIN_PROMPT.md`.
-2. Later: optimize `farm.mp4` for web; extract a matching poster; port the whole entrance to the React
-   `client/` landing route.
+1. Optimize `farm.mp4` for web (compress / move to a CDN) and extract a matching poster — it is ~42 MB,
+   too heavy to deploy as-is.
+2. Port the whole entrance (intro → hero → login) to the React `client/` landing route.
+3. Wire real authentication to the login UI once the backend is ready (currently UI only).
