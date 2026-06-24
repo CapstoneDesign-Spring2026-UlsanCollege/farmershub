@@ -1,0 +1,656 @@
+/* ==========================================================================
+   FarmersHub v2 — entrance (React port)
+   Ported 1:1 from the vanilla prototype's style.css. Palette + timings live in
+   :root so the intro and hero stay visually in sync and are easy to tweak.
+   ========================================================================== */
+
+:root {
+  /* Brand palette (greens from the v1 intro gradient) */
+  --green-900: #1b5e20;
+  --green-800: #2e7d32;
+  --green-700: #388e3c;
+  --green-600: #43a047;
+  --ink: #14321a;
+  --white: #ffffff;
+
+  --brand-gradient: linear-gradient(
+    160deg,
+    var(--green-900) 0%,
+    var(--green-800) 45%,
+    var(--green-700) 100%
+  );
+
+  /* Intro timings (mirrored in IntroOverlay.tsx — keep the two in step) */
+  --letter-stagger: 45ms;
+  --letter-duration: 0.5s;
+  --exit-duration: 0.5s;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Badge size, shared by intro + hero */
+  --badge-size: 140px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--brand-gradient);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  /* Fallback colour shown only if the video fails to load. */
+  background: var(--green-700);
+}
+
+/* Looping farm video fills the hero, behind everything else. */
+.scene-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Soft scrim for text contrast over the video. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 62% 48% at 50% 44%,
+      rgba(0, 0, 0, 0.42) 0%,
+      rgba(0, 0, 0, 0.2) 45%,
+      rgba(0, 0, 0, 0.05) 75%
+    ),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.32));
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 32rem;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  /* Hero content eases out as the login card eases in (shared easing). */
+  transition: opacity var(--exit-duration) var(--ease-out-expo),
+    transform var(--exit-duration) var(--ease-out-expo);
+}
+
+.hero.show-login .hero__inner {
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+}
+
+.hero__badge {
+  width: var(--badge-size);
+  height: var(--badge-size);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 18px 45px -12px rgba(0, 0, 0, 0.45);
+}
+
+.hero__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 8vw, 3.75rem);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+}
+
+.hero__tagline {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 28rem;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+}
+
+.hero__cta {
+  margin-top: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: clamp(1rem, 3vw, 1.125rem);
+  color: var(--green-900);
+  background: var(--white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.85em 2.25em;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.hero__cta:hover {
+  transform: translateY(-2px);
+  background: #f3fff4;
+  box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.55);
+}
+
+.hero__cta:active {
+  transform: translateY(0);
+}
+
+.hero__cta:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Intro overlay
+   ========================================================================== */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 4vw, 1.75rem);
+  background: var(--brand-gradient);
+  opacity: 1;
+  transition: opacity var(--exit-duration) ease,
+    transform var(--exit-duration) ease;
+}
+
+.intro.is-exiting {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+/* --- logo badge with shine sweep + glow pulse --- */
+
+.intro__badge {
+  position: relative;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+}
+
+.intro__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.intro__sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.85) 50%,
+    transparent 65%
+  );
+}
+
+/* Glow + sweep fire together when the badge gets .is-glowing */
+.intro__badge.is-glowing {
+  animation: badge-glow 1s ease-out 1;
+}
+
+.intro__badge.is-glowing .intro__sweep {
+  animation: badge-sweep 1s ease-out 1;
+}
+
+@keyframes badge-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  45% {
+    box-shadow: 0 0 36px 12px rgba(255, 255, 255, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes badge-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* --- letter-by-letter wordmark --- */
+
+.intro__word {
+  display: flex;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
+  letter-spacing: 0.02em;
+  color: var(--white);
+}
+
+.intro__letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(14px) scale(0.85);
+  animation: letter-in var(--letter-duration) var(--ease-out-expo) forwards;
+}
+
+.intro__letter--space {
+  width: 0.4em;
+}
+
+@keyframes letter-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   Login view (UI only)
+   A frosted glass card on top of the same hero video + scrim. Shown by adding
+   `.show-login` on the hero; the video keeps playing underneath.
+   ========================================================================== */
+
+.login {
+  position: absolute;
+  inset: 0;
+  z-index: 3; /* above scrim (1) and hero__inner (2) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: clamp(1.25rem, 5vw, 3rem);
+  text-align: left;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.98) translateY(10px);
+  transition: opacity var(--exit-duration) var(--ease-out-expo),
+    transform var(--exit-duration) var(--ease-out-expo),
+    visibility 0s linear var(--exit-duration);
+}
+
+.hero.show-login .login {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity var(--exit-duration) var(--ease-out-expo),
+    transform var(--exit-duration) var(--ease-out-expo), visibility 0s;
+}
+
+.login__back {
+  position: absolute;
+  top: clamp(1rem, 4vw, 1.75rem);
+  left: clamp(1rem, 4vw, 1.75rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.login__back:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateX(-2px);
+}
+
+.login__card {
+  width: 100%;
+  max-width: 25rem;
+  margin: auto; /* centers, but lets a tall card scroll instead of clipping */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+}
+
+.login__badge {
+  width: 56px;
+  height: 56px;
+  align-self: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+}
+
+.login__badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.login__heading {
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 5vw, 1.7rem);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+
+.login__subtitle {
+  margin: 0 0 0.25rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* --- fields --- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field__control:focus-within {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+.field__input {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--white);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0.8rem 0.9rem;
+}
+
+.field__input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.field__icon {
+  flex: none;
+  margin-left: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.field__eye {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.4rem;
+  padding: 0.4rem;
+  color: rgba(255, 255, 255, 0.75);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.field__eye:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Swap eye / eye-off depending on visibility state. */
+.field__eye .icon-eye-off {
+  display: none;
+}
+
+.field__eye.is-on .icon-eye {
+  display: none;
+}
+
+.field__eye.is-on .icon-eye-off {
+  display: inline;
+}
+
+/* --- remember / forgot row --- */
+
+.login__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.login__remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.login__remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green-600);
+}
+
+.login__link {
+  color: #d6ffdd;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login__link:hover {
+  text-decoration: underline;
+}
+
+/* --- buttons --- */
+
+.login__submit {
+  margin-top: 0.25rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--white);
+  background: linear-gradient(160deg, var(--green-700), var(--green-600));
+  border: none;
+  border-radius: 999px;
+  padding: 0.9em 1.5em;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.55);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.login__submit:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 18px 36px -10px rgba(0, 0, 0, 0.6);
+}
+
+.login__submit:active {
+  transform: translateY(0);
+}
+
+.login__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.login__divider::before,
+.login__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.login__google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.8em 1.5em;
+  cursor: pointer;
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.login__google:hover {
+  transform: translateY(-2px);
+  background: #f3fff4;
+}
+
+.login__google-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.login__footer {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Shared focus-visible ring for the login controls. */
+.login__back:focus-visible,
+.login__submit:focus-visible,
+.login__google:focus-visible,
+.field__eye:focus-visible,
+.login__link:focus-visible,
+.login__remember input:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Reduced motion — skip intro animation; switch views instantly; the video
+   stays paused on its poster (play() is gated in Entrance.tsx).
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .intro__letter,
+  .intro__badge.is-glowing,
+  .intro__badge.is-glowing .intro__sweep {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .intro__letter {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero__cta,
+  .hero__inner,
+  .login,
+  .login__back,
+  .login__submit,
+  .login__google,
+  .field__control,
+  .field__eye {
+    transition: none !important;
+  }
+}
