@@ -113,3 +113,75 @@
     init();
   }
 })();
+
+/* ==========================================================================
+   FarmersHub v2 — login view toggle (UI only)
+   "Get Started" reveals a frosted login card over the same, still-playing
+   video; "← Back" returns to the hero. No auth, no validation, no requests —
+   just show/hide wiring plus a visual password show/hide toggle.
+   ========================================================================== */
+
+(function () {
+  "use strict";
+
+  var hero = document.getElementById("hero");
+  var cta = document.getElementById("getStarted");
+  var login = document.getElementById("login");
+  var back = document.getElementById("loginBack");
+  if (!hero || !cta || !login || !back) return;
+
+  var inner = hero.querySelector(".hero__inner");
+  var emailInput = document.getElementById("email");
+  var supportsInert = "inert" in HTMLElement.prototype;
+
+  function showLogin() {
+    hero.classList.add("show-login");
+    login.setAttribute("aria-hidden", "false");
+    // Take the (now hidden) hero content out of the tab order.
+    if (inner && supportsInert) inner.inert = true;
+    // Drop focus into the form for keyboard users, after the transition starts.
+    if (emailInput) {
+      window.setTimeout(function () {
+        emailInput.focus();
+      }, 60);
+    }
+  }
+
+  function showHero() {
+    hero.classList.remove("show-login");
+    login.setAttribute("aria-hidden", "true");
+    if (inner && supportsInert) inner.inert = false;
+    cta.focus();
+  }
+
+  cta.addEventListener("click", showLogin);
+  back.addEventListener("click", showHero);
+
+  // Esc returns to the hero while the login view is open.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && hero.classList.contains("show-login")) {
+      showHero();
+    }
+  });
+
+  // Password show/hide — a UI convenience only; nothing leaves the page.
+  var pw = document.getElementById("password");
+  var eye = document.getElementById("togglePw");
+  if (pw && eye) {
+    eye.addEventListener("click", function () {
+      var show = pw.type === "password";
+      pw.type = show ? "text" : "password";
+      eye.classList.toggle("is-on", show);
+      eye.setAttribute("aria-pressed", String(show));
+      eye.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    });
+  }
+
+  // The form is decorative — it never submits or navigates anywhere.
+  var form = login.querySelector(".login__card");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+    });
+  }
+})();
