@@ -5,19 +5,24 @@
    ========================================================================== */
 
 :root {
-  /* Brand palette (greens from the v1 intro gradient) */
-  --green-900: #1b5e20;
-  --green-800: #2e7d32;
-  --green-700: #388e3c;
-  --green-600: #43a047;
-  --ink: #14321a;
+  /* Warm editorial palette — matched to the home + shopping UI */
+  --green-900: #9a2c20;
+  --green-800: #be3a2b;
+  --green-700: #be3a2b;
+  --green-600: #c9a24a;
+  --ink: #1b1915;
   --white: #ffffff;
+  --paper: #f1ebdc;
+  --card: #f6f1e6;
+  --red: #be3a2b;
+  --red-ink: #9a2c20;
+  --gold: #c9a24a;
 
   --brand-gradient: linear-gradient(
     160deg,
-    var(--green-900) 0%,
-    var(--green-800) 45%,
-    var(--green-700) 100%
+    #f4d9a0 0%,
+    #eab86f 45%,
+    #d99a5e 100%
   );
 
   /* Intro timings (mirrored in script.js — keep the two in step) */
@@ -42,7 +47,7 @@ body {
 }
 
 body {
-  font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   background: var(--brand-gradient);
   color: var(--white);
   -webkit-font-smoothing: antialiased;
@@ -62,7 +67,7 @@ body {
   justify-content: center;
   padding: clamp(1.5rem, 5vw, 4rem);
   /* Fallback colour shown only if the video fails to load. */
-  background: var(--green-700);
+  background: #b9814e;
 }
 
 /* Looping farm video fills the hero, behind everything else. */
@@ -121,8 +126,9 @@ body {
 
 .hero__title {
   margin: 0;
-  font-weight: 700;
-  font-size: clamp(2.25rem, 8vw, 3.75rem);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 8.5vw, 4rem);
   letter-spacing: 0.01em;
   line-height: 1.05;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
@@ -143,8 +149,8 @@ body {
   font-family: inherit;
   font-weight: 600;
   font-size: clamp(1rem, 3vw, 1.125rem);
-  color: var(--green-900);
-  background: var(--white);
+  color: var(--white);
+  background: var(--red);
   border: none;
   border-radius: 999px;
   padding: 0.85em 2.25em;
@@ -155,7 +161,7 @@ body {
 
 .hero__cta:hover {
   transform: translateY(-2px);
-  background: #f3fff4;
+  background: #fbf7ee;
   box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.55);
 }
 
@@ -258,10 +264,11 @@ body {
 
 .intro__word {
   display: flex;
-  font-weight: 700;
-  font-size: clamp(1.75rem, 7vw, 2.75rem);
-  letter-spacing: 0.02em;
-  color: var(--white);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 7.5vw, 3rem);
+  letter-spacing: 0.01em;
+  color: var(--ink);
 }
 
 .intro__letter {
@@ -414,8 +421,9 @@ body {
 .login__heading {
   margin: 0;
   text-align: center;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 5vw, 1.7rem);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 5.5vw, 2rem);
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
 }
 
@@ -543,11 +551,11 @@ body {
 .login__remember input {
   width: 16px;
   height: 16px;
-  accent-color: var(--green-600);
+  accent-color: var(--red);
 }
 
 .login__link {
-  color: #d6ffdd;
+  color: #ecd9a6;
   font-weight: 600;
   text-decoration: none;
 }
@@ -564,7 +572,7 @@ body {
   font-weight: 600;
   font-size: 1.05rem;
   color: var(--white);
-  background: linear-gradient(160deg, var(--green-700), var(--green-600));
+  background: linear-gradient(160deg, var(--red), var(--red-ink));
   border: none;
   border-radius: 999px;
   padding: 0.9em 1.5em;
@@ -619,7 +627,7 @@ body {
 
 .login__google:hover {
   transform: translateY(-2px);
-  background: #f3fff4;
+  background: #fbf7ee;
 }
 
 .login__google-icon {
@@ -657,4 +665,111 @@ body {
   .field__eye {
     transition: none !important;
   }
+}
+
+/* ==========================================================================
+   Shovel cursor — pairs with shovel-cursor.js
+   ========================================================================== */
+
+@media (pointer: fine) {
+  html.fh-shovel,
+  html.fh-shovel body,
+  html.fh-shovel a,
+  html.fh-shovel button,
+  html.fh-shovel summary,
+  html.fh-shovel label,
+  html.fh-shovel [role="button"],
+  html.fh-shovel [onclick] { cursor: none }
+
+  /* typing still needs a caret, and text still needs an I-beam */
+  html.fh-shovel input,
+  html.fh-shovel textarea,
+  html.fh-shovel select,
+  html.fh-shovel [contenteditable="true"] { cursor: auto }
+}
+
+#fh-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 86px;
+  height: 96px;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease;
+  will-change: transform;
+}
+#fh-cursor.fh-on { opacity: 1 }
+
+#fh-cursor svg { display: block; overflow: visible }
+
+/* --- the tool: rotates and presses around the blade tip --- */
+#fh-cursor .fh-tool {
+  position: absolute;
+  inset: 0;
+  transform-origin: 14.9px 84.2px;   /* blade tip = the hotspot */
+  will-change: transform;
+}
+#fh-cursor .fh-tool svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 7px rgba(27, 25, 21, .32));
+}
+
+/* --- soil sitting in the blade --- */
+#fh-cursor .fh-load {
+  opacity: 0;
+  transform: translateY(-5px) scale(.62);
+  transform-origin: 14.9px 84.2px;
+  transition: opacity .12s ease, transform .3s cubic-bezier(.2, 1.5, .35, 1);
+}
+#fh-cursor.fh-dig .fh-load {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- heap under the tip: stays level, never rotates with the tool --- */
+#fh-cursor .fh-pile {
+  position: absolute;
+  left: -24px;
+  top: 66px;
+  width: 78px;
+  height: 34px;
+  opacity: 0;
+  transform: translateY(4px) scale(.7);
+  transform-origin: 39px 18px;
+  transition: opacity .14s ease, transform .34s cubic-bezier(.2, 1.4, .35, 1);
+}
+#fh-cursor.fh-dig .fh-pile {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- crumbs kicked loose on the press --- */
+#fh-cursor .fh-crumb {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+#fh-cursor.fh-dig .fh-crumb {
+  animation: fh-kick .52s cubic-bezier(.2, .7, .3, 1) both;
+}
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(2) { animation-delay: .03s }
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(3) { animation-delay: .06s }
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(4) { animation-delay: .02s }
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(5) { animation-delay: .08s }
+
+@keyframes fh-kick {
+  0%   { opacity: 0; transform: translate(0, 6px) scale(.3) }
+  35%  { opacity: 1 }
+  100% { opacity: 0; transform: translate(var(--dx, 0), var(--dy, -16px)) scale(1) }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fh-cursor .fh-load,
+  #fh-cursor .fh-pile { transition-duration: .01ms }
+  #fh-cursor.fh-dig .fh-crumb { animation: none; opacity: .9 }
 }
