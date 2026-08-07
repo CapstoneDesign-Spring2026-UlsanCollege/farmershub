@@ -1,3 +1,0 @@
-# This folder stores user-uploaded images (avatars, product photos, post images).
-# It is excluded from version control via .gitignore.
-# The folder itself must exist for multer to write files.

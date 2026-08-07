@@ -1,0 +1,560 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FarmersHub — Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/shovel-cursor.css">
+<script src="../assets/shovel-cursor.js" defer></script>
+
+<style>
+  :root{
+    --paper:#F1EBDC;
+    --paper-2:#E9E1CE;
+    --card:#F6F1E6;
+    --ink:#1B1915;
+    --ink-70:rgba(27,25,21,.70);
+    --ink-45:rgba(27,25,21,.45);
+    --line:rgba(27,25,21,.15);
+    --line-strong:rgba(27,25,21,.30);
+    --red:#BE3A2B;
+    --red-ink:#9A2C20;
+    --serif:'Instrument Serif',Georgia,serif;
+    --sans:'Inter',system-ui,-apple-system,sans-serif;
+    --wrap:1180px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px}
+  .eyebrow{
+    font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--red);
+  }
+  .muted{color:var(--ink-70)}
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:20;
+    background:rgba(241,235,220,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .site .bar{
+    display:flex;align-items:center;justify-content:space-between;
+    height:70px;
+  }
+  .brand{display:flex;align-items:baseline;gap:9px}
+  .brand .mark{
+    font-family:var(--serif);font-size:30px;line-height:1;letter-spacing:.01em;
+  }
+  .brand .mark em{color:var(--red);font-style:italic}
+  .brand .tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-45)}
+  .nav{display:flex;align-items:center;gap:26px}
+  .nav a{font-size:13.5px;color:var(--ink-70);position:relative;padding:4px 0}
+  .nav a:hover{color:var(--ink)}
+  .basket-btn{
+    display:flex;align-items:center;gap:9px;
+    background:none;border:1px solid var(--line-strong);border-radius:999px;
+    padding:8px 14px 8px 13px;color:var(--ink);font-size:13.5px;
+    transition:border-color .2s,background .2s;
+  }
+  .basket-btn:hover{border-color:var(--ink);background:var(--card)}
+  .basket-btn svg{width:17px;height:17px}
+  .count{
+    min-width:20px;height:20px;padding:0 5px;border-radius:999px;
+    background:var(--red);color:#fff;font-size:11px;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:transform .25s cubic-bezier(.2,1.4,.4,1);
+  }
+  .count.hidden{display:none}
+  .count.pulse{transform:scale(1.35)}
+
+  /* ---------- Views ---------- */
+  .view{display:none;animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+  .view.active{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  /* ---------- Marketplace ---------- */
+  .market-head{padding:52px 0 8px}
+  .market-head h1{
+    font-family:var(--serif);font-weight:400;font-size:clamp(38px,6vw,64px);
+    line-height:1.02;margin:10px 0 0;max-width:16ch;
+  }
+  .market-head h1 em{font-style:italic;color:var(--red)}
+  .market-head p{margin:16px 0 0;max-width:52ch;color:var(--ink-70);font-size:16px}
+
+  .filters{
+    display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+    margin:40px 0 26px;padding-bottom:14px;border-bottom:1px solid var(--line);
+  }
+  .filter{
+    background:none;border:none;padding:8px 4px;margin-right:18px;
+    font-size:14px;color:var(--ink-45);position:relative;letter-spacing:.01em;
+    transition:color .2s;
+  }
+  .filter:hover{color:var(--ink)}
+  .filter.active{color:var(--ink);font-weight:500}
+  .filter.active::after{
+    content:"";position:absolute;left:0;right:0;bottom:-15px;height:2px;background:var(--red);
+  }
+
+  .grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);
+    margin-bottom:70px;
+  }
+  .card{
+    background:var(--card);padding:22px 22px 20px;
+    display:flex;flex-direction:column;position:relative;
+    transition:background .25s;
+  }
+  .card:hover{background:#FBF7EE}
+  .card .art{
+    height:150px;display:flex;align-items:center;justify-content:center;
+    margin-bottom:16px;cursor:pointer;
+  }
+  .card .art svg{width:104px;height:104px;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .card:hover .art svg{transform:scale(1.06) rotate(-1.5deg)}
+  .card .cat{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-45)}
+  .card h3{
+    font-family:var(--serif);font-weight:400;font-size:23px;line-height:1.1;
+    margin:6px 0 3px;cursor:pointer;display:inline-block;position:relative;
+  }
+  .card h3::after{
+    content:"";position:absolute;left:0;bottom:-1px;height:1.5px;width:0;background:var(--red);
+    transition:width .3s ease;
+  }
+  .card h3:hover::after{width:100%}
+  .card .farm{font-size:12.5px;color:var(--ink-70)}
+  .card .row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:16px}
+  .price{font-family:var(--serif);font-size:22px;line-height:1}
+  .price .unit{font-family:var(--sans);font-size:11.5px;color:var(--ink-45);margin-left:2px}
+  .add{
+    border:1px solid var(--ink);background:none;color:var(--ink);
+    border-radius:999px;padding:7px 15px;font-size:12.5px;font-weight:500;
+    transition:background .2s,color .2s,border-color .2s;white-space:nowrap;
+  }
+  .add:hover{background:var(--ink);color:var(--paper)}
+  .add.added{background:var(--red);border-color:var(--red);color:#fff}
+
+  /* ---------- Product detail ---------- */
+  .back{
+    display:inline-flex;align-items:center;gap:7px;margin:34px 0 6px;
+    font-size:13px;color:var(--ink-70);background:none;border:none;padding:0;
+  }
+  .back:hover{color:var(--red)}
+  .back svg{width:15px;height:15px}
+  .detail{
+    display:grid;grid-template-columns:1.05fr 1fr;gap:60px;
+    padding:22px 0 80px;align-items:start;
+  }
+  .detail .hero{
+    background:var(--card);border:1px solid var(--line);
+    aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .detail .hero svg{width:56%;height:56%}
+  .detail .hero .badge{
+    position:absolute;top:18px;left:18px;
+    font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);
+  }
+  .detail .info .cat{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-45)}
+  .detail .info h2{
+    font-family:var(--serif);font-weight:400;font-size:clamp(36px,5vw,52px);
+    line-height:1.03;margin:8px 0 4px;
+  }
+  .detail .farm-line{font-size:14px;color:var(--ink-70);margin-bottom:22px}
+  .detail .farm-line b{font-weight:500;color:var(--ink)}
+  .detail .d-price{
+    font-family:var(--serif);font-size:34px;line-height:1;
+    padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .detail .d-price .unit{font-family:var(--sans);font-size:13px;color:var(--ink-45)}
+  .detail p.desc{font-size:15px;color:var(--ink-70);margin:22px 0}
+  .buy{display:flex;align-items:center;gap:14px;margin:26px 0 18px}
+  .stepper{
+    display:flex;align-items:center;border:1px solid var(--line-strong);border-radius:999px;
+    overflow:hidden;
+  }
+  .stepper button{
+    width:42px;height:44px;background:none;border:none;font-size:18px;color:var(--ink);
+    transition:background .15s;
+  }
+  .stepper button:hover{background:var(--paper-2)}
+  .stepper .qv{width:40px;text-align:center;font-size:15px;font-variant-numeric:tabular-nums}
+  .buy-add{
+    flex:1;background:var(--red);border:none;color:#fff;border-radius:999px;
+    height:46px;font-size:14.5px;font-weight:500;letter-spacing:.01em;
+    transition:background .2s;
+  }
+  .buy-add:hover{background:var(--red-ink)}
+  .farm-note{
+    background:var(--card);border:1px solid var(--line);padding:20px 22px;margin-top:8px;
+  }
+  .farm-note .eyebrow{margin-bottom:8px;display:block}
+  .farm-note p{margin:0;font-size:13.5px;color:var(--ink-70);line-height:1.55}
+
+  /* ---------- Basket ---------- */
+  .basket-wrap{padding:44px 0 90px}
+  .basket-wrap h2{
+    font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,48px);
+    margin:0 0 4px;
+  }
+  .basket-wrap .sub{color:var(--ink-70);font-size:14px;margin-bottom:30px}
+  .basket-grid{display:grid;grid-template-columns:1fr 340px;gap:56px;align-items:start}
+  .items{border-top:1px solid var(--line)}
+  .item{
+    display:grid;grid-template-columns:76px 1fr auto;gap:18px;align-items:center;
+    padding:20px 0;border-bottom:1px solid var(--line);
+  }
+  .item .thumb{
+    width:76px;height:76px;background:var(--card);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .item .thumb svg{width:52px;height:52px}
+  .item h4{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 2px}
+  .item .m{font-size:12.5px;color:var(--ink-70)}
+  .item .controls{display:flex;align-items:center;gap:18px}
+  .mini-step{display:flex;align-items:center;border:1px solid var(--line-strong);border-radius:999px}
+  .mini-step button{width:32px;height:34px;background:none;border:none;font-size:15px;color:var(--ink)}
+  .mini-step button:hover{background:var(--paper-2)}
+  .mini-step .qv{width:30px;text-align:center;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .line-price{font-family:var(--serif);font-size:19px;min-width:88px;text-align:right}
+  .remove{background:none;border:none;color:var(--ink-45);font-size:12px;padding:4px}
+  .remove:hover{color:var(--red)}
+
+  .summary{background:var(--card);border:1px solid var(--line);padding:26px 24px;position:sticky;top:94px}
+  .summary h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 18px}
+  .sline{display:flex;justify-content:space-between;font-size:14px;padding:9px 0;color:var(--ink-70)}
+  .sline.total{
+    border-top:1px solid var(--line);margin-top:8px;padding-top:16px;
+    color:var(--ink);font-size:15px;align-items:baseline;
+  }
+  .sline.total b{font-family:var(--serif);font-size:26px;color:var(--red);font-weight:400}
+  .checkout{
+    width:100%;background:var(--ink);color:var(--paper);border:none;border-radius:999px;
+    height:48px;font-size:14.5px;font-weight:500;margin-top:20px;transition:background .2s;
+  }
+  .checkout:hover{background:#000}
+  .free-hint{font-size:12px;color:var(--ink-45);margin-top:12px;text-align:center}
+
+  .empty{
+    text-align:center;padding:70px 0 90px;border-top:1px solid var(--line);
+  }
+  .empty svg{width:80px;height:80px;opacity:.5;margin-bottom:18px}
+  .empty p{font-size:16px;color:var(--ink-70);margin:0 0 20px}
+  .empty a{
+    display:inline-flex;align-items:center;gap:7px;color:var(--red);font-size:14px;font-weight:500;
+  }
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:999px;
+    font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:40;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--ink-45);font-size:12.5px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:1000px){
+    .grid{grid-template-columns:repeat(3,1fr)}
+    .detail{grid-template-columns:1fr;gap:34px}
+    .basket-grid{grid-template-columns:1fr;gap:34px}
+    .summary{position:static}
+  }
+  @media(max-width:680px){
+    .wrap{padding:0 18px}
+    .nav .links{display:none}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .brand .tag{display:none}
+    .item{grid-template-columns:60px 1fr;grid-template-rows:auto auto}
+    .item .thumb{width:60px;height:60px}
+    .item .line-price{grid-column:2;text-align:left;min-width:0}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="#" onclick="go('market');return false;">
+      <span class="mark">Farmers<em>Hub</em></span>
+      <span class="tag">Ulsan · farm direct</span>
+    </a>
+    <nav class="nav">
+      <span class="links" style="display:flex;gap:26px">
+        <a href="#" onclick="go('market');return false;">Market</a>
+        <a href="#" onclick="go('market');return false;">Farms</a>
+        <a href="#" onclick="go('market');return false;">Seasonal</a>
+      </span>
+      <button class="basket-btn" onclick="go('basket')" aria-label="Open basket">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
+        Basket <span class="count hidden" id="hdrCount">0</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ============ MARKETPLACE ============ -->
+  <section class="view active" id="view-market">
+    <div class="wrap market-head">
+      <span class="eyebrow">In season now · August</span>
+      <h1>Picked this morning, <em>on your table</em> tonight.</h1>
+      <p>Everything here comes straight from a named farm around Ulsan and the Nakdong valley — no middle warehouse, no week in a truck.</p>
+    </div>
+    <div class="wrap">
+      <div class="filters" id="filters">
+        <button class="filter active" data-cat="all">All produce</button>
+        <button class="filter" data-cat="veg">Vegetables</button>
+        <button class="filter" data-cat="fruit">Fruit</button>
+        <button class="filter" data-cat="dairy">Dairy &amp; eggs</button>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ PRODUCT DETAIL ============ -->
+  <section class="view" id="view-detail">
+    <div class="wrap">
+      <button class="back" onclick="go('market')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+        Back to the market
+      </button>
+      <div class="detail" id="detail"></div>
+    </div>
+  </section>
+
+  <!-- ============ BASKET ============ -->
+  <section class="view" id="view-basket">
+    <div class="wrap basket-wrap">
+      <h2>Your basket</h2>
+      <div class="sub" id="basketSub">Review your order before checkout.</div>
+      <div id="basketBody"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>FarmersHub — Capstone, Ulsan College · Spring 2026</span>
+    <span>Farm direct · Ulsan &amp; Nakdong valley</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- hand-drawn produce line-art (the signature) ---------- */
+const ART = {
+  tomato:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M28 58c0-15 10-24 22-24s22 9 22 24-10 22-22 22-22-7-22-22Z"/><path d="M50 34c-1-6 2-11 8-13M50 34c1-6-2-11-8-13M50 34c-6-2-11 1-13 7M50 34c6-2 11 1 13 7" stroke="#BE3A2B"/><path d="M40 52c1 6 5 10 10 11" opacity=".5"/></svg>`,
+  strawberry:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 44c4-6 11-9 18-9s14 3 18 9c4 7 0 18-8 27-4 5-7 8-10 8s-6-3-10-8c-8-9-12-20-8-27Z"/><path d="M50 26c-2-5-7-8-13-7M50 26c2-5 7-8 13-7M50 26v9" stroke="#BE3A2B"/><circle cx="42" cy="50" r="1.4" fill="#BE3A2B" stroke="none"/><circle cx="55" cy="48" r="1.4" fill="#BE3A2B" stroke="none"/><circle cx="48" cy="60" r="1.4" fill="#BE3A2B" stroke="none"/><circle cx="58" cy="60" r="1.4" fill="#BE3A2B" stroke="none"/><circle cx="50" cy="70" r="1.4" fill="#BE3A2B" stroke="none"/></svg>`,
+  lettuce:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M50 74c-14 0-26-9-26-22 0-4 3-7 7-6-2-6 2-11 8-11 1-6 6-9 11-9s10 3 11 9c6 0 10 5 8 11 4-1 7 2 7 6 0 13-12 22-26 22Z"/><path d="M50 74V50M42 60c3-3 5-7 8-8M58 60c-3-3-5-7-8-8" opacity=".55"/></svg>`,
+  carrot:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M38 44l24 4-18 30c-2 3-6 3-8-1L28 54c-2-5 3-9 10-10Z" stroke="#BE3A2B"/><path d="M44 46c3-8 2-14-2-18M52 47c5-6 6-13 4-18M50 46c1-7-1-12-5-16" /><path d="M40 56l14 3M38 66l12 3" stroke="#BE3A2B" opacity=".5"/></svg>`,
+  egg:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M50 24c11 0 20 18 20 32s-9 22-20 22-20-8-20-22 9-32 20-32Z"/><path d="M40 56c1 8 5 13 10 14" opacity=".45"/></svg>`,
+  apple:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M50 38c-4-4-11-5-16-2-7 4-9 15-4 25 3 7 8 15 13 15 3 0 4-2 7-2s4 2 7 2c5 0 10-8 13-15 5-10 3-21-4-25-5-3-12-2-16 2Z"/><path d="M50 38c0-6 3-10 9-11" stroke="#BE3A2B"/><path d="M50 38c-2-4-1-8 2-11" /></svg>`,
+  chili:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M34 34c2 6 8 10 15 10 12 0 20 9 20 21 0 8-6 13-13 13-16 0-30-14-30-32" stroke="#BE3A2B"/><path d="M34 34c-4-2-8-2-12 1M34 34c0-4-1-8-4-11" /></svg>`,
+  corn:`<svg viewBox="0 0 100 100" fill="none" stroke="#1B1915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M50 26c9 0 15 10 15 24s-6 24-15 24-15-10-15-24 6-24 15-24Z"/><path d="M50 30v44M42 40v34M58 40v34" opacity=".45"/><path d="M40 30c-8-2-14 0-16 6 6 3 12 3 16 0M60 30c8-2 14 0 16 6-6 3-12 3-16 0" stroke="#BE3A2B"/></svg>`
+};
+
+/* ---------- catalog ---------- */
+const CATALOG = [
+  {id:'tom', name:'Vine Tomatoes', farm:'Hwanggeum Farm, Ulju', cat:'veg', catLabel:'Vegetable', price:4500, unit:'/ 500 g', art:'tomato',
+   desc:'Ripened on the vine and picked at dawn, so they arrive with the sugar still in them. Sweet, low-acid, and built for a simple salad or a slow sauce.'},
+  {id:'str', name:'Strawberries', farm:'Seomyeon Berry Co., Yangsan', cat:'fruit', catLabel:'Fruit', price:8900, unit:'/ punnet', art:'strawberry',
+   desc:'Late-season Seolhyang berries, grown in raised beds and hand-graded the same morning they ship. Fragrant enough to smell through the box.'},
+  {id:'let', name:'Butterhead Lettuce', farm:'Daun Greens, Ulju', cat:'veg', catLabel:'Vegetable', price:2800, unit:'/ head', art:'lettuce',
+   desc:'Soft, buttery leaves cut with the roots still on so the head keeps for a week in the fridge. Rinse, tear, done.'},
+  {id:'car', name:'Sweet Carrots', farm:'Onggi Fields, Miryang', cat:'veg', catLabel:'Vegetable', price:3200, unit:'/ 1 kg', art:'carrot',
+   desc:'Grown in the sandy Nakdong loam that makes carrots taste like carrots. Snappy raw, silky roasted.'},
+  {id:'egg', name:'Free-range Eggs', farm:'Baekun Coop, Ulsan', cat:'dairy', catLabel:'Dairy & eggs', price:6500, unit:'/ 10', art:'egg',
+   desc:'From hens that actually range — deep-orange yolks, thick whites, a lay date printed on every carton.'},
+  {id:'app', name:'Fuji Apples', farm:'Cheonyang Orchard, Cheongdo', cat:'fruit', catLabel:'Fruit', price:7400, unit:'/ 1 kg', art:'apple',
+   desc:'Cold-stored straight from autumn harvest, so the crunch holds. Honey-sweet with just enough tartness to stay interesting.'},
+  {id:'chi', name:'Green Chilies', farm:'Nakdong Farm, Miryang', cat:'veg', catLabel:'Vegetable', price:3900, unit:'/ 300 g', art:'chili',
+   desc:'Cheonggochu with a gentle heat — the kind you eat whole with ssamjang. Firm, glossy, and picked before they turn.'},
+  {id:'cor', name:'Sweet Corn', farm:'Haneul Farm, Ulju', cat:'veg', catLabel:'Vegetable', price:4200, unit:'/ 3 ears', art:'corn',
+   desc:'Chodang corn you can eat raw off the cob. Best within two days — which is exactly how fast it gets to you.'}
+];
+
+const DELIVERY = 3000, FREE_OVER = 30000;
+const basket = {}; // id -> qty
+let detailQty = 1, detailId = null;
+
+const KRW = n => '₩' + n.toLocaleString('ko-KR');
+const byId = id => CATALOG.find(p => p.id === id);
+
+/* ---------- view routing ---------- */
+function go(view, id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  if(view==='market') document.getElementById('view-market').classList.add('active');
+  if(view==='detail'){ renderDetail(id); document.getElementById('view-detail').classList.add('active'); }
+  if(view==='basket'){ renderBasket(); document.getElementById('view-basket').classList.add('active'); }
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+/* ---------- marketplace ---------- */
+function renderGrid(cat='all'){
+  const grid = document.getElementById('grid');
+  const list = cat==='all' ? CATALOG : CATALOG.filter(p=>p.cat===cat);
+  grid.innerHTML = list.map(p=>`
+    <article class="card">
+      <div class="art" onclick="go('detail','${p.id}')">${ART[p.art]}</div>
+      <span class="cat">${p.catLabel}</span>
+      <h3 onclick="go('detail','${p.id}')">${p.name}</h3>
+      <span class="farm">${p.farm}</span>
+      <div class="row">
+        <span class="price">${KRW(p.price)}<span class="unit">${p.unit}</span></span>
+        <button class="add" data-id="${p.id}" onclick="quickAdd('${p.id}',this)">Add</button>
+      </div>
+    </article>`).join('');
+}
+document.getElementById('filters').addEventListener('click', e=>{
+  const b = e.target.closest('.filter'); if(!b) return;
+  document.querySelectorAll('.filter').forEach(f=>f.classList.remove('active'));
+  b.classList.add('active');
+  renderGrid(b.dataset.cat);
+});
+
+function quickAdd(id, btn){
+  addToBasket(id,1);
+  btn.classList.add('added'); btn.textContent='Added ✓';
+  setTimeout(()=>{ btn.classList.remove('added'); btn.textContent='Add'; }, 1100);
+}
+
+/* ---------- product detail ---------- */
+function renderDetail(id){
+  detailId = id; detailQty = 1;
+  const p = byId(id);
+  document.getElementById('detail').innerHTML = `
+    <div class="hero">
+      <span class="badge">Farm direct</span>
+      ${ART[p.art]}
+    </div>
+    <div class="info">
+      <span class="cat">${p.catLabel} · In season</span>
+      <h2>${p.name}</h2>
+      <div class="farm-line">from <b>${p.farm}</b></div>
+      <div class="d-price">${KRW(p.price)}<span class="unit">${p.unit}</span></div>
+      <p class="desc">${p.desc}</p>
+      <div class="buy">
+        <div class="stepper">
+          <button onclick="stepDetail(-1)" aria-label="Decrease">−</button>
+          <span class="qv" id="detailQv">1</span>
+          <button onclick="stepDetail(1)" aria-label="Increase">+</button>
+        </div>
+        <button class="buy-add" onclick="addFromDetail()">Add to basket · <span id="detailTotal">${KRW(p.price)}</span></button>
+      </div>
+      <div class="farm-note">
+        <span class="eyebrow">About the farm</span>
+        <p>${p.farm.split(',')[0]} sells direct through FarmersHub so more of what you pay reaches the people who grew it. Harvest and dispatch happen the same day.</p>
+      </div>
+    </div>`;
+}
+function stepDetail(d){
+  detailQty = Math.max(1, detailQty + d);
+  document.getElementById('detailQv').textContent = detailQty;
+  document.getElementById('detailTotal').textContent = KRW(byId(detailId).price * detailQty);
+}
+function addFromDetail(){
+  addToBasket(detailId, detailQty);
+  toast(`${detailQty} × ${byId(detailId).name} added`);
+}
+
+/* ---------- basket ---------- */
+function renderBasket(){
+  const ids = Object.keys(basket).filter(id=>basket[id]>0);
+  const body = document.getElementById('basketBody');
+  const sub = document.getElementById('basketSub');
+  if(ids.length===0){
+    sub.textContent = 'Nothing here yet.';
+    body.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1B1915" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
+        <p>Your basket is empty.</p>
+        <a href="#" onclick="go('market');return false;">Browse the market
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>`;
+    return;
+  }
+  const subtotal = ids.reduce((s,id)=>s + byId(id).price*basket[id], 0);
+  const delivery = subtotal >= FREE_OVER ? 0 : DELIVERY;
+  sub.textContent = `${ids.reduce((n,id)=>n+basket[id],0)} items from ${new Set(ids.map(id=>byId(id).farm.split(',')[0])).size} farms.`;
+
+  body.innerHTML = `
+    <div class="basket-grid">
+      <div class="items">
+        ${ids.map(id=>{const p=byId(id);return `
+          <div class="item">
+            <div class="thumb">${ART[p.art]}</div>
+            <div>
+              <h4>${p.name}</h4>
+              <div class="m">${p.farm} · ${KRW(p.price)} ${p.unit}</div>
+              <div class="controls" style="margin-top:10px">
+                <div class="mini-step">
+                  <button onclick="setQty('${id}',-1)" aria-label="Decrease">−</button>
+                  <span class="qv">${basket[id]}</span>
+                  <button onclick="setQty('${id}',1)" aria-label="Increase">+</button>
+                </div>
+                <button class="remove" onclick="removeItem('${id}')">Remove</button>
+              </div>
+            </div>
+            <div class="line-price">${KRW(p.price*basket[id])}</div>
+          </div>`}).join('')}
+      </div>
+      <aside class="summary">
+        <h3>Order summary</h3>
+        <div class="sline"><span>Subtotal</span><span>${KRW(subtotal)}</span></div>
+        <div class="sline"><span>Delivery</span><span>${delivery===0?'Free':KRW(delivery)}</span></div>
+        <div class="sline total"><span>Total</span><b>${KRW(subtotal+delivery)}</b></div>
+        <button class="checkout" onclick="toast('Checkout is a demo — no payment is taken.')">Go to checkout</button>
+        <div class="free-hint">${subtotal>=FREE_OVER?'You’ve unlocked free delivery.':`Add ${KRW(FREE_OVER-subtotal)} more for free delivery.`}</div>
+      </aside>
+    </div>`;
+}
+function setQty(id,d){
+  basket[id] = Math.max(0, (basket[id]||0)+d);
+  if(basket[id]===0) delete basket[id];
+  updateCount(); renderBasket();
+}
+function removeItem(id){ delete basket[id]; updateCount(); renderBasket(); }
+
+/* ---------- shared basket state ---------- */
+function addToBasket(id, qty){
+  basket[id] = (basket[id]||0) + qty;
+  updateCount(true);
+}
+function updateCount(pulse){
+  const n = Object.values(basket).reduce((a,b)=>a+b,0);
+  const el = document.getElementById('hdrCount');
+  el.textContent = n;
+  el.classList.toggle('hidden', n===0);
+  if(pulse){ el.classList.add('pulse'); setTimeout(()=>el.classList.remove('pulse'),260); }
+}
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+renderGrid();
+</script>

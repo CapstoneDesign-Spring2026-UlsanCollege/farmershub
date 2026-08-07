@@ -1,0 +1,112 @@
+/* ==========================================================================
+   FarmersHub — shovel cursor
+   Idle: a clean trowel, tip pinned to the pointer.
+   Press: the blade fills with soil and a heap drops under the tip.
+   Motion and rotation are driven by shovel-cursor.js.
+
+   The .fh-shovel class is put on <html> by the script, so if the script
+   never runs the native cursor is left alone.
+   ========================================================================== */
+
+@media (pointer: fine) {
+  html.fh-shovel,
+  html.fh-shovel body,
+  html.fh-shovel a,
+  html.fh-shovel button,
+  html.fh-shovel summary,
+  html.fh-shovel label,
+  html.fh-shovel [role="button"],
+  html.fh-shovel [onclick] { cursor: none }
+
+  /* typing still needs a caret, and text still needs an I-beam */
+  html.fh-shovel input,
+  html.fh-shovel textarea,
+  html.fh-shovel select,
+  html.fh-shovel [contenteditable="true"] { cursor: auto }
+}
+
+#fh-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 86px;
+  height: 96px;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease;
+  will-change: transform;
+}
+#fh-cursor.fh-on { opacity: 1 }
+
+#fh-cursor svg { display: block; overflow: visible }
+
+/* --- the tool: rotates and presses around the blade tip --- */
+#fh-cursor .fh-tool {
+  position: absolute;
+  inset: 0;
+  transform-origin: 14.9px 84.2px;   /* blade tip = the hotspot */
+  will-change: transform;
+}
+#fh-cursor .fh-tool svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 7px rgba(27, 25, 21, .32));
+}
+
+/* --- soil sitting in the blade --- */
+#fh-cursor .fh-load {
+  opacity: 0;
+  transform: translateY(-5px) scale(.62);
+  transform-origin: 14.9px 84.2px;
+  transition: opacity .12s ease, transform .3s cubic-bezier(.2, 1.5, .35, 1);
+}
+#fh-cursor.fh-dig .fh-load {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- heap under the tip: stays level, never rotates with the tool --- */
+#fh-cursor .fh-pile {
+  position: absolute;
+  left: -24px;
+  top: 66px;
+  width: 78px;
+  height: 34px;
+  opacity: 0;
+  transform: translateY(4px) scale(.7);
+  transform-origin: 39px 18px;
+  transition: opacity .14s ease, transform .34s cubic-bezier(.2, 1.4, .35, 1);
+}
+#fh-cursor.fh-dig .fh-pile {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- crumbs kicked loose on the press --- */
+#fh-cursor .fh-crumb {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+#fh-cursor.fh-dig .fh-crumb {
+  animation: fh-kick .52s cubic-bezier(.2, .7, .3, 1) both;
+}
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(2) { animation-delay: .03s }
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(3) { animation-delay: .06s }
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(4) { animation-delay: .02s }
+#fh-cursor.fh-dig .fh-crumb:nth-of-type(5) { animation-delay: .08s }
+
+@keyframes fh-kick {
+  0%   { opacity: 0; transform: translate(0, 6px) scale(.3) }
+  35%  { opacity: 1 }
+  100% { opacity: 0; transform: translate(var(--dx, 0), var(--dy, -16px)) scale(1) }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fh-cursor .fh-load,
+  #fh-cursor .fh-pile { transition-duration: .01ms }
+  #fh-cursor.fh-dig .fh-crumb { animation: none; opacity: .9 }
+}
