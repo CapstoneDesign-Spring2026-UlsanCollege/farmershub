@@ -4,7 +4,7 @@
 > **Org:** `CapstoneDesign-Spring2026-UlsanCollege`
 > **Doc owner:** Technical Writer (cross-cutting)
 > **Status:** Living document — updated at the end of every phase/cycle
-> **Last updated:** 2026-08-05
+> **Last updated:** 2026-08-07
 
 ---
 
@@ -51,17 +51,20 @@ We follow the 7-phase model. For an in-flight project like FarmersHub, phases ru
 
 ## 4. FarmersHub — Current Status by Phase
 
-FarmersHub is **mid-flight**, not greenfield. Here is where each phase stands today.
+On 2026-08-07 the repository was reset to the design package. `main` now contains the
+design system, the customer screens and these docs — **and no application code.** The
+previous Express/Mongoose API, multi-page frontend, React entrance and Expo mobile app
+exist only in a local backup bundle. The table below reflects that reality.
 
 | Phase | Status | Notes |
 |---|---|---|
-| 1. Planning | ✅ Established | Capstone scope defined (Spring 2026 cohort). |
-| 2. Requirements | ✅ Mostly done | Marketplace requirements understood; formal SRS not yet written down. |
-| 3. Design | 🟡 In progress | Home screen redesigned (editorial direction: bone paper, deep ink, single red accent, Instrument Serif + Inter, hand-drawn SVG produce). **3 screens pending: marketplace, product detail, basket.** Direction confirmation outstanding. |
-| 4. Development | 🟡 In progress | Backend exists (Node/Express/Mongoose). 6 low-priority fixes scoped via Codex prompt. **10 higher-priority issues deferred.** Source files not yet reviewed at line level. |
-| 5. Testing | 🔴 Not started | Frontend `customer.html` audit blocked on file access. No formal test plan yet. |
-| 6. Deployment | 🟡 Partial | Hosted on GitHub Pages. No formal release process/backup automation yet. |
-| 7. Maintenance | 🟡 Ongoing | Bug triage from prior audit doc (critical / medium / low). |
+| 1. Planning | ✅ Established | Capstone scope defined (Spring 2026 cohort). Forward plan written: `ENGINEERING_PLAN.md`. |
+| 2. Requirements | 🟡 Undocumented | Marketplace requirements understood in practice; the SRS is still unwritten. Needed before the API is designed. |
+| 3. Design | ✅ Customer flow complete | Editorial identity established. Home, marketplace, product detail and basket all delivered, plus the re-skinned entrance/login and the shared vector shovel cursor. |
+| 4. Development | 🔴 Reset to zero | No application code on `main`. Rebuild scope is the open decision — see `ENGINEERING_PLAN.md` §2. |
+| 5. Testing | 🔴 Not started | No formal test plan. Deferred until there is application code to test (M5). |
+| 6. Deployment | 🟡 Static only | GitHub Pages serves the entrance from the repo root. No API deployed; no release process or backup automation. |
+| 7. Maintenance | ⚪ Not applicable | Resumes once Phase 4 restarts. |
 
 ---
 
@@ -80,6 +83,11 @@ Every cycle we maintain these under a `/docs` folder in the repo:
 ---
 
 ## 6. The Next Plan (Backlog)
+
+> **Superseded 2026-08-07 by `ENGINEERING_PLAN.md`.** Tracks B and C below are no longer
+> actionable as written — they reference backend and frontend source files that are not in
+> the repository after the reset. Track A is complete. Kept here as a record of what was
+> planned before the reset.
 
 Three parallel tracks are open. Each is prioritized and mapped to a phase and owner.
 
