@@ -6,6 +6,13 @@
 # Private / not for publication
 .private/
 
+# Leftovers from the pre-reset application (present on disk, not part of this repo)
+/backend/
+/frontend/
+/farmershub/
+/audit_report.txt
+/tiny-avatar.png
+
 # Dependencies & build output
 node_modules/
 dist/
