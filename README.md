@@ -1,36 +1,56 @@
-# FarmersHub — Design & Front-End Package
+# FarmersHub
 
-Assembled 2026-08-05. One warm editorial identity across the customer app
-(paper `#F1EBDC`, ink `#1B1915`, red `#BE3A2B`, gold `#C9A24A`; Instrument Serif + Inter).
+Farm-direct marketplace for Ulsan, South Korea. Capstone project, `CapstoneDesign-Spring2026-UlsanCollege`.
 
-## Contents
+**Live:** https://capstonedesign-spring2026-ulsancollege.github.io/farmershub/
 
-### assets/ — shared across every page
-- **shovel-cursor.css** + **shovel-cursor.js** — the shovel pointer. Link both and it
-  self-installs: a clean trowel follows the pointer with its blade tip as the hotspot,
-  leaning into the direction of travel; holding the mouse down loads the blade with soil
-  and drops a heap under the tip. Vector, so it stays crisp at any angle. Mouse-only —
-  it does not appear on touch, and text fields keep their normal caret.
-- **shovel-previous-sprite.png** — the raster shovel used before the vector rewrite, kept for reference.
+---
 
-### 01-home/ — customer pages (open in a browser; needs the sibling `assets/` folder)
-- **farmershub_home_v3.html** — cinematic home page: animated wheat field (wind + shovel-cursor repel), the shovel cursor, parallax/overlap scroll, cow portrait, real emblem logo.
-- **farmershub_shopping_flow.html** — marketplace → product detail → basket, one clickable flow with a live basket (KRW).
+## What this repository is right now
 
-### 02-entrance-login/ — the re-skinned entrance + login
-- **index.html** — **self-contained standalone.** Open it directly: the intro plays (logo badge + letter-by-letter wordmark), then reveals the warm hero and login. Intro and hero share the same golden backdrop. *Omits the 12 MB `farm.mp4`, so the hero uses a golden gradient instead of the video.*
-- **login_reskin_preview.html** — quick preview of the reskinned login card.
-- **to-commit/** — drop-in replacements for your GitHub repo:
-  - **index.html** (modular) + **style.css** + **shovel-cursor.js** — drop these three at the repo root. They keep your existing `logo.png`, `script.js`, and `farm.mp4`, so on GitHub Pages the hero still plays the farm video, now with the warm theme + intro. The shovel-cursor styles are already folded into `style.css` here, so only the script is a new file.
+As of 2026-08-07 this repo holds the **design system and the customer-facing screens**. There is no application code and no API yet — that is the next phase, planned in [`03-docs/ENGINEERING_PLAN.md`](03-docs/ENGINEERING_PLAN.md).
 
-### 03-docs/ — project documentation
-- **FarmersHub_SDLC_Working_Model.md** — team + 7-phase process + status.
-- **design-spec_marketplace-detail-basket.md** — shopping-screen design record.
-- **CHANGELOG.md** — progress log.
+One warm editorial identity runs across every screen: paper `#F1EBDC`, ink `#1B1915`, red `#BE3A2B`, gold `#C9A24A`, Instrument Serif + Inter.
 
-## View vs. ship
-- **To see it:** open anything in `01-home/`, or `02-entrance-login/index.html` (or the preview). Keep the folder structure — those pages load `assets/shovel-cursor.*` from a sibling folder.
-- **To ship it:** commit `02-entrance-login/to-commit/index.html`, `style.css`, and `shovel-cursor.js` into your repo root.
+## Layout
 
-## Repo
-`github.com/CapstoneDesign-Spring2026-UlsanCollege/farmershub` — entrance/login lives in `index.html` + `style.css`; the home + shopping pages here are the redesign, not yet wired into the multi-page frontend (next step).
+| Path | What it is |
+|---|---|
+| `index.html` | **What GitHub Pages serves.** Self-contained entrance: intro animation → hero → login. Loads only `assets/`. |
+| `01-home/farmershub_home_v3.html` | Cinematic home page — animated wheat field, parallax scroll, cow portrait. |
+| `01-home/farmershub_shopping_flow.html` | Marketplace → product detail → basket as one clickable flow with a live basket (KRW). |
+| `02-entrance-login/index.html` | The same entrance as the root, but referencing `../assets/`. Source of the root copy. |
+| `02-entrance-login/login_reskin_preview.html` | Quick preview of the reskinned login card. |
+| `02-entrance-login/to-commit/` | **Reference only — not wired up.** A drop-in kit built for the pre-reset repo layout. |
+| `assets/` | Shared vector shovel cursor (`.css` + `.js`) and the previous raster sprite. |
+| `03-docs/` | Working model, engineering plan, design spec, changelog, decision records. |
+| `logo.png` | The farmer/harvest emblem. |
+
+## Running it
+
+Everything is static — no build, no dependencies. Open any HTML file directly in a browser.
+
+The pages load `assets/shovel-cursor.*` as a sibling, so **keep the folder structure**. If you open a file from `01-home/` or `02-entrance-login/` the relative paths resolve; the root `index.html` uses `assets/` directly.
+
+For a local server (some browsers restrict local file loads):
+
+```bash
+python -m http.server 8000
+```
+
+## Known gaps
+
+- `02-entrance-login/to-commit/index.html` references `farm.mp4` and `script.js`, which no longer exist in this repository. Its `style.css` is still useful — it is the design system expressed as a modular stylesheet, and it is the intended starting point for the component port in Milestone 1.
+- There is no backend, no persistence and no real authentication. The login is UI only.
+- The basket is in-memory and resets on reload.
+
+## Where to start reading
+
+1. [`03-docs/ENGINEERING_PLAN.md`](03-docs/ENGINEERING_PLAN.md) — where the project stands and what happens next.
+2. [`03-docs/FarmersHub_SDLC_Working_Model.md`](03-docs/FarmersHub_SDLC_Working_Model.md) — how work is run.
+3. [`03-docs/design-spec_marketplace-detail-basket.md`](03-docs/design-spec_marketplace-detail-basket.md) — the design tokens and screen specs.
+4. [`03-docs/CHANGELOG.md`](03-docs/CHANGELOG.md) — what changed, newest first.
+
+---
+
+Copyright © 2026 TAMANG SONAM. See the ownership notice for terms.

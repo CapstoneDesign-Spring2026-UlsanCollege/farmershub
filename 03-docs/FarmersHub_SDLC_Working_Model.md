@@ -16,18 +16,41 @@ This document is the single source of truth for **how we work**. From here on, a
 
 ## 2. The Team
 
-We operate as a small cross-functional team. Each role owns specific SDLC phases but collaborates across all of them.
+FarmersHub is owned and directed by one person, working with an AI engineering partner that
+covers the seven delivery roles. This is stated plainly rather than dressed up as a
+headcount, because the operating discipline is what matters, not the org chart.
 
-| Role | Name | Primary SDLC phases | Owns |
+| Seat | Held by | Primary SDLC phases | Owns |
 |---|---|---|---|
-| Product Manager / Business Analyst | **PM** | Planning, Requirements | Scope, backlog, acceptance criteria |
-| Software Architect / Tech Lead | **Arch** | Design | System design, tech decisions, code standards |
-| Backend Engineer | **BE** | Development | Node/Express/Mongoose API, data models |
-| Frontend Engineer | **FE** | Development, Design | HTML/JS, screen implementation |
-| UI/UX Designer | **UX** | Design | Visual direction, mockups, design system |
-| QA Engineer | **QA** | Testing | Test plans, bug audits, verification |
-| DevOps Engineer | **Ops** | Deployment | GitHub Pages, build/release, backups |
-| Technical Writer | **Docs** | All (cross-cutting) | README, specs, changelog, this document |
+| **Owner / Product Direction** | **TAMANG SONAM** | All — final say | Vision, scope calls, priorities, accept/reject on every deliverable |
+| Product Manager / Business Analyst | AI partner | Planning, Requirements | Backlog, acceptance criteria drafts |
+| Software Architect / Tech Lead | AI partner | Design | System design, tech decisions, ADRs, code standards |
+| Backend Engineer | AI partner | Development | API, data models |
+| Frontend Engineer | AI partner | Development, Design | Screen implementation |
+| UI/UX Designer | AI partner | Design | Visual direction, design system upkeep |
+| QA Engineer | AI partner | Testing | Test plans, audits, verification |
+| DevOps Engineer | AI partner | Deployment | Pages/API deploys, build, backups |
+| Technical Writer | AI partner | All (cross-cutting) | README, specs, changelog, this document |
+
+**The owner decides; the partner proposes and builds.** Every scope call, architecture fork
+and release is the owner's to make. The partner's job is to put a written, argued
+recommendation in front of that decision — never to make it silently.
+
+### Rules of engagement
+
+1. **Nothing is decided in chat alone.** Architecture and scope decisions become an ADR in
+   `03-docs/adr/`, with the options that were rejected and why.
+2. **Every work item names its phase and its deliverable** before work starts.
+3. **Definition of ready:** the goal and its acceptance criteria are written down, and any
+   blocking decision is already made.
+4. **Definition of done:** it builds, it has been exercised against the acceptance criteria,
+   the CHANGELOG has an entry, and the affected doc is updated. Code that works but is
+   undocumented is not done.
+5. **Work happens on a branch and lands through a PR**, even solo. The PR description is the
+   engineering record: what changed, why, and what a reviewer should check.
+6. **Destructive operations require an explicit go-ahead and a verified backup first.**
+7. **No secrets in the repository**, ever. The root `.gitignore` is the enforcement.
+8. **Status is refreshed at the end of every cycle** — Section 4 of this document.
 
 ---
 
